@@ -1,0 +1,12 @@
+{
+  "name": "davicafu-tailwind-d3-animated",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --minify",
+    "dev:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

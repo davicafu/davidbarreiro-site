@@ -1,0 +1,315 @@
+{ "meta": { "theme": "stackoverflow" },
+  "basics": {
+    "name": "David Barreiro Salgueiro",
+    "label": "Senior Software Engineer | Distributed Systems · Data Platforms · Streaming",
+    "image": "https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif",
+    "email": "david.barreiro@outlook.es",
+    "phone": "+34 670 308 697",
+    "location": {
+      "city": "A Coruña",
+      "countryCode": "ES"
+    },
+    "summary": "Senior Software Engineer with hands-on experience designing and building scalable platforms, distributed systems and real-time data solutions.\n\nMy background combines backend engineering, data infrastructure and cloud-native platforms. I have worked with Kafka, Spark(Python), ClickHouse, Kubernetes, Docker and modern CI/CD environments, delivering reliable systems for demanding workloads.\n\nRecently focused on Golang for high-performance backend services and modern platform development.\nI enjoy simplifying complex problems, improving performance and building practical solutions that scale.\n\nCore areas include backend engineering with Go and Java, distributed systems, Kafka-based streaming architectures, cloud-native platforms, APIs, microservices and DevOps automation.",
+    "profiles": [{
+		"network": "Linkedin",
+		"username": "David Barreiro",
+		"url": "https://www.linkedin.com/in/david-barreiro-s/"
+	  },
+				 {
+		"network":"Github",
+		"username": "Personal projects",
+		"url": "https://github.com/davicafu"
+	  }]
+  },
+  "projects": [
+    {
+        "highlights": [
+          "Administration and optimization of a distributed database handling high-volume data transactions.",
+          "Ensured high availability and performance for a system processing millions of queries daily.",
+          "Developed and implemented ad-hoc software solutions to streamline data ingestion and processing.",
+          "Managed large-scale data loading from external enterprise systems such as DB2, SQL Server, and AS/400.",
+          "Enhanced query performance and data retrieval speed using indexing strategies and query optimization techniques.",
+          "Maintained a medium-sized cluster (100-200 servers) for data storage and parallel processing.",
+          "Collaborated in the management of a SLURM cluster to optimize computing resources for large-scale queries."
+        ],
+        "description": "Contributed to administration and development of a distributed database solution for an international retail company, handling vast amounts of data across multiple servers. The project required high-performance query execution, optimized storage solutions, and integration with various external systems. By leveraging Java, MySQL, and Linux, the team ensured seamless data processing and reliability in a complex, high-demand environment.",
+        "name": "Administration and development of distributed database solutions.",
+        "startDate": "2015-02",
+        "endDate": "2019-03"
+    },
+    {
+        "highlights": [
+          "Designed and built a real-time data processing platform from the ground up.",
+          "Developed and maintained Docker images for a scalable and reproducible infrastructure.",
+          "Implemented Kafka-based message streaming to handle data ingestion from multiple external sources.",
+          "Developed custom data processing solutions using Scala and Spark to ensure efficient real-time analytics.",
+          "Designed and deployed visualization dashboards in Kibana for monitoring and insights.",
+          "Established automated deployment processes to streamline platform scalability and maintenance."
+        ],
+        "description": "Led the development of a real-time data processing platform from scratch, integrating Kafka, Spark, and Elastic for high-performance data ingestion and analysis. The project required designing a robust architecture capable of handling continuous data streams while ensuring scalability and reliability. By leveraging containerization, message streaming, and advanced data processing techniques, the platform provided valuable real-time insights and automation for large-scale data workflows.",
+        "name": "Development of a real-time data processing platform from scratch.",
+        "startDate": "2018-06",
+        "endDate": "2019-03"
+    }
+  ],
+  "work": [
+    {
+      "name": "SDG Group",
+      "position": "Senior Software Engineer",
+      "startDate": "2022-04",
+      "summary": "Designed and developed scalable real-time data platforms using Kafka, Spark and containerized environments.",
+      "tech": ["Spark", "Kafka","Go", "Grafana"],
+      "highlights": [
+        "Creation and maintenance of development images with Docker.",
+        "Message pipeline with Spark for data processing using Scala and Python.",
+        "Development of low-code solution for data exploration with KSQL.",
+        "Built backend services and internal tooling in Go and Java to improve operational efficiency.",
+        "Implementation of Kafka Connect, Debezium, DBT & Airflow for data processing.",
+        "Enhanced observability and reliability through Grafana dashboards, monitoring and automated deployments.",
+        "Contributed to architecture decisions, scalability and maintainability of critical systems."
+      ]
+    },
+    {
+      "name": "Altia",
+      "position": "Software Engineer",
+      "startDate": "2019-03",
+      "endDate": "2022-04",
+      "summary": "Delivered backend and data engineering solutions for enterprise analytics environments.",
+      "tech": ["Java", "Kafka", "Grafana"],
+      "highlights": [
+        "Developed microservices and APIs with Java / Spring Boot.",
+        "Implemented near real-time pipelines with Kafka Streams.",
+        "Built monitoring and observability systems with Prometheus.",
+        "Automated CI/CD and deployment workflows.",
+        "Improved reliability, scalability and operational efficiency."
+      ]
+    },
+    {
+      "name": "Emetel",
+      "position": "Software Engineer",
+      "startDate": "2018-06",
+      "endDate": "2019-03",
+      "summary": "Built and operated a real-time data processing platform using Kafka, Spark and Elastic Stack.",
+      "tech": ["Java", "Kafka", "Docker", "Elastic"],
+      "highlights": [
+        "Created and maintained Docker images for reproducible deployments.",
+        "Developed Java and Scala services for stream processing.",
+        "Implemented ingestion pipelines from multiple external sources.",
+        "Built Kibana dashboards for monitoring and analytics.",
+        "Automated deployment and operational processes."
+      ]
+    },
+    {
+      "name": "Indra Software Labs S.L.",
+      "position": "Junior Software Engineer",
+      "startDate": "2015-02",
+      "endDate": "2018-06",
+      "summary": "Managed and developed distributed database platforms for a multinational retail environment",
+      "tech": ["Java", "MariaDB", "Linux"],
+      "highlights": [
+        "Administered medium-sized clusters (100–200 servers) supporting large-scale data processing workloads.",
+        "Built internal tools for orchestration and platform operations.",
+        "Implemented ingestion processes from DB2, AS/400 and SQL Server systems.",
+        "Optimized data processing workflows based on MapReduce paradigms.",
+        "Improved platform stability, performance and operational efficiency.",
+        "Collaboration in the management of a SLURM cluster (SimpleLinuxUtiliyforResource Management)"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Santiago de Compostela University (USC)",
+      "area": "Computer Engineering",
+      "studyType": "Degree",
+      "startDate": "2008",
+      "endDate": "2014"
+    },
+    {
+      "institution": "International University of La Rioja (UNIR)",
+      "area": "Big Data and Visual Analytics",
+      "studyType": "Master",
+      "startDate": "2016",
+      "endDate": "2018"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Programming Languages",
+      "level": "Advanced",
+      "keywords": [
+                    {
+                      "name": "Go",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Java",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Bash",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Python",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Scala",
+                      "level": "Intermediate",
+                      "notes": ""
+                    }, "Spring Boot"]
+    },
+    {
+      "name": "Databases",
+      "level": "Advanced",
+      "keywords": [{
+                      "name": "PostgreSQL",
+                      "level": "Advanced",
+                      "notes": ""
+                    }, 
+                    {
+                      "name": "ClickHouse",
+                      "level": "Advanced",
+                      "certifications": [{
+                                          "name": "ClickHouse Certified Developer", 
+                                          "date": "2025-09-13", 
+                                          "issuer": "ClickHouse", 
+                                          "url": "https://www.credly.com/badges/09a51399-9a62-4619-9d6b-3096e2b8070c/linked_in?t=t2irdp"
+                                        }],
+                      "notes": "Expediction date: 2025-09-13"
+                    }, 
+                    {
+                      "name": "MariaDb",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Redis",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "MongoDB",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    "Snowflake"]
+    },
+    {
+      "name": "Data Processing",
+      "level": "Advanced",
+      "keywords": [
+                    {
+                      "name": "Kafka",
+                      "level": "Expert",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Flink",
+                      "level": "Intemediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Databricks",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Spark",
+                      "level": "Advanced",
+                      "notes": ""
+                    },"DBT", "Airflow"]
+    },
+    {
+      "name": "AI Engineering",
+      "level": "Intermediate",
+      "keywords": ["OpenSpec", "AI coding workflows", "Agentic Systems", "Tool orchestration", "MCP", "Model Interoperability", "Context Engineering", "Workflow Automation"]
+    },
+    {
+      "name": "Infra & DevOps",
+      "level": "Advanced",
+      "keywords": [
+                  {
+                      "name": "Docker",
+                      "level": "Expert",
+                      "notes": ""
+                    },
+                    {
+                      "name": "CI/CD (GitHub Actions, Jenkins, GitLab CI)",
+                      "level": "Advanced",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Kubernetes",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Terraform",
+                      "level": "Intermediate",
+                      "notes": ""
+                    }]
+    },
+    {
+      "name": "Cloud",
+      "level": "Intermediate",
+      "keywords": ["AWS", "Azure", "Google Cloud"]
+    },
+    {
+      "name": "Observability & Analytics",
+      "level": "Advanced",
+      "keywords": [
+                   {
+                      "name": "Grafana",
+                      "level": "Expert",
+                      "notes": ""
+                    },
+                    {
+                      "name": "OpenTelemetry",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Prometheus",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Superset",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Elastic (ELK)",
+                      "level": "Intermediate",
+                      "notes": ""
+                    },
+                    {
+                      "name": "Power BI",
+                      "level": "Intermediate",
+                      "notes": ""
+                    } ]
+    }
+  ],
+  "languages": [
+    {"language": "Spanish", "fluency": "Native speaker"},
+    {"language": "Galician", "fluency": "Native speaker"},
+    {"language": "English", "fluency": "Intermediate speaker"}
+  ],
+  "certificates": [
+    {
+      "name": "ClickHouse Certified Developer", 
+      "date": "2025-09-13", 
+      "issuer": "ClickHouse", 
+      "url": "https://www.credly.com/badges/09a51399-9a62-4619-9d6b-3096e2b8070c/linked_in?t=t2irdp"
+    },
+    {"name": "Oracle Database 11g: Performance Tuning", "date": "2016-10"},
+    {"name": "Cloudera: Developer Training for Spark & Hadoop", "date": "2017-06"},
+    {"name": "AWS Certified SysOps Administrator", "date": "2020-06"}
+  ]
+  
+}

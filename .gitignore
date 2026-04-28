@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build artifacts (si decides no versionarlos)
+# dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Optional env files
+.env
+.env.*
+
+# Tailwind compilation
+.dist

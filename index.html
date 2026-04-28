@@ -1,0 +1,1343 @@
+﻿<!doctype html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>David Barreiro Salgueiro · CV</title>
+<meta name="description" content="Interactive CV with Tailwind CSS, D3.js, and animations.">
+<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
+<link rel="manifest" href="./favicon/site.webmanifest">
+<link rel="stylesheet" href="./dist/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .75s ease, transform .75s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .glass {
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(148,163,184,.18);
+    backdrop-filter: blur(18px);
+  }
+
+  .gradient-text {
+    background: linear-gradient(90deg, #67e8f9, #a78bfa, #34d399, #67e8f9);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .spotlight {
+    position: fixed;
+    width: 420px;
+    height: 420px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(34,211,238,.13), transparent 65%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+  }
+
+  .tooltip {
+    position: fixed;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+    max-width: 320px;
+    padding: .85rem 1rem;
+    border-radius: 1rem;
+    background: rgba(2,6,23,.94);
+    border: 1px solid rgba(148,163,184,.25);
+    color: #e2e8f0;
+    box-shadow: 0 20px 70px rgba(0,0,0,.4);
+    transform: translate(-50%, calc(-100% - 18px));
+    transition: opacity .12s ease;
+  }
+
+  .tooltip small { color:#94a3b8; }
+
+  .timeline-bar,
+  .bubble,
+  .metric-card,
+  .skill-filter {
+    transition: filter .2s ease, transform .2s ease, opacity .2s ease, border-color .2s ease;
+  }
+
+  .timeline-bar:hover,
+  .bubble:hover {
+    filter: drop-shadow(0 0 18px rgba(34,211,238,.45));
+  }
+
+  .timeline-card {
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, opacity .25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .timeline-card:hover {
+    transform: none;
+    border-color: rgba(103, 232, 249, .55);
+    box-shadow: 0 14px 34px rgba(2, 6, 23, .45);
+  }
+
+  .timeline-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(120deg, rgba(34,211,238,.0), rgba(34,211,238,.32), rgba(34,211,238,.0));
+    transform: translateX(-120%);
+    transition: transform .55s ease;
+    pointer-events: none;
+  }
+
+  .timeline-card:hover::before {
+    transform: translateX(120%);
+  }
+
+  .skill-filter.active {
+    border-color: rgba(34,211,238,.75);
+    background: rgba(34,211,238,.1);
+    color: #cffafe;
+  }
+
+  .keyword-chip.active {
+    border-color: rgba(34,211,238,.75);
+    background: rgba(34,211,238,.12);
+    color: #cffafe;
+    box-shadow: 0 0 0 1px rgba(34,211,238,.2) inset;
+  }
+  .cert-badge {
+    display: inline-flex;
+    margin-left: .35rem;
+    padding: 0 .35rem;
+    border-radius: 999px;
+    font-size: .65rem;
+    line-height: 1.15rem;
+    font-weight: 700;
+    color: #082f49;
+    background: rgba(125, 211, 252, .92);
+    border: 1px solid rgba(186, 230, 253, .7);
+    vertical-align: middle;
+  }
+
+  svg text { user-select: none; }
+</style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden">
+<div class="spotlight" id="spotlight"></div>
+<div class="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.14),transparent_28rem),radial-gradient(circle_at_90%_20%,rgba(139,92,246,.14),transparent_30rem),linear-gradient(135deg,#020617,#0f172a_55%,#020617)]"></div>
+<div class="fixed inset-0 -z-10 opacity-[.08] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:52px_52px]"></div>
+
+<header class="max-w-7xl mx-auto px-6 py-8">
+  <nav class="reveal flex flex-wrap items-center justify-between gap-5 mb-14">
+    <div class="text-sm text-slate-400">davidbarreiro.dev</div>
+    <div class="flex gap-6 text-slate-400 text-sm">
+      <a href="#experience" class="hover:text-cyan-300 transition">Experience</a>
+      <a href="#skills" class="hover:text-cyan-300 transition">Skills</a>
+      <a href="#portfolio" class="hover:text-cyan-300 transition">Portfolio</a>
+      <a href="#contact" class="hover:text-cyan-300 transition">Contact</a>
+    </div>
+  </nav>
+
+  <section class="grid lg:grid-cols-3 gap-8 items-center min-h-[72vh]">
+    <div class="lg:col-span-2 reveal">
+      <p id="hero-kicker" class="uppercase tracking-[0.28em] text-cyan-300 text-xs font-black mb-4">Senior Software Engineer | Distributed Systems · Data Platforms · Streaming</p>
+      <h1 class="text-5xl md:text-8xl font-black leading-none tracking-tight mb-7">
+        <span id="hero-name">David Barreiro</span><br><span id="hero-surname" class="gradient-text animate-gradient">Salgueiro</span>
+      </h1>
+      <p id="hero-summary" class="text-xl md:text-2xl text-slate-300 max-w-3xl leading-relaxed">
+        I build real-time data platforms, automate deployments,
+        and deliver pragmatic solutions for complex systems.
+      </p>
+      <div class="flex flex-wrap gap-3 mt-9">
+        <a id="hero-email-link" class="group relative overflow-hidden px-6 py-3 rounded-full bg-cyan-300 text-slate-950 font-black shadow-glow" href="mailto:david.barreiro@outlook.es">
+          <span class="relative z-10">Contact</span>
+          <span class="absolute inset-y-0 left-0 w-1/2 bg-white/40 animate-shimmer"></span>
+        </a>
+        <a id="hero-github-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://github.com/davicafu" target="_blank" rel="noreferrer">GitHub</a>
+        <a id="hero-linkedin-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://www.linkedin.com/in/david-barreiro-a9370657/" target="_blank" rel="noreferrer">LinkedIn</a>
+      </div>
+    </div>
+
+    <aside class="reveal glass rounded-[2rem] p-6 shadow-glow animate-float">
+      <img
+        src="https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif"
+        alt="David Barreiro Salgueiro"
+        class="w-28 h-28 rounded-[1.7rem] object-cover mb-7 border border-white/20"
+        onerror="this.outerHTML='<div class=&quot;w-28 h-28 rounded-[1.7rem] bg-gradient-to-br from-cyan-300 to-violet-500 text-slate-950 font-black text-4xl grid place-items-center mb-7&quot;>DB</div>'"
+      >
+      <div class="grid grid-cols-2 gap-4">
+        <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p class="text-slate-400 text-xs">Experience</p>
+          <p class="text-2xl font-black counter" data-target="10">0</p>
+        </div>
+        <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p class="text-slate-400 text-xs">Domain</p>
+          <p class="font-bold">Microservices · Data Pipelines</p>
+        </div>
+        <div class="col-span-2 rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p class="text-slate-400 text-xs">Focus</p>
+          <p class="font-bold">System Design · Cloud-Native</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 pb-28 space-y-24">
+  <section class="reveal grid md:grid-cols-3 gap-5">
+
+    <div class="glass rounded-3xl p-6">
+      <p class="text-emerald-300 text-sm font-bold">Backend</p>
+      <h3 class="text-2xl font-black mt-2">Hexagonal · DDD · Event-Driven</h3>
+      <p class="text-slate-400 mt-3">
+        Domain-centric design, decoupled architectures, and scalable distributed systems focused on long-term maintainability.
+      </p>
+    </div>
+
+    <div class="glass rounded-3xl p-6">
+      <p class="text-violet-300 text-sm font-bold">Data</p>
+      <h3 class="text-2xl font-black mt-2">Batch & Stream · High Throughput · Scalability</h3>
+      <p class="text-slate-400 mt-3">
+        Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.
+      </p>
+    </div>
+
+    <div class="glass rounded-3xl p-6">
+      <p class="text-cyan-300 text-sm font-bold">Platform</p>
+      <h3 class="text-2xl font-black mt-2">High Availability · Automation · Observability</h3>
+      <p class="text-slate-400 mt-3">
+        Building resilient infrastructure, streamlining operations, and providing deep insights into system performance.
+      </p>
+    </div>
+
+  </section>
+
+  <section id="experience" class="reveal">
+    <div class="mb-8">
+      <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">Timeline</p>
+      <h2 class="text-4xl md:text-5xl font-black">Professional experience</h2>
+    </div>
+    <div class="glass rounded-[2rem] p-6">
+      <div id="timeline"></div>
+    </div>
+  </section>
+
+  <section id="skills" class="grid lg:grid-cols-2 gap-8 items-start">
+    <div class="reveal">
+      <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">Skills</p>
+      <h2 class="text-4xl md:text-5xl font-black mb-5">Stack technology</h2>
+      <p class="text-slate-400 leading-relaxed text-lg">
+        Skills are grouped by category. Click a legend category,
+        a large topic bubble, or a specific skill to filter and highlight the stack.
+      </p>
+      <div id="legend" class="flex flex-wrap gap-2 mt-6"></div>
+      <div id="skill-keywords" class="mt-5 rounded-2xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-300">
+        <strong class="text-cyan-300">Tip:</strong> select a category to view its keywords.
+      </div>
+    </div>
+    <div class="reveal glass rounded-[2rem] p-6">
+      <div id="bubbles"></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <div class="mb-8">
+      <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">System Design</p>
+      <h2 class="text-4xl md:text-5xl font-black">How I design data platforms</h2>
+    </div>
+    <div class="glass rounded-[2rem] p-6">
+      <div id="flow"></div>
+    </div>
+  </section>
+
+  <section id="portfolio" class="reveal">
+    <div class="mb-8">
+      <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">Portfolio</p>
+      <h2 class="text-4xl md:text-5xl font-black">Personal projects & technical work</h2>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+      <article class="glass rounded-[2rem] p-7 hover:-translate-y-2 hover:border-cyan-300/60 transition duration-300">
+        <h3 class="text-2xl font-black mb-3">Real-time Processing Platform</h3>
+        <p class="text-slate-400 leading-relaxed">Kafka + Spark + Elastic stack para análisis en tiempo real, observabilidad y explotación de datos.</p>
+        <div class="flex flex-wrap gap-2 mt-5">
+          <span class="px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-200 text-sm">Kafka</span>
+          <span class="px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-200 text-sm">Spark</span>
+          <span class="px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-200 text-sm">Elastic</span>
+        </div>
+      </article>
+      <article class="glass rounded-[2rem] p-7 hover:-translate-y-2 hover:border-violet-300/60 transition duration-300">
+        <h3 class="text-2xl font-black mb-3">Distributed Database Solutions</h3>
+        <p class="text-slate-400 leading-relaxed">Enterprise environments with hundreds of nodes, tuning, automation, and distributed platform operations.</p>
+        <div class="flex flex-wrap gap-2 mt-5">
+          <span class="px-3 py-1 rounded-full bg-violet-300/10 text-violet-200 text-sm">Java</span>
+          <span class="px-3 py-1 rounded-full bg-violet-300/10 text-violet-200 text-sm">MySQL</span>
+          <span class="px-3 py-1 rounded-full bg-violet-300/10 text-violet-200 text-sm">Linux</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="contact" class="reveal glass rounded-[2rem] p-8 text-center">
+    <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">Contact</p>
+    <h2 class="text-4xl md:text-5xl font-black mt-3">Let's build something with data</h2>
+    <p class="text-slate-400 mt-4">Available for data engineering, streaming platforms, and software architecture.</p>
+    <a class="inline-flex mt-7 px-6 py-3 rounded-full bg-cyan-300 text-slate-950 font-black" href="mailto:david.barreiro@outlook.es">david.barreiro@outlook.es</a>
+  </section>
+</main>
+
+<footer class="max-w-7xl mx-auto px-6 py-10 text-slate-400 border-t border-slate-800">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <p class="text-sm">
+      © <span id="year"></span> David Barreiro Salgueiro · Software Engineer
+    </p>
+    <div class="flex flex-wrap items-center gap-4 text-sm">
+      <a href="mailto:david.barreiro@outlook.es" class="hover:text-cyan-300 transition">Email</a>
+      <a href="https://github.com/davicafu" target="_blank" rel="noreferrer" class="hover:text-cyan-300 transition">GitHub</a>
+      <a href="https://www.linkedin.com/in/david-barreiro-s/" target="_blank" rel="noreferrer" class="hover:text-cyan-300 transition">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CURRENT_YEAR = new Date().getFullYear();
+const palette = ["#7dd3fc", "#86efac", "#c4b5fd", "#fde68a", "#fdba74", "#fda4af", "#bef264", "#f9a8d4"];
+const categoryColorMap = {
+  "programming languages": "#93c5fd",
+  "databases": "#86efac",
+  "data processing": "#c4b5fd",
+  "ai engineering": "#fde68a",
+  "infra & devops": "#fdba74",
+  "cloud": "#fda4af",
+  "analysis & visualization": "#bef264",
+  "analysis y visualization": "#bef264",
+  "observability": "#bef264"
+};
+
+let resumeData = null;
+let jobs = [];
+let skillGroups = [];
+let flow = [];
+
+const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+
+const y = document.getElementById("year");
+  if (y) y.textContent = new Date().getFullYear();
+  
+function showTip(event, html, below = false) {
+  tooltip.html(html).style("left", event.clientX + "px").style("top", event.clientY + "px").style("opacity", 1);
+  tooltip.style("transform", below ? "translate(-50%, 18px)" : "translate(-50%, calc(-100% - 18px))");
+}
+
+function hideTip() { tooltip.style("opacity", 0); }
+function safeText(value, fallback = "") { return typeof value === "string" && value.trim() ? value.trim() : fallback; }
+function isHttpUrl(value) {
+  return typeof value === "string" && /^https?:\/\//i.test(value.trim());
+}
+function normalizeKeywordItem(item) {
+  const normalizeCert = cert => {
+    if (typeof cert === "string") {
+      return isHttpUrl(cert)
+        ? { name: "Credential", url: cert }
+        : { name: cert, url: "" };
+    }
+    if (cert && typeof cert === "object") {
+      return {
+        name: safeText(cert.name, safeText(cert.title, "Certification")),
+        url: safeText(cert.url, "")
+      };
+    }
+    return null;
+  };
+
+  if (typeof item === "string") return { name: item, level: "", certifications: [], notes: "" };
+  if (item && typeof item === "object") {
+    let certs = [];
+    if (Array.isArray(item.certifications)) {
+      const raw = item.certifications;
+      for (let i = 0; i < raw.length; i += 1) {
+        const current = raw[i];
+        if (typeof current === "string" && !isHttpUrl(current)) {
+          const next = raw[i + 1];
+          if (typeof next === "string" && isHttpUrl(next)) {
+            certs.push({ name: current, url: next });
+            i += 1;
+            continue;
+          }
+        }
+        const normalized = normalizeCert(current);
+        if (normalized) certs.push(normalized);
+      }
+    }
+    return {
+      name: safeText(item.name, safeText(item.keyword, "Skill")).replace(/\*+\s*$/, ""),
+      level: safeText(item.level, ""),
+      certifications: certs,
+      notes: safeText(item.notes, safeText(item.summary, ""))
+    };
+  }
+  return { name: "Skill", level: "", certifications: [], notes: "" };
+}
+function parseDateToYear(value, fallbackYear = CURRENT_YEAR) {
+  if (!value) return fallbackYear;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return fallbackYear;
+  return parsed.getFullYear() + parsed.getMonth() / 12;
+}
+
+function deriveFlow(skills) {
+  const allKeywords = skills.flatMap(group => group.keywords || []);
+  const has = term => allKeywords.some(k => {
+    const name = typeof k === "string" ? k : (k?.name || "");
+    return name.toLowerCase().includes(term.toLowerCase());
+  });
+  return [
+    {
+      name: "Sources",
+      detail: "Upstream applications, APIs, transactional databases, and event producers.",
+      impact: "Decoupled entry points designed to enforce evolvable domain data contracts.",
+      tech: ["Apps", "APIs", "DBs", "CDC / Agents"] // Cambiado "Agents" por "CDC / Agents" (Change Data Capture es clave aquí)
+    },
+    {
+      name: "Ingestion",
+      detail: "Reliable data intake and continuous event collection.",
+      impact: "Backpressure-aware ingestion layer with replay-friendly patterns for fault tolerance.",
+      tech: [has("kafka") ? "Kafka" : "Message Queues", has("connect") ? "Kafka Connect" : "Connectors", "REST / gRPC"]
+    },
+    {
+      name: "Streaming Backbone",
+      detail: "Centralized event backbone for real-time data distribution.",
+      impact: "Topic-driven architecture enabling schema governance and fully decoupled microservices.",
+      tech: ["Kafka Topics", "Schema", "Event Bus"]
+    },
+    {
+      name: "Processing",
+      detail: "Real-time transformation, enrichment, and stateful aggregation.",
+      impact: "Low-latency processing with deterministic, scalable, and testable pipelines.",
+      tech: ["Go Workers", has("flink") ? "Flink" : "Streaming Engines", has("spark") ? "Spark" : "Scala / Python"]
+    },
+    {
+      name: "Storage & Serving", // Cambiado "/" por "&" (más estándar en UI)
+      detail: "Analytical (OLAP) and operational (OLTP) data serving layers.",
+      impact: "Optimized serving layer for high-concurrency reads and deep operational visibility.",
+      tech: [has("postgres") ? "PostgreSQL" : "Relational DB", has("clickhouse") ? "ClickHouse" : "Analytics DB", "Elasticsearch"] // "Elasticsearch" en lugar de "Elastic" para ser más precisos
+    },
+    {
+      name: "Consumers & Observability", // Invertido el orden: suele ser más importante el consumidor final
+      detail: "Data products, customer-facing APIs, alerts, and system monitoring.",
+      impact: "Unified operational insights and product consumption from a single reliable data plane.",
+      tech: ["Grafana", "Data APIs", "Dashboards", "Metrics / Logs"]
+    }
+  ];
+}
+
+function mapResumeToViewModel(data) {
+  const basics = data.basics || {};
+  const work = Array.isArray(data.work) ? data.work : [];
+  const skills = Array.isArray(data.skills) ? data.skills : [];
+  const portfolio = Array.isArray(data.portfolio) ? data.portfolio : [];
+
+  jobs = work.map(entry => ({
+    company: safeText(entry.name, "Empresa"),
+    role: safeText(entry.position, "Software Engineer"),
+    start: parseDateToYear(entry.startDate, CURRENT_YEAR - 1),
+    end: parseDateToYear(entry.endDate, CURRENT_YEAR),
+    text: safeText(entry.summary, "Contributions to data platform initiatives."),
+    highlights: Array.isArray(entry.highlights) ? entry.highlights.filter(Boolean) : [],
+    tech: Array.isArray(entry.tech) ? entry.tech.filter(Boolean) : []
+  })).sort((a, b) => a.start - b.start);
+
+  skillGroups = skills.map((entry, i) => {
+    const name = safeText(entry.name, `Skill Group ${i + 1}`);
+    const key = name.toLowerCase().trim();
+    return {
+      name,
+      level: safeText(entry.level, "Intermediate"),
+      color: categoryColorMap[key] || palette[i % palette.length],
+      keywords: Array.isArray(entry.keywords) ? entry.keywords.map(normalizeKeywordItem) : []
+    };
+  });
+
+  flow = deriveFlow(skillGroups);
+  return { basics, portfolio };
+}
+
+function renderHeader(basics) {
+  const fullName = safeText(basics.name, "David Barreiro Salgueiro").split(" ");
+  const firstName = fullName.shift() || "David";
+  const surname = fullName.join(" ") || "Barreiro Salgueiro";
+
+  const kicker = document.getElementById("hero-kicker");
+  const nameEl = document.getElementById("hero-name");
+  const surnameEl = document.getElementById("hero-surname");
+  const summary = document.getElementById("hero-summary");
+  const ctaMail = document.getElementById("hero-email-link");
+  const githubLink = document.getElementById("hero-github-link");
+  const linkedinLink = document.getElementById("hero-linkedin-link");
+  const profileImage = document.querySelector("aside img");
+
+  if (kicker) kicker.textContent = `${safeText(basics.label, "Senior Software Engineer | Distributed Systems · Data Platforms · Streaming")}`;
+  if (nameEl) nameEl.textContent = firstName;
+  if (surnameEl) surnameEl.textContent = surname;
+  if (summary) summary.textContent = safeText(basics.summary, "I build real-time data platforms and deliver pragmatic solutions for complex systems.");
+
+  if (profileImage && basics.image) { profileImage.src = basics.image; profileImage.alt = safeText(basics.name, "Profile"); }
+
+  const email = safeText(basics.email, "david.barreiro@outlook.es");
+  if (ctaMail) ctaMail.href = `mailto:${email}`;
+
+  const contactSectionMail = document.querySelector("#contact a[href^='mailto:']");
+  if (contactSectionMail) { contactSectionMail.href = `mailto:${email}`; contactSectionMail.textContent = email; }
+
+  const profiles = Array.isArray(basics.profiles) ? basics.profiles : [];
+  const github = profiles.find(p => safeText(p.network).toLowerCase().includes("github"));
+  const linkedin = profiles.find(p => safeText(p.network).toLowerCase().includes("linkedin"));
+  if (github?.url && githubLink) githubLink.href = github.url;
+  if (linkedin?.url && linkedinLink) linkedinLink.href = linkedin.url;
+}
+
+function renderMetrics(basics = {}, meta = {}) {
+  const cards = document.querySelectorAll("aside .metric-card .counter");
+  const focus = document.querySelector("aside .col-span-2 .font-bold");
+  const firstStart = jobs.length ? Math.min(...jobs.map(j => j.start)) : CURRENT_YEAR;
+  const years = Math.max(1, Math.round(CURRENT_YEAR - firstStart));
+  const stacks = skillGroups.length;
+  //const topFocus = safeText(basics.focus, safeText(meta.focus, "Data Engineering"));
+  if (cards[0]) cards[0].dataset.target = years;
+  if (cards[1]) cards[1].dataset.target = stacks;
+  //if (focus) focus.textContent = topFocus;
+}
+
+function renderProjects(portfolio) {
+  const grid = document.querySelector("#portfolio .grid");
+  if (!grid) return;
+  const fallbackPortfolio = [
+    {
+      name: "HexagoLab",
+      description: "Personal platform for experimenting with APIs, gateway patterns, authentication, OpenShift deployments, and backend architecture.",
+      highlights: ["APIs", "OpenShift", "Architecture"]
+    },
+    {
+      name: "Board Game Automation / AI Bots",
+      description: "Rule-based automata and decision systems for board games, focused on solo play, bot behavior, and tactical prioritization.",
+      highlights: ["AI Bots", "Automation", "Decision Systems"]
+    },
+    {
+      name: "Data Platform Playground",
+      description: "Sandbox for Kafka, stream processing, observability, ingestion patterns, and scalable data-serving architectures.",
+      highlights: ["Kafka", "Streaming", "Observability"]
+    },
+    {
+      name: "Technical Writing / Architecture Notes",
+      description: "Short articles, diagrams, and implementation notes about backend systems, streaming, APIs, and platform engineering.",
+      highlights: ["System Design", "Backend", "Documentation"]
+    }
+  ];
+
+  const list = (portfolio && portfolio.length ? portfolio : fallbackPortfolio).slice(0, 4);
+  grid.innerHTML = list.map((project, index) => {
+    const tags = (project.highlights || []).slice(0, 3);
+    const borderClass = index % 2 === 0 ? "hover:border-cyan-300/60" : "hover:border-violet-300/60";
+    const chipClass = index % 2 === 0 ? "bg-cyan-300/10 text-cyan-200" : "bg-violet-300/10 text-violet-200";
+    return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, "Project")}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, "Technical personal project.")}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map(tag => `<span class=\"px-3 py-1 rounded-full ${chipClass} text-sm\">${safeText(tag).slice(0, 38)}</span>`).join("")}</div></article>`;
+  }).join("");
+}
+
+function revealOnScroll() {
+  const items = document.querySelectorAll(".reveal");
+  const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("visible"); }); }, { threshold: .15 });
+  items.forEach((el, i) => { el.style.transitionDelay = `${Math.min(i * 70, 280)}ms`; observer.observe(el); });
+}
+
+function counters() {
+  const els = document.querySelectorAll(".counter");
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = +el.dataset.target;
+      if (reducedMotion) { el.textContent = target + "+"; return; }
+      d3.select(el).transition().duration(1100).tween("text", function() { const i = d3.interpolateNumber(0, target); return t => this.textContent = Math.round(i(t)) + "+"; });
+      obs.unobserve(el);
+    });
+  });
+  els.forEach(el => obs.observe(el));
+}
+
+function spotlight() {
+  const s = document.getElementById("spotlight");
+  window.addEventListener("mousemove", e => { s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px"; });
+}
+
+function renderLegend() {
+  const root = document.getElementById("legend");
+  root.innerHTML = skillGroups.map(group => `<button type=\"button\" class=\"skill-filter inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-slate-800 text-sm text-slate-300 hover:border-cyan-300 transition\" data-group=\"${group.name}\"><span class=\"w-2.5 h-2.5 rounded-full\" style=\"background:${group.color}\"></span>${group.name}</button>`).join("");
+}
+
+function setActiveLegend(groupName) { document.querySelectorAll(".skill-filter").forEach(button => { button.classList.toggle("active", button.dataset.group === groupName); }); }
+function clearActiveLegend() { document.querySelectorAll(".skill-filter").forEach(button => { button.classList.remove("active"); }); }
+
+function renderKeywordsPanel(group, selectedKeywordName = "") {
+  const panel = document.getElementById("skill-keywords");
+  if (!panel) return;
+  if (!group) {
+    panel.innerHTML = `<strong class="text-cyan-300">Tip:</strong> select a category to view its keywords.`;
+    return;
+  }
+
+  const selected = group.keywords.find(k => k.name === selectedKeywordName);
+  const renderCerts = certs => certs.map(cert => {
+    if (!cert?.name) return "";
+    if (!cert.url) return cert.name;
+    return `<a class="text-cyan-300 underline decoration-cyan-500/50 hover:text-cyan-200" href="${cert.url}" target="_blank" rel="noreferrer">${cert.name}</a>`;
+  }).filter(Boolean).join(", ");
+
+  const detail = selected ? `
+    <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/65 p-3 text-xs text-slate-300">
+      ${selected.level ? `<p class="text-slate-400 mt-1">Level: <span class="text-slate-200">${selected.level}</span></p>` : ""}
+      ${selected.certifications.length ? `<p class="text-slate-400 mt-1">Certifications: <span class="text-slate-200">${renderCerts(selected.certifications)}</span></p>` : ""}
+      ${selected.notes ? `<p class="text-slate-400 mt-2">${selected.notes}</p>` : ""}
+    </div>
+  ` : "";
+
+  panel.innerHTML = `
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-3 h-3 rounded-full" style="background:${group.color}"></span>
+      <strong class="text-white">${group.name}</strong>
+      <span class="text-slate-500">· ${group.level}</span>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      ${group.keywords.map(k => `<button type="button" data-group="${group.name}" data-keyword="${k.name}" class="keyword-chip px-2 py-1 rounded-full bg-white/5 border border-slate-800 hover:border-cyan-300/70 transition">${k.name}${k.certifications?.length ? '<span class="cert-badge">CERT</span>' : ""}</button>`).join("")}
+    </div>
+    ${detail}
+  `;
+}
+
+function timeline(){
+  const el = document.getElementById("timeline");
+  el.innerHTML = "";
+  const w = el.clientWidth || 980;
+  const isMobile = w < 820;
+  const minYear = Math.floor(d3.min(jobs, d => d.start) || 2015);
+  const maxYear = Math.ceil(d3.max(jobs, d => d.end) || CURRENT_YEAR);
+  const trackY = 56;
+  const cardsTopOffset = 76;
+  const cardW = isMobile ? Math.min(w - 28, 440) : 320;
+  const cardH = 154;
+  const rowGap = 22;
+  const cardXMin = 14;
+  const cardXMax = w - cardW - 14;
+  const rowMinGap = 14;
+  const x = d3.scaleLinear().domain([minYear, maxYear]).range([30, w - 30]);
+
+  const clampCardX = cx => Math.max(cardXMin, Math.min(cardXMax, cx - cardW / 2));
+  const placedRows = [];
+  const placed = jobs
+    .slice()
+    .sort((a, b) => a.start - b.start)
+    .map((job) => {
+      const cx = x((job.start + job.end) / 2);
+      const left = clampCardX(cx);
+      const right = left + cardW;
+      let row = 0;
+      while (placedRows[row] !== undefined && placedRows[row] + rowMinGap > left) row += 1;
+      placedRows[row] = right;
+      return { ...job, row, cx, left, right };
+    });
+
+  function extractTech(text) {
+    const known = ["Kafka", "Spark", "Flink", "ClickHouse", "Elastic", "Grafana", "DBT", "Airflow", "Go", "Java", "Docker", "Kubernetes", "Python", "Scala"];
+    const hits = known.filter(t => text.toLowerCase().includes(t.toLowerCase()));
+    return hits.slice(0, 4);
+  }
+
+  const totalRows = d3.max(placed, d => d.row) + 1;
+  const h = trackY + cardsTopOffset + totalRows * (cardH + rowGap) + 84;
+  const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
+
+  svg.append("line")
+    .attr("x1", x(minYear))
+    .attr("x2", x(maxYear))
+    .attr("y1", trackY)
+    .attr("y2", trackY)
+    .attr("stroke", "rgba(103,232,249,.45)")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "6 8");
+
+  svg.append("g")
+    .attr("transform", `translate(0,${trackY + 18})`)
+    .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(Math.min(9, Math.max(4, maxYear - minYear + 1))))
+    .call(g => g.selectAll("text").attr("fill", "#94a3b8").attr("font-size", 11))
+    .call(g => g.selectAll("path,line").attr("stroke", "rgba(148,163,184,.22)"));
+
+  const nodes = svg.selectAll(".timeline-node")
+    .data(placed)
+    .join("g")
+    .attr("class", "timeline-node")
+    .attr("transform", d => `translate(${d.cx},${trackY})`);
+
+  nodes.append("circle")
+    .attr("r", 0)
+    .attr("fill", (d, i) => palette[i % palette.length])
+    .attr("stroke", "rgba(255,255,255,.45)")
+    .attr("stroke-width", 1.2)
+    .transition()
+    .duration(reducedMotion ? 0 : 500)
+    .delay((d, i) => i * 90)
+    .attr("r", 6);
+
+  nodes.append("line")
+    .attr("x1", 0)
+    .attr("x2", 0)
+    .attr("y1", 8)
+    .attr("y2", d => cardsTopOffset + d.row * (cardH + rowGap) - (isMobile ? 10 : 2))
+    .attr("stroke", "rgba(103,232,249,.62)")
+    .attr("stroke-width", isMobile ? 1.4 : 2)
+    .attr("stroke-linecap", "round")
+    .attr("stroke-dasharray", "5 7")
+    .attr("opacity", 0)
+    .transition()
+    .duration(reducedMotion ? 0 : 520)
+    .delay((d, i) => 120 + i * 80)
+    .attr("opacity", isMobile ? .55 : .95);
+
+  const cards = svg.selectAll(".timeline-card-group")
+    .data(placed)
+    .join("g")
+    .attr("class", "timeline-card-group")
+    .attr("transform", d => `translate(${d.left},${trackY + cardsTopOffset + d.row * (cardH + rowGap)})`)
+    .attr("opacity", 0)
+    .on("mousemove", (event, d) => {
+      if (isMobile) return;
+      const highlights = (d.highlights || []).slice(0, 5);
+      const highlightsHtml = highlights.length
+        ? `<p class="mt-2 text-slate-300"><small>${highlights.map(item => `• ${item}`).join("<br>")}</small></p>`
+        : "";
+      showTip(
+        event,
+        `<strong>${d.company}</strong><br><small>${d.role}</small>${highlightsHtml}`,
+        true
+      );
+    })
+    .on("mouseleave", () => {
+      if (!isMobile) hideTip();
+    });
+
+  cards.on("mouseenter", function() {
+      d3.select(this).select(".timeline-card")
+        .transition()
+        .duration(reducedMotion ? 0 : 180)
+        .style("box-shadow", "0 16px 38px rgba(8,47,73,.45)");
+    })
+    .on("mouseleave", function() {
+      d3.select(this).select(".timeline-card")
+        .transition()
+        .duration(reducedMotion ? 0 : 180)
+        .style("box-shadow", "0 14px 34px rgba(2, 6, 23, .45)");
+      if (!isMobile) hideTip();
+    });
+
+  cards.append("foreignObject")
+    .attr("x", -2)
+    .attr("y", -18)
+    .attr("width", cardW + 4)
+    .attr("height", cardH + 36)
+    .html(d => {
+      const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? "Present" : Math.floor(d.end)}`;
+      const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
+      return `
+        <div class="timeline-card h-full rounded-2xl border border-slate-800 bg-slate-950/78 p-4 text-slate-200">
+          <div class="flex items-center justify-between gap-3">
+            <p class="font-black text-white text-sm">${d.company}</p>
+            <span class="text-xs text-slate-400">${period}</span>
+          </div>
+          <p class="text-sm text-cyan-200 mt-1">${d.role}</p>
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed">${d.text}</p>
+          <div class="flex flex-wrap gap-1.5 mt-3">
+            ${chips.map(chip => `<span class="px-2 py-0.5 rounded-full border border-slate-700 bg-white/5 text-[10px] text-slate-300">${chip}</span>`).join("")}
+          </div>
+        </div>
+      `;
+    });
+
+  cards.transition()
+    .duration(reducedMotion ? 0 : 620)
+    .delay((d, i) => 160 + i * 90)
+    .ease(d3.easeCubicOut)
+    .attr("opacity", 1)
+    .attrTween("transform", function(d) {
+      const baseX = d.left;
+      const baseY = trackY + cardsTopOffset + d.row * (cardH + rowGap);
+      const iy = d3.interpolateNumber(14, 0);
+      return t => `translate(${baseX},${baseY + iy(t)})`;
+    });
+
+  if (isMobile) {
+    const detailsPanel = document.createElement("div");
+    detailsPanel.className = "mt-3 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300 hidden";
+    el.appendChild(detailsPanel);
+    let activeNode = null;
+
+    const renderDetails = d => {
+      const highlights = (d.highlights || []).slice(0, 6);
+      detailsPanel.innerHTML = `
+        <p class="text-white font-bold">${d.company}</p>
+        <p class="text-slate-400 mt-1">${d.role}</p>
+        <ul class="mt-2 space-y-1 text-slate-300">
+          ${(highlights.length ? highlights : ["No highlights provided."]).map(item => `<li>• ${item}</li>`).join("")}
+        </ul>
+      `;
+      detailsPanel.classList.remove("hidden");
+    };
+
+    const resetDetails = () => {
+      activeNode = null;
+      detailsPanel.classList.add("hidden");
+      detailsPanel.innerHTML = "";
+      cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", false);
+    };
+
+    cards.on("click", (event, d) => {
+      event.stopPropagation();
+      if (activeNode === d) {
+        resetDetails();
+        return;
+      }
+      activeNode = d;
+      renderDetails(d);
+      cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", x => x === d);
+    });
+
+    svg.on("click", resetDetails);
+  }
+}
+
+function bubbles() {
+  const el = document.getElementById("bubbles");
+  el.innerHTML = "";
+  const w = el.clientWidth || 680;
+  const isMobile = w < 640;
+  const h = Math.max(560, Math.round(w * (isMobile ? 1.18 : 0.9)));
+  const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]).attr("class", "overflow-hidden");
+  const clipId = `bubble-clip-${Math.random().toString(36).slice(2, 9)}`;
+  svg.append("defs")
+    .append("clipPath")
+    .attr("id", clipId)
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", w)
+    .attr("height", h);
+  const viewport = svg.append("g").attr("clip-path", `url(#${clipId})`);
+  const camera = viewport.append("g");
+  const hierarchyData = {
+    name: "skills",
+    children: skillGroups.map(group => ({
+      name: group.name,
+      level: group.level,
+      color: group.color,
+      children: (group.keywords || []).map((keyword, index) => ({
+        name: keyword.name,
+        meta: keyword,
+        rank: index + 1,
+        total: group.keywords.length,
+        value: Math.max(1, group.keywords.length - index)
+      }))
+    }))
+  };
+
+  const root = d3.hierarchy(hierarchyData)
+    .sum(d => d.value || 0);
+
+  const pack = d3.pack()
+    .size([w - 40, h - 40])
+    .padding(isMobile ? 7 : 9);
+
+  const packedRoot = pack(root);
+
+  const groupsData = packedRoot.descendants()
+    .filter(d => d.depth === 1)
+    .map(d => ({
+      name: d.data.name,
+      level: d.data.level,
+      color: d.data.color,
+      x: d.x + 20,
+      y: d.y + 20,
+      r: d.r
+    }));
+
+  const nodes = packedRoot.descendants()
+    .filter(d => d.depth === 2)
+    .map(d => {
+      const parent = d.parent.data;
+      const total = d.data.total || 1;
+      const index = (d.data.rank || 1) - 1;
+      const t = total === 1 ? 1 : index / (total - 1);
+      const boost = 1.22 - t * 0.35;
+      return {
+        name: d.data.name,
+        group: parent.name,
+        level: parent.level,
+        color: parent.color,
+        rank: d.data.rank,
+        total,
+        meta: d.data.meta || { name: d.data.name, level: "", certifications: [], notes: "" },
+        x: d.x + 20,
+        y: d.y + 20,
+        r: Math.max(11, d.r * boost)
+      };
+    });
+  const groupLayer = camera.append("g");
+  const nodeLayer = camera.append("g");
+  const detailLayer = svg.append("g");
+  const groupBubble = groupLayer.selectAll(".group-bubble").data(groupsData).join("g").attr("class", "group-bubble cursor-pointer").attr("transform", d => `translate(${d.x},${d.y})`).on("mouseleave", hideTip).on("click", function(event, d) { event.stopPropagation(); selectGroup(d.name); });
+  groupBubble.on("mousemove", (event, d) => {
+    const count = skillGroups.find(g => g.name === d.name)?.keywords?.length || 0;
+    showTip(event, `<strong>${d.name}</strong><br><small>${d.level}</small><br><small>${count} skills · click to filter</small>`);
+  });
+  groupBubble.append("circle").attr("r", 1).attr("fill", d => d.color).attr("opacity", 0.12).attr("stroke", d => d.color).attr("stroke-width", 1.5).transition().duration(reducedMotion ? 0 : 900).delay((d, i) => i * 120).ease(d3.easeElasticOut.amplitude(0.8).period(0.5)).attr("r", d => d.r);
+  const renderCertsInline = certs => certs.map(cert => {
+    if (!cert?.name) return "";
+    if (!cert.url) return cert.name;
+    return `<a class="text-cyan-300 underline decoration-cyan-500/50 hover:text-cyan-200" href="${cert.url}" target="_blank" rel="noreferrer">${cert.name}</a>`;
+  }).filter(Boolean).join(", ");
+
+  const node = nodeLayer.selectAll(".skill-node").data(nodes).join("g").attr("class", "skill-node cursor-pointer").attr("opacity", 0).attr("transform", d => `translate(${d.x},${d.y})`).on("mousemove", (event, d) => {
+    const meta = d.meta || { level: "", certifications: [], notes: "" };
+    showTip(event, `<small>${d.group}</small>${meta.level ? `<p class="mt-1"><small>Level: ${meta.level}</small></p>` : ""}${meta.certifications?.length ? `<p class="mt-2"><small>Certifications: ${renderCertsInline(meta.certifications)}</small></p>` : ""}${meta.notes ? `<p class="mt-2 text-slate-300">${meta.notes}</p>` : ""}`);
+  }).on("mouseleave", hideTip).on("click", function(event, d) { event.stopPropagation(); selectSkill(d); });
+  const bubbleFill = color => {
+    const c = d3.color(color);
+    return c ? c.darker(0.28).formatHex() : color;
+  };
+  const fitLabel = d => {
+    const maxChars = Math.max(4, Math.floor(d.r * 0.78));
+    const baseName = d.name.replace(/\*+\s*$/, "");
+    if (baseName.length <= maxChars) return baseName;
+    if (maxChars <= 4) return d.name.slice(0, maxChars);
+    return `${baseName.slice(0, maxChars - 1)}…`;
+  };
+  const fitFontSize = d => {
+    const label = fitLabel(d);
+    const sizeByRadius = d.r * 0.42;
+    const sizeByLength = (d.r * 1.7) / Math.max(5, label.length);
+    return Math.max(7.2, Math.min(12, sizeByRadius, sizeByLength * 2.2));
+  };
+
+  node.append("circle").attr("class", "bubble").attr("r", d => reducedMotion ? d.r : 1).attr("fill", d => bubbleFill(d.color)).attr("opacity", 0.9).attr("stroke", "rgba(255,255,255,.42)").attr("stroke-width", 1);
+  node.append("text")
+    .attr("text-anchor", "middle")
+    .attr("dy", ".32em")
+    .attr("fill", "white")
+    .attr("font-weight", 800)
+    .attr("font-size", d => fitFontSize(d))
+    .text(d => `${fitLabel(d)}${d.meta?.certifications?.length ? " •" : ""}`);
+  node.transition().duration(reducedMotion ? 0 : 700).delay((d, i) => i * 35).attr("opacity", 1);
+  node.select("circle").transition().duration(reducedMotion ? 0 : 900).delay((d, i) => i * 35).ease(d3.easeElasticOut.amplitude(.8).period(.45)).attr("r", d => d.r);
+  let hasInteracted = false;
+  const initialTipHTML = `<div class="rounded-2xl border border-slate-800 bg-slate-950/85 p-4 text-sm text-slate-300"><strong class="text-cyan-300">Tip:</strong> click a category, a large bubble, or a skill to filter and highlight technologies.</div>`;
+  const detail = detailLayer.append("foreignObject").attr("x", 20).attr("y", h - 104).attr("width", w - 40).attr("height", 96).html(initialTipHTML);
+  const hideInitialTip = () => {
+    if (hasInteracted) return;
+    hasInteracted = true;
+    detail.remove();
+  };
+
+  const maxScale = isMobile ? 3 : 3.5;
+  const viewState = { cx: w / 2, cy: h / 2, width: w };
+  const clampView = (cx, cy, width) => {
+    const k = Math.max(1, Math.min(maxScale, w / width));
+    const viewW = w / k;
+    const viewH = h / k;
+    const halfW = viewW / 2;
+    const halfH = viewH / 2;
+    return {
+      k,
+      width: viewW,
+      cx: Math.max(halfW, Math.min(w - halfW, cx)),
+      cy: Math.max(halfH, Math.min(h - halfH, cy))
+    };
+  };
+  const toTransform = (cx, cy, width) => {
+    const v = clampView(cx, cy, width);
+    return d3.zoomIdentity
+      .translate(w / 2 - v.cx * v.k, h / 2 - v.cy * v.k)
+      .scale(v.k);
+  };
+  const applyStateFromTransform = transform => {
+    const k = transform.k || 1;
+    viewState.width = w / k;
+    viewState.cx = (w / 2 - transform.x) / k;
+    viewState.cy = (h / 2 - transform.y) / k;
+  };
+
+  const zoomBehavior = d3.zoom()
+    .scaleExtent([1, maxScale])
+    .extent([[0, 0], [w, h]])
+    .translateExtent([[0, 0], [w, h]])
+    .wheelDelta(event => -event.deltaY * (event.deltaMode === 1 ? 0.033 : event.deltaMode ? 0.66 : 0.0013) * (event.ctrlKey ? 7 : 1))
+    .on("zoom", event => {
+      camera.attr("transform", event.transform);
+      applyStateFromTransform(event.transform);
+    });
+
+  svg.call(zoomBehavior).on("dblclick.zoom", null);
+
+  const nodesForBounds = [...groupsData, ...nodes];
+  const minX = d3.min(nodesForBounds, d => d.x - d.r) ?? 0;
+  const maxX = d3.max(nodesForBounds, d => d.x + d.r) ?? w;
+  const minY = d3.min(nodesForBounds, d => d.y - d.r) ?? 0;
+  const maxY = d3.max(nodesForBounds, d => d.y + d.r) ?? h;
+  const boundsW = Math.max(1, maxX - minX);
+  const boundsH = Math.max(1, maxY - minY);
+  const fitPad = isMobile ? 0.94 : 0.92;
+  const fitScale = Math.max(1, Math.min(maxScale, Math.min((w / boundsW) * fitPad, (h / boundsH) * fitPad)));
+  const initialScale = fitScale;
+  const fitCx = minX + boundsW / 2;
+  const fitCy = minY + boundsH / 2;
+  const initialTransform = d3.zoomIdentity
+    .translate(w / 2 - fitCx * initialScale, h / 2 - fitCy * initialScale)
+    .scale(initialScale);
+  svg.call(zoomBehavior.transform, initialTransform);
+
+  const zoomTo = target => {
+    const t = toTransform(target[0], target[1], target[2]);
+    svg.transition()
+      .duration(reducedMotion ? 0 : 720)
+      .ease(d3.easeSinInOut)
+      .call(zoomBehavior.transform, t, [w / 2, h / 2]);
+  };
+
+  const zoomToGroup = groupName => {
+    const g = groupsData.find(item => item.name === groupName);
+    if (!g) return;
+    const maxZoomWidth = w / maxScale;
+    const size = Math.max(maxZoomWidth, g.r * 2.1 + (isMobile ? 42 : 56));
+    zoomTo([g.x, g.y, size]);
+  };
+
+  const highlightKeywordChip = (groupName, keyword) => {
+    document.querySelectorAll("#skill-keywords .keyword-chip").forEach(chip => {
+      const isActive = chip.dataset.group === groupName && chip.dataset.keyword === keyword;
+      chip.classList.toggle("active", isActive);
+    });
+  };
+
+  const bindKeywordChipEvents = () => {
+    document.querySelectorAll("#skill-keywords .keyword-chip").forEach(chip => {
+      chip.addEventListener("click", event => {
+        event.stopPropagation();
+        hideInitialTip();
+        const targetGroup = chip.dataset.group;
+        const targetKeyword = chip.dataset.keyword;
+        const targetNode = nodes.find(nodeItem => nodeItem.group === targetGroup && nodeItem.name === targetKeyword);
+        if (targetNode) selectSkill(targetNode);
+      });
+    });
+  };
+
+  function selectGroup(groupName) {
+    const group = skillGroups.find(g => g.name === groupName);
+    if (!group) return;
+    hideInitialTip();
+    setActiveLegend(groupName);
+    renderKeywordsPanel(group, "");
+    bindKeywordChipEvents();
+    highlightKeywordChip("", "");
+    zoomToGroup(groupName);
+    node.transition().duration(350).attr("opacity", d => d.group === groupName ? 1 : 0.05);
+    node.select("circle").transition().duration(350).attr("stroke-width", d => d.group === groupName ? 3 : 1).attr("r", d => d.group === groupName ? d.r + 4 : d.r * 0.92);
+    groupBubble.select("circle").transition().duration(350).attr("opacity", d => d.name === groupName ? 0.26 : 0.06).attr("stroke-width", d => d.name === groupName ? 3 : 1.5);
+  }
+  function selectSkill(skill) {
+    hideInitialTip();
+    setActiveLegend(skill.group);
+    renderKeywordsPanel(skillGroups.find(g => g.name === skill.group), skill.name);
+    bindKeywordChipEvents();
+    highlightKeywordChip(skill.group, skill.name);
+    zoomToGroup(skill.group);
+    node.transition().duration(350).attr("opacity", d => d.name === skill.name ? 1 : d.group === skill.group ? 0.22 : 0.05);
+    node.select("circle").transition().duration(350).attr("stroke-width", d => d.name === skill.name ? 4 : 1).attr("r", d => d.name === skill.name ? d.r + 8 : d.r);
+    groupBubble.select("circle").transition().duration(350).attr("opacity", d => d.name === skill.group ? 0.24 : 0.06).attr("stroke-width", d => d.name === skill.group ? 3 : 1.5);
+  }
+  function resetSelection() {
+    clearActiveLegend();
+    renderKeywordsPanel(null);
+    zoomTo([fitCx, fitCy, w / initialScale]);
+    node.transition().duration(350).attr("opacity", 1);
+    node.select("circle").transition().duration(350).attr("stroke-width", 1).attr("r", d => d.r);
+    groupBubble.select("circle").transition().duration(350).attr("opacity", 0.12).attr("stroke-width", 1.5);
+  }
+
+  node.attr("transform", d => `translate(${d.x},${d.y})`);
+  document.querySelectorAll(".skill-filter").forEach(button => { button.addEventListener("click", () => selectGroup(button.dataset.group)); });
+  svg.on("click", () => { hideInitialTip(); resetSelection(); });
+}
+
+function dataFlow(){
+  const el = document.getElementById("flow");
+  el.innerHTML = "";
+  const w = el.clientWidth || 980;
+  const isMobile = w < 800;
+  const cardW = isMobile ? Math.min(520, w - 36) : Math.min(760, w - 70);
+  const cardH = isMobile ? 134 : 116;
+  const gap = isMobile ? 26 : 22;
+  const topPad = 26;
+  const bottomPad = 28;
+  const left = (w - cardW) / 2;
+  const h = topPad + bottomPad + flow.length * cardH + (flow.length - 1) * gap;
+
+  const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
+  const layerLinks = svg.append("g");
+  const layerCards = svg.append("g");
+
+  const layout = flow.map((step, i) => ({
+    ...step,
+    i,
+    x: left,
+    y: topPad + i * (cardH + gap),
+    width: cardW,
+    height: cardH,
+    color: palette[i % palette.length]
+  }));
+
+  const links = d3.pairs(layout).map(([a, b], i) => ({
+    id: `link-${i}`,
+    from: a.i,
+    to: b.i,
+    x1: a.x + a.width / 2,
+    y1: a.y + a.height + 3,
+    x2: b.x + b.width / 2,
+    y2: b.y - 6
+  }));
+
+  svg.append("defs").append("marker")
+    .attr("id", "flow-arrow")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 8)
+    .attr("refY", 0)
+    .attr("markerWidth", 7)
+    .attr("markerHeight", 7)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#67e8f9");
+
+  const linkEl = layerLinks.selectAll(".flow-link")
+    .data(links)
+    .join("line")
+    .attr("class", "flow-link")
+    .attr("x1", d => d.x1)
+    .attr("y1", d => d.y1)
+    .attr("x2", d => d.x1)
+    .attr("y2", d => d.y1)
+    .attr("stroke", "rgba(103,232,249,.62)")
+    .attr("stroke-width", 2.3)
+    .attr("stroke-dasharray", "6 8")
+    .attr("marker-end", "url(#flow-arrow)")
+    .attr("opacity", 0.88);
+
+  linkEl.transition()
+    .duration(reducedMotion ? 0 : 620)
+    .delay((d, i) => i * 120)
+    .ease(d3.easeCubicOut)
+    .attr("x2", d => d.x2)
+    .attr("y2", d => d.y2);
+
+  const card = layerCards.selectAll(".flow-card")
+    .data(layout)
+    .join("g")
+    .attr("class", "flow-card cursor-pointer")
+    .attr("transform", d => `translate(${d.x},${d.y})`)
+    .attr("opacity", 0);
+
+  card.append("rect")
+    .attr("rx", 18)
+    .attr("ry", 18)
+    .attr("width", d => d.width)
+    .attr("height", d => d.height)
+    .attr("fill", "rgba(15,23,42,.7)")
+    .attr("stroke", "rgba(148,163,184,.22)")
+    .attr("stroke-width", 1.3);
+
+  card.append("rect")
+    .attr("x", 18)
+    .attr("y", 18)
+    .attr("width", isMobile ? 8 : 10)
+    .attr("height", d => d.height - 36)
+    .attr("rx", 999)
+    .attr("fill", d => d.color)
+    .attr("opacity", .95);
+
+  card.append("text")
+    .attr("x", isMobile ? 38 : 44)
+    .attr("y", isMobile ? 34 : 38)
+    .attr("fill", "#f8fafc")
+    .attr("font-size", isMobile ? 14 : 16)
+    .attr("font-weight", 900)
+    .text(d => d.name);
+
+  card.append("text")
+    .attr("x", isMobile ? 38 : 44)
+    .attr("y", isMobile ? 54 : 61)
+    .attr("fill", "#94a3b8")
+    .attr("font-size", isMobile ? 11 : 12)
+    .text(d => d.detail);
+
+  card.each(function(d) {
+    const group = d3.select(this);
+    const chipStartY = isMobile ? 72 : 74;
+    const startX = isMobile ? 38 : 44;
+    const chipH = 24;
+    const chipGapX = 8;
+    const chipGapY = 8;
+    const maxW = d.width - startX - 18;
+    let x = startX;
+    let y = chipStartY;
+
+    d.tech.forEach((tech) => {
+      const text = tech.length > 18 ? `${tech.slice(0, 17)}…` : tech;
+      const chipW = Math.max(62, Math.min(isMobile ? 126 : 150, 20 + text.length * (isMobile ? 6.2 : 6.8)));
+
+      if (x + chipW > startX + maxW) {
+        x = startX;
+        y += chipH + chipGapY;
+      }
+
+      group.append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", chipW)
+        .attr("height", chipH)
+        .attr("rx", 999)
+        .attr("fill", "rgba(255,255,255,.05)")
+        .attr("stroke", "rgba(148,163,184,.24)")
+        .attr("stroke-width", 1);
+      group.append("text")
+        .attr("x", x + chipW / 2)
+        .attr("y", y + 16)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#e2e8f0")
+        .attr("font-size", isMobile ? 10 : 11)
+        .attr("font-weight", 700)
+        .text(text);
+
+      x += chipW + chipGapX;
+    });
+  });
+
+  card.transition()
+    .duration(reducedMotion ? 0 : 520)
+    .delay((d, i) => i * 90)
+    .ease(d3.easeCubicOut)
+    .attr("opacity", 1)
+    .attrTween("transform", function(d) {
+      const iy = d3.interpolateNumber(18, 0);
+      return t => `translate(${d.x},${d.y + iy(t)})`;
+    });
+
+  const notePanel = document.createElement("div");
+  notePanel.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+  notePanel.innerHTML = `<span class="text-cyan-300 font-bold">Tip:</span> hover a layer to focus transitions and inspect architectural intent.`;
+  el.appendChild(notePanel);
+
+  function setFlowFocus(index = -1) {
+    card.transition().duration(220)
+      .attr("opacity", d => index < 0 ? 1 : (d.i === index ? 1 : 0.23));
+    card.select("rect:nth-child(1)").transition().duration(220)
+      .attr("stroke", d => d.i === index ? "rgba(103,232,249,.8)" : "rgba(148,163,184,.22)")
+      .attr("stroke-width", d => d.i === index ? 2.1 : 1.3);
+    linkEl.transition().duration(220)
+      .attr("opacity", d => index < 0 ? 0.88 : (d.from === index || d.to === index ? 1 : 0.12))
+      .attr("stroke", d => (d.from === index || d.to === index) ? "rgba(34,211,238,.95)" : "rgba(103,232,249,.35)")
+      .attr("stroke-width", d => (d.from === index || d.to === index) ? 2.8 : 1.8);
+
+    if (index < 0) {
+      notePanel.innerHTML = `<span class="text-cyan-300 font-bold">Tip:</span> hover a layer to focus transitions and inspect architectural intent.`;
+      return;
+    }
+
+    const step = layout[index];
+    notePanel.innerHTML = `
+      <p class="text-white font-bold">${step.name}</p>
+      <p class="text-slate-400 mt-1">${step.impact}</p>
+      <p class="text-slate-500 mt-2">Tech: <span class="text-slate-300">${step.tech.join(" · ")}</span></p>
+    `;
+  }
+
+  let pinnedFlowIndex = -1;
+
+  card.on("mouseenter", (event, d) => setFlowFocus(d.i))
+    .on("mouseleave", () => setFlowFocus(pinnedFlowIndex))
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      pinnedFlowIndex = d.i;
+      setFlowFocus(pinnedFlowIndex);
+    });
+
+  svg.on("click", () => {
+    pinnedFlowIndex = -1;
+    setFlowFocus(-1);
+  });
+}
+
+async function renderAll(){
+  try {
+    const response = await fetch("./resume.json");
+    resumeData = await response.json();
+  } catch (error) {
+    console.warn("Could not load resume.json", error);
+    resumeData = {};
+  }
+
+  const { basics, portfolio } = mapResumeToViewModel(resumeData || {});
+  renderHeader(basics || {});
+  renderMetrics(basics || {}, resumeData?.meta || {});
+  renderProjects(portfolio || []);
+  renderLegend();
+  revealOnScroll();
+  counters();
+  spotlight();
+  timeline();
+  bubbles();
+  dataFlow();
+}
+
+renderAll();
+
+let resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    timeline();
+    bubbles();
+    dataFlow();
+  }, 180);
+});
+</script>
+</body>
+</html>
+
+
+
