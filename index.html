@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>David Barreiro Salgueiro · CV</title>
 <meta name="description" content="Interactive CV with Tailwind CSS, D3.js, and animations.">
-<link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="./favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
-<link rel="manifest" href="./favicon/site.webmanifest">
+<link rel="icon" href="./favicon.ico">
 <link rel="stylesheet" href="./dist/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <style>
@@ -180,12 +177,19 @@
     </div>
 
     <aside class="reveal glass rounded-[2rem] p-6 shadow-glow animate-float">
-      <img
-        src="https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif"
-        alt="David Barreiro Salgueiro"
-        class="w-28 h-28 rounded-[1.7rem] object-cover mb-7 border border-white/20"
-        onerror="this.outerHTML='<div class=&quot;w-28 h-28 rounded-[1.7rem] bg-gradient-to-br from-cyan-300 to-violet-500 text-slate-950 font-black text-4xl grid place-items-center mb-7&quot;>DB</div>'"
-      >
+      <div class="flex items-start gap-4 mb-7">
+        <div class="relative inline-block">
+          <img
+            src="https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif"
+            alt="David Barreiro Salgueiro"
+            class="w-28 h-28 rounded-[1.7rem] object-cover border border-white/20"
+            onerror="this.onerror=null;this.src='./favicon.ico';this.className='w-28 h-28 rounded-[1.7rem] object-contain p-2 bg-white/5 border border-white/20'"
+          >
+        </div>
+        <div class="w-28 h-28 rounded-[1.7rem] border border-slate-700/80 bg-white/5 grid place-items-center">
+          <img src="./favicon/logo-clear.png" alt="Site badge" class="w-10 h-10 object-contain opacity-90">
+        </div>
+      </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
           <p class="text-slate-400 text-xs">Experience</p>
@@ -502,7 +506,26 @@ function renderHeader(basics) {
   if (surnameEl) surnameEl.textContent = surname;
   if (summary) summary.textContent = safeText(basics.summary, "I build real-time data platforms and deliver pragmatic solutions for complex systems.");
 
-  if (profileImage && basics.image) { profileImage.src = basics.image; profileImage.alt = safeText(basics.name, "Profile"); }
+  if (profileImage) {
+    profileImage.alt = safeText(basics.name, "Profile");
+    const profiles = Array.isArray(basics.profiles) ? basics.profiles : [];
+    const githubProfile = profiles.find(p => safeText(p.network).toLowerCase().includes("github"))?.url || "";
+    const githubUser = githubProfile ? githubProfile.replace(/\/+$/,"").split("/").pop() : "";
+    const githubAvatar = githubUser ? `https://github.com/${githubUser}.png` : "";
+    const primaryImage = safeText(basics.image, "");
+    let triedGithubFallback = false;
+    profileImage.onerror = function() {
+      if (!triedGithubFallback && githubAvatar) {
+        triedGithubFallback = true;
+        this.src = githubAvatar;
+        return;
+      }
+      this.onerror = null;
+      this.src = "./favicon.ico";
+      this.className = "w-28 h-28 rounded-[1.7rem] object-contain p-2 bg-white/5 mb-7 border border-white/20";
+    };
+    profileImage.src = primaryImage || githubAvatar;
+  }
 
   const email = safeText(basics.email, "david.barreiro@outlook.es");
   if (ctaMail) ctaMail.href = `mailto:${email}`;

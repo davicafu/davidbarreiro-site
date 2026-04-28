@@ -38,6 +38,7 @@ jobs:
           mkdir _site
           cp index.html _site/
           cp resume.json _site/
+          cp favicon.ico _site/
           cp -r dist _site/
 
       - name: Upload artifact
