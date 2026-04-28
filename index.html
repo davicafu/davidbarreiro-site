@@ -610,7 +610,19 @@ function counters() {
 
 function spotlight() {
   const s = document.getElementById("spotlight");
-  window.addEventListener("mousemove", e => { s.style.left = e.clientX + "px"; s.style.top = e.clientY + "px"; });
+  if (!s) return;
+  const desktop = window.matchMedia("(min-width: 1024px)").matches;
+  if (desktop) {
+    s.style.left = "22%";
+    s.style.top = "18%";
+    s.style.opacity = "0.6";
+    return;
+  }
+  s.style.opacity = "1";
+  window.addEventListener("mousemove", e => {
+    s.style.left = e.clientX + "px";
+    s.style.top = e.clientY + "px";
+  });
 }
 
 function renderLegend() {
@@ -1124,26 +1136,85 @@ function dataFlow(){
   const w = el.clientWidth || 980;
   const isMobile = w < 800;
   const cardW = isMobile ? Math.min(520, w - 36) : Math.min(760, w - 70);
-  const cardH = isMobile ? 134 : 116;
   const gap = isMobile ? 26 : 22;
   const topPad = 26;
-  const bottomPad = 28;
   const left = (w - cardW) / 2;
-  const h = topPad + bottomPad + flow.length * cardH + (flow.length - 1) * gap;
+  const detailPanelPad = 10;
+  const detailPanelH = isMobile ? 144 : 126;
+  const bottomPad = 28 + detailPanelH + detailPanelPad;
+  const baseCardH = isMobile ? 134 : 116;
+
+  const wrapTextLines = (value, maxCharsPerLine) => {
+    const source = (value || "").trim();
+    if (!source) return [""];
+    const words = source.split(/\s+/);
+    const lines = [];
+    let line = "";
+    words.forEach(word => {
+      const next = line ? `${line} ${word}` : word;
+      if (next.length <= maxCharsPerLine || !line) {
+        line = next;
+      } else {
+        lines.push(line);
+        line = word;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
+  };
+
+  const getChipRows = (stepWidth, techList) => {
+    const startX = isMobile ? 38 : 44;
+    const chipGapX = 8;
+    const maxW = stepWidth - startX - 18;
+    let x = startX;
+    let rows = 1;
+    techList.forEach((tech) => {
+      const text = tech.length > 18 ? `${tech.slice(0, 17)}…` : tech;
+      const chipW = Math.max(62, Math.min(isMobile ? 126 : 150, 20 + text.length * (isMobile ? 6.2 : 6.8)));
+      if (x + chipW > startX + maxW) {
+        rows += 1;
+        x = startX;
+      }
+      x += chipW + chipGapX;
+    });
+    return rows;
+  };
+
+  const detailLineH = isMobile ? 14 : 15;
+  const detailStartY = isMobile ? 54 : 61;
+  const detailMaxChars = Math.max(26, Math.floor((cardW - (isMobile ? 58 : 66)) / (isMobile ? 5.8 : 6.5)));
+
+  let runningY = topPad;
+  const layout = flow.map((step, i) => {
+    const detailLines = wrapTextLines(step.detail, detailMaxChars);
+    const chipStartY = detailStartY + (detailLines.length * detailLineH) + 10;
+    const chipRows = getChipRows(cardW, step.tech);
+    const chipH = 24;
+    const chipGapY = 8;
+    const chipBlockH = chipRows * chipH + Math.max(0, chipRows - 1) * chipGapY;
+    const dynamicCardH = Math.max(baseCardH, chipStartY + chipBlockH + 18);
+    const item = {
+      ...step,
+      i,
+      x: left,
+      y: runningY,
+      width: cardW,
+      height: dynamicCardH,
+      color: palette[i % palette.length],
+      detailLines,
+      chipStartY
+    };
+    runningY += dynamicCardH + gap;
+    return item;
+  });
+
+  const h = runningY - gap + bottomPad;
 
   const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
   const layerLinks = svg.append("g");
   const layerCards = svg.append("g");
-
-  const layout = flow.map((step, i) => ({
-    ...step,
-    i,
-    x: left,
-    y: topPad + i * (cardH + gap),
-    width: cardW,
-    height: cardH,
-    color: palette[i % palette.length]
-  }));
+  const layerDetail = svg.append("g");
 
   const links = d3.pairs(layout).map(([a, b], i) => ({
     id: `link-${i}`,
@@ -1223,14 +1294,19 @@ function dataFlow(){
 
   card.append("text")
     .attr("x", isMobile ? 38 : 44)
-    .attr("y", isMobile ? 54 : 61)
+    .attr("y", detailStartY)
     .attr("fill", "#94a3b8")
     .attr("font-size", isMobile ? 11 : 12)
-    .text(d => d.detail);
+    .selectAll("tspan")
+    .data(d => d.detailLines.map((line, idx) => ({ line, idx })))
+    .join("tspan")
+    .attr("x", isMobile ? 38 : 44)
+    .attr("dy", item => item.idx === 0 ? 0 : detailLineH)
+    .text(item => item.line);
 
   card.each(function(d) {
     const group = d3.select(this);
-    const chipStartY = isMobile ? 72 : 74;
+    const chipStartY = d.chipStartY;
     const startX = isMobile ? 38 : 44;
     const chipH = 24;
     const chipGapX = 8;
@@ -1280,10 +1356,67 @@ function dataFlow(){
       return t => `translate(${d.x},${d.y + iy(t)})`;
     });
 
-  const notePanel = document.createElement("div");
-  notePanel.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
-  notePanel.innerHTML = `<span class="text-cyan-300 font-bold">Tip:</span> hover a layer to focus transitions and inspect architectural intent.`;
-  el.appendChild(notePanel);
+  const detailCard = layerDetail.append("g").style("display", "none");
+  detailCard.append("rect")
+    .attr("rx", 14)
+    .attr("ry", 14)
+    .attr("width", cardW)
+    .attr("height", detailPanelH)
+    .attr("fill", "rgba(2,6,23,.88)")
+    .attr("stroke", "rgba(56,189,248,.42)")
+    .attr("stroke-width", 1.2);
+  const detailTitle = detailCard.append("text")
+    .attr("x", 16)
+    .attr("y", 24)
+    .attr("fill", "#f8fafc")
+    .attr("font-size", isMobile ? 12 : 13)
+    .attr("font-weight", 900);
+  const detailImpact = detailCard.append("text")
+    .attr("x", 16)
+    .attr("y", 46)
+    .attr("fill", "#94a3b8")
+    .attr("font-size", isMobile ? 10 : 11);
+  const detailTech = detailCard.append("text")
+    .attr("x", 16)
+    .attr("fill", "#cbd5e1")
+    .attr("font-size", isMobile ? 10 : 11)
+    .attr("font-weight", 700);
+
+  const getDetailShift = () => detailPanelH + detailPanelPad + 8;
+  const getCardOffsetY = (cardIndex, expandedIndex) => (
+    expandedIndex >= 0 && cardIndex > expandedIndex ? getDetailShift() : 0
+  );
+
+  function applyFlowLayout(expandedIndex = -1, animated = true) {
+    const duration = animated && !reducedMotion ? 420 : 0;
+    card.transition().duration(duration).ease(d3.easeCubicOut)
+      .attr("transform", d => `translate(${d.x},${d.y + getCardOffsetY(d.i, expandedIndex)})`);
+
+    linkEl.transition().duration(duration).ease(d3.easeCubicOut)
+      .attr("y1", d => {
+        const from = layout[d.from];
+        return from.y + getCardOffsetY(from.i, expandedIndex) + from.height + 3;
+      })
+      .attr("y2", d => {
+        const to = layout[d.to];
+        return to.y + getCardOffsetY(to.i, expandedIndex) - 6;
+      });
+
+    if (expandedIndex < 0) {
+      detailCard.style("display", "none");
+      return;
+    }
+
+    const step = layout[expandedIndex];
+    const targetY = step.y + getCardOffsetY(step.i, expandedIndex) + step.height + detailPanelPad;
+    detailCard.style("display", null);
+    if (duration > 0) {
+      detailCard.transition().duration(duration).ease(d3.easeCubicOut)
+        .attr("transform", `translate(${step.x},${targetY})`);
+    } else {
+      detailCard.attr("transform", `translate(${step.x},${targetY})`);
+    }
+  }
 
   function setFlowFocus(index = -1) {
     card.transition().duration(220)
@@ -1296,33 +1429,71 @@ function dataFlow(){
       .attr("stroke", d => (d.from === index || d.to === index) ? "rgba(34,211,238,.95)" : "rgba(103,232,249,.35)")
       .attr("stroke-width", d => (d.from === index || d.to === index) ? 2.8 : 1.8);
 
-    if (index < 0) {
-      notePanel.innerHTML = `<span class="text-cyan-300 font-bold">Tip:</span> hover a layer to focus transitions and inspect architectural intent.`;
-      return;
-    }
+    if (index < 0) return;
+    if (activeFlowIndex < 0) return;
+    if (index !== activeFlowIndex) return;
 
     const step = layout[index];
-    notePanel.innerHTML = `
-      <p class="text-white font-bold">${step.name}</p>
-      <p class="text-slate-400 mt-1">${step.impact}</p>
-      <p class="text-slate-500 mt-2">Tech: <span class="text-slate-300">${step.tech.join(" · ")}</span></p>
-    `;
+    detailCard
+      .style("display", null)
+      .attr("transform", `translate(${step.x},${step.y + step.height + detailPanelPad})`);
+    detailTitle.text(step.name);
+    const impactLines = wrapTextLines(step.impact, Math.max(26, Math.floor((cardW - 34) / (isMobile ? 6 : 6.6))));
+    detailImpact.selectAll("tspan")
+      .data(impactLines.map((line, idx) => ({ line, idx })))
+      .join("tspan")
+      .attr("x", 16)
+      .attr("dy", item => item.idx === 0 ? 0 : (isMobile ? 13 : 14))
+      .text(item => item.line);
+    const techStartY = 46 + (impactLines.length * (isMobile ? 13 : 14)) + 12;
+    detailTech.attr("y", techStartY);
+    detailTech.selectAll("tspan")
+      .data(wrapTextLines(`Tech: ${step.tech.join(" · ")}`, Math.max(24, Math.floor((cardW - 34) / (isMobile ? 6 : 6.6)))).map((line, idx) => ({ line, idx })))
+      .join("tspan")
+      .attr("x", 16)
+      .attr("dy", item => item.idx === 0 ? 0 : (isMobile ? 13 : 14))
+      .text(item => item.line);
+
   }
 
+  let activeFlowIndex = -1;
+  let hoverFlowIndex = -1;
   let pinnedFlowIndex = -1;
 
-  card.on("mouseenter", (event, d) => setFlowFocus(d.i))
-    .on("mouseleave", () => setFlowFocus(pinnedFlowIndex))
+  const getVisibleFlowIndex = () => (pinnedFlowIndex >= 0 ? pinnedFlowIndex : hoverFlowIndex);
+
+  const syncFlowState = () => {
+    activeFlowIndex = getVisibleFlowIndex();
+    setFlowFocus(activeFlowIndex);
+    applyFlowLayout(activeFlowIndex);
+  };
+
+  card.on("mouseenter", (event, d) => {
+      hoverFlowIndex = d.i;
+      syncFlowState();
+    })
+    .on("mouseleave", () => {
+      hoverFlowIndex = -1;
+      syncFlowState();
+    })
     .on("click", (event, d) => {
       event.stopPropagation();
       pinnedFlowIndex = d.i;
-      setFlowFocus(pinnedFlowIndex);
+      hoverFlowIndex = d.i;
+      syncFlowState();
     });
 
   svg.on("click", () => {
     pinnedFlowIndex = -1;
-    setFlowFocus(-1);
+    hoverFlowIndex = -1;
+    syncFlowState();
   });
+
+  const notePanel = document.createElement("div");
+  notePanel.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+  notePanel.innerHTML = "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.";
+  el.appendChild(notePanel);
+
 }
 
 async function renderAll(){

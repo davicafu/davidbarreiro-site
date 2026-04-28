@@ -9,7 +9,7 @@
       "city": "A Coruña",
       "countryCode": "ES"
     },
-    "summary": "Senior Software Engineer with hands-on experience designing and building scalable platforms, distributed systems and real-time data solutions.\n\nMy background combines backend engineering, data infrastructure and cloud-native platforms. I have worked with Kafka, Spark(Python), ClickHouse, Kubernetes, Docker and modern CI/CD environments, delivering reliable systems for demanding workloads.\n\nRecently focused on Golang for high-performance backend services and modern platform development.\nI enjoy simplifying complex problems, improving performance and building practical solutions that scale.\n\nCore areas include backend engineering with Go and Java, distributed systems, Kafka-based streaming architectures, cloud-native platforms, APIs, microservices and DevOps automation.",
+    "summary": "Senior Software Engineer with hands-on experience designing and building scalable platforms, distributed systems and real-time data solutions.\n\nMy background combines backend engineering, data infrastructure and cloud-native platforms. I have worked with Java, Go, Kafka, Spark(Python), ClickHouse, Kubernetes, Docker and modern CI/CD environments, delivering reliable systems for demanding workloads.\n\nRecently focused on Golang for high-performance backend services and modern platform development.\nI enjoy simplifying complex problems, improving performance and building practical solutions that scale.\n\nCore areas include backend engineering with Go and Java, distributed systems, Kafka-based streaming architectures, cloud-native platforms, APIs, microservices and DevOps automation.",
     "profiles": [{
 		"network": "Linkedin",
 		"username": "David Barreiro",
