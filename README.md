@@ -1,47 +1,52 @@
-# CV animado · Tailwind CSS + D3.js
+﻿# Interactive CV · Tailwind CSS + D3.js
 
-CV interactivo con:
+Interactive CV website with:
 
-- Reveal on scroll
-- Hero con gradiente animado
-- Spotlight que sigue el ratón
-- Timeline D3 animado
-- Bubble map de skills con zoom/pan y selección cruzada
-- Soporte para `prefers-reduced-motion`
+- Scroll reveal animations
+- Animated gradient hero
+- Mouse spotlight effect
+- D3 timeline (work + education)
+- D3 skill bubbles map with zoom/pan and filtering
+- System design interactive flow
+- `prefers-reduced-motion` support
 
-## Desarrollo local
+## Live Deployment
 
-Sirve el proyecto con un servidor local (para que `fetch("./resume.json")` funcione):
+GitHub Pages: https://davicafu.github.io/davidbarreiro-site/
+Vercel: https://davidbarreiro-site.vercel.app/
+
+## Run Locally
+
+Serve the project from the repo root:
 
 ```bash
-python -m http.server 5500
+npx serve .
 ```
 
-## Build de Tailwind (producción)
+## Tailwind Build
 
-Este proyecto está preparado para compilar Tailwind y publicar en GitHub Pages sin usar `cdn.tailwindcss.com`.
-
-1. Instala Node.js (incluye `npm`).
-2. Instala dependencias:
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Genera CSS:
+2. Build CSS:
 
 ```bash
 npm run build:css
 ```
 
-Esto crea `dist/styles.css` (el archivo que carga `index.html`).
+This generates `dist/styles.css`, which is loaded by `index.html`.
 
-## Publicar en GitHub Pages
+## Deploy to GitHub Pages
 
-Sube estos archivos al repositorio:
+Deployment is automated with GitHub Actions (`.github/workflows/deploy-pages.yml`).
+On push to `main`, the workflow builds Tailwind CSS and publishes:
 
 - `index.html`
 - `resume.json`
-- `dist/styles.css`
-
-Activa GitHub Pages en `Settings > Pages` con la rama principal y carpeta raíz (`/`).
+- `dist/`
+- `favicon/`
+- `assets/`
+- `src/`
