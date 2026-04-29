@@ -39,6 +39,7 @@ jobs:
         run: |
           mkdir _site
           cp index.html _site/
+          cp cv.pdf _site/
           cp resume.json _site/
           cp -r favicon _site/
           cp -r assets _site/

@@ -197,7 +197,7 @@
         </a>
         <a id="hero-github-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://github.com/davicafu" target="_blank" rel="noreferrer">GitHub</a>
         <a id="hero-linkedin-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://www.linkedin.com/in/david-barreiro-a9370657/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="/api/cv.pdf" target="_blank" rel="noreferrer">Download PDF</a>
+        <a id="hero-pdf-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="/api/cv.pdf" target="_blank" rel="noreferrer">Download PDF</a>
       </div>
     </div>
 
@@ -347,8 +347,31 @@
     </div>
   </div>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script type="module" src="./src/js/main.js"></script></body>
+<script>
+  (function () {
+    const isPdfMode = new URLSearchParams(window.location.search).has("pdf");
+    const pdfLink = document.getElementById("hero-pdf-link");
+    if (pdfLink) {
+      const isGithubPages = window.location.hostname.endsWith("github.io");
+      pdfLink.setAttribute("href", isGithubPages ? "./cv.pdf" : "/api/cv.pdf");
+    }
+    if (isPdfMode) {
+      document.body.classList.add("pdf-mode");
+      return;
+    }
+
+    const d3Script = document.createElement("script");
+    d3Script.src = "https://cdn.jsdelivr.net/npm/d3@7";
+    d3Script.onload = function () {
+      const appScript = document.createElement("script");
+      appScript.type = "module";
+      appScript.src = "./src/js/main.js";
+      document.body.appendChild(appScript);
+    };
+    document.body.appendChild(d3Script);
+  })();
+</script>
+</body>
 </html>
 
 

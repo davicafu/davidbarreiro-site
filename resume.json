@@ -265,7 +265,7 @@
       "keywords": [
                     {
                       "name": "Kafka",
-                      "level": "Expert",
+                      "level": "Advanced",
                       "notes": "",
                       "logo": "./assets/logos/kafka.svg"
                     },
