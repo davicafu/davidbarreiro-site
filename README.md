@@ -13,7 +13,7 @@ Interactive CV website with:
 ## Live Deployment
 
 GitHub Pages: https://davicafu.github.io/davidbarreiro-site/
-Vercel: https://davidbarreiro-site.vercel.app/
+Vercel: https://davidbarreiro.vercel.app/
 
 ## Run Locally
 
