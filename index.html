@@ -143,6 +143,42 @@
 
   svg text { user-select: none; }
 
+  .pdf-menu {
+    min-width: 270px;
+    border-radius: 1rem;
+    border: 1px solid rgba(56, 189, 248, .3);
+    background:
+      linear-gradient(160deg, rgba(15, 23, 42, .96), rgba(2, 6, 23, .96)),
+      radial-gradient(circle at top right, rgba(34, 211, 238, .18), transparent 45%);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, .55), inset 0 1px 0 rgba(255,255,255,.05);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+
+  .pdf-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    width: 100%;
+    padding: .7rem .85rem;
+    border-radius: .8rem;
+    color: #cbd5e1;
+    transition: all .2s ease;
+  }
+
+  .pdf-option:hover {
+    background: rgba(34, 211, 238, .12);
+    color: #67e8f9;
+    transform: translateX(2px);
+  }
+
+  .pdf-option small {
+    color: #94a3b8;
+    font-size: .72rem;
+    letter-spacing: .02em;
+  }
+
   body.pdf-mode .spotlight,
   body.pdf-mode .tooltip,
   body.pdf-mode .fixed.inset-0.-z-10 {
@@ -169,7 +205,7 @@
 <div class="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.14),transparent_28rem),radial-gradient(circle_at_90%_20%,rgba(139,92,246,.14),transparent_30rem),linear-gradient(135deg,#020617,#0f172a_55%,#020617)]"></div>
 <div class="fixed inset-0 -z-10 opacity-[.08] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:52px_52px]"></div>
 
-<header class="max-w-7xl mx-auto px-6 py-8">
+<header class="relative z-50 max-w-7xl mx-auto px-6 py-8" style="z-index:2000">
   <nav class="reveal flex flex-wrap items-center justify-between gap-5 mb-14">
     <div class="text-sm text-slate-400">davidbarreiro.dev</div>
     <div class="flex gap-6 text-slate-400 text-sm">
@@ -197,7 +233,23 @@
         </a>
         <a id="hero-github-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://github.com/davicafu" target="_blank" rel="noreferrer">GitHub</a>
         <a id="hero-linkedin-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://www.linkedin.com/in/david-barreiro-a9370657/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <a id="hero-pdf-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="/api/cv.pdf" target="_blank" rel="noreferrer">Download PDF</a>
+        <div class="relative z-50" style="z-index:2100">
+          <button id="hero-pdf-link" type="button" class="group px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition inline-flex items-center gap-2">
+            <span>Download PDF</span>
+            <span class="text-slate-400 group-hover:text-cyan-300 transition">▾</span>
+          </button>
+          <div id="pdf-style-menu" class="pdf-menu hidden absolute left-0 top-full mt-3 p-2 z-[120]" style="display:none; z-index:9999">
+            <a class="pdf-option" href="./cv-one-page.pdf" target="_blank" rel="noreferrer">
+              <span class="font-semibold">One Page</span><small>Compact</small>
+            </a>
+            <a class="pdf-option" href="./cv-professional.pdf" target="_blank" rel="noreferrer">
+              <span class="font-semibold">Professional</span><small>Formal</small>
+            </a>
+            <a class="pdf-option" href="./cv-jsonresume.pdf" target="_blank" rel="noreferrer">
+              <span class="font-semibold">JSONResume</span><small>Structured</small>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -233,7 +285,7 @@
   </section>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 pb-28 space-y-24">
+<main class="max-w-7xl mx-auto px-6 pb-28 space-y-24" style="position:relative; z-index:1">
   <section class="reveal grid md:grid-cols-3 gap-5">
 
     <div class="glass rounded-3xl p-6">
@@ -349,15 +401,19 @@
 </footer>
 <script>
   (function () {
-    const isPdfMode = new URLSearchParams(window.location.search).has("pdf");
     const pdfLink = document.getElementById("hero-pdf-link");
-    if (pdfLink) {
-      const isGithubPages = window.location.hostname.endsWith("github.io");
-      pdfLink.setAttribute("href", isGithubPages ? "./cv.pdf" : "/api/cv.pdf");
-    }
-    if (isPdfMode) {
-      document.body.classList.add("pdf-mode");
-      return;
+    const pdfMenu = document.getElementById("pdf-style-menu");
+    if (pdfLink && pdfMenu) {
+      pdfLink.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const isHidden = pdfMenu.style.display === "none";
+        pdfMenu.style.display = isHidden ? "block" : "none";
+        pdfMenu.classList.toggle("hidden", !isHidden);
+      });
+      document.addEventListener("click", function () {
+        pdfMenu.style.display = "none";
+        pdfMenu.classList.add("hidden");
+      });
     }
 
     const d3Script = document.createElement("script");

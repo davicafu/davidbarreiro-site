@@ -42,9 +42,12 @@ This generates `dist/styles.css`, which is loaded by `index.html`.
 ## Deploy to GitHub Pages
 
 Deployment is automated with GitHub Actions (`.github/workflows/deploy-pages.yml`).
-On push to `main`, the workflow builds Tailwind CSS and publishes:
+On push to `main`, the workflow builds Tailwind CSS, generates `cv-one-page.pdf` from `resume.json`, and publishes:
 
 - `index.html`
+- `cv-one-page.pdf`
+- `cv-professional.pdf` (if present in repo)
+- `cv-jsonresume.pdf` (if present in repo)
 - `resume.json`
 - `dist/`
 - `favicon/`

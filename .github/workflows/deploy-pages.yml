@@ -35,11 +35,25 @@ jobs:
       - name: Build Tailwind
         run: npm run build:css
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate CV PDF from resume.json
+        run: |
+          python -m pip install --upgrade pip
+          pip install "reportlab<4"
+          python scripts/generate_cv_pdf.py
+          test -f cv-one-page.pdf
+
       - name: Prepare artifact
         run: |
           mkdir _site
           cp index.html _site/
-          cp cv.pdf _site/
+          for f in cv-one-page.pdf cv-professional.pdf cv-jsonresume.pdf; do
+            if [ -f "$f" ]; then cp "$f" _site/; fi
+          done
           cp resume.json _site/
           cp -r favicon _site/
           cp -r assets _site/
