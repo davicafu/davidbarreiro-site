@@ -41,6 +41,7 @@ jobs:
           cp index.html _site/
           cp resume.json _site/
           cp -r favicon _site/
+          cp -r assets _site/
           cp -r dist _site/
 
       - name: Upload artifact

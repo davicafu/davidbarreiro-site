@@ -52,6 +52,43 @@
         "endDate": "2019-03"
     }
   ],
+  "portfolio": [
+    {
+      "name": "go-auth-kit",
+      "description": "Reusable Go authentication module designed for production-ready backends. It supports configurable authentication strategies (cookie-based sessions or JWT access + refresh tokens), role and permission checks (RBAC), OAuth login providers (GitHub / Google), password reset flows, rate limiting at auth endpoints, and security-oriented audit logs. The objective is to provide a drop-in foundation for secure auth without reimplementing the same patterns in every service.",
+      "highlights": ["Go", "JWT + Cookies", "OAuth", "RBAC", "Audit Logs"]
+    },
+    {
+      "name": "Concurrent Worker Runtime",
+      "description": "Concurrent processing runtime for asynchronous jobs in Go. It includes dynamic worker pools, exponential retries with jitter, backpressure management, dead-letter queue (DLQ), graceful shutdown, and context cancellation propagation. The focus is reliability under load and predictable behavior during failure scenarios, with clear observability hooks for monitoring throughput, retries, and queue health.",
+      "highlights": ["Concurrency", "Retries", "Backpressure", "DLQ", "Graceful Shutdown"]
+    },
+    {
+      "name": "Go Microservice Suite (gRPC + REST)",
+      "description": "Reference microservice system composed of User Service, Notification Service, and a mock Billing Service. Internal communication uses gRPC contracts with protobuf, while an external REST gateway exposes public endpoints. It includes timeout and retry policies, transport-level error handling, and service boundaries oriented to real-world distributed systems. Built to demonstrate practical service decomposition and robust inter-service communication.",
+      "highlights": ["gRPC", "REST Gateway", "Protobuf"]
+    },
+    {
+      "name": "Event Analytics Pipeline",
+      "description": "Event-driven analytics architecture covering event ingestion, data modeling, ETL transformations, metric generation, and analytical serving layers. Implemented with Go and analytical/storage combinations such as DuckDB, ClickHouse, and PostgreSQL. The goal is to provide a pragmatic blueprint for near real-time analytics with clear separation between ingestion, processing, and consumption concerns.",
+      "highlights": ["Event-Driven", "ETL", "Go", "ClickHouse", "PostgreSQL"]
+    },
+    {
+      "name": "observekit",
+      "description": "Observability demo stack for modern backend systems. It integrates OpenTelemetry instrumentation, distributed tracing, Prometheus metrics, Grafana dashboards, centralized logs, SLO-oriented views, and Superset analytics boards for exploratory analysis. The project is focused on making system behavior observable end-to-end: from request-level traces to service KPIs, alerting, and product-level analytical insights.",
+      "highlights": ["OpenTelemetry", "Tracing", "Prometheus", "Grafana", "Superset"]
+    },
+    {
+      "name": "CLI Suite",
+      "description": "Professional Go CLI toolkit designed as a multi-command platform for operational and engineering workflows. Planned commands include Data Quality CLI, API Audit CLI, Benchmark CLI, Migration CLI, and Kubernetes helper utilities. The suite emphasizes robust UX, strong error handling, testability, and repeatable automation for day-to-day engineering tasks.",
+      "highlights": ["Go", "Automation", "Benchmarking", "Migrations", "Testing"]
+    },
+    {
+      "name": "CLI Games Collection",
+      "description": "Progressive terminal game collection used as a technical playground for architecture and algorithmic practice. The roadmap advances from grid-based games (Snake, Sokoban) to physics and action loops (Flappy, Breakout, Space Invaders), and then to more complex systems (Pac-Man style AI, Asteroids movement, platformers, Tetris). It is intentionally structured to improve game loops, input handling, collision systems, and reusable engine patterns.",
+      "highlights": ["Game Loops", "Collision Systems", "Terminal UI", "Algorithms", "Architecture"]
+    }
+  ],
   "work": [
     {
       "name": "SDG Group",
@@ -102,7 +139,7 @@
     {
       "name": "Indra Software Labs S.L.",
       "position": "Junior Software Engineer",
-      "startDate": "2015-02",
+      "startDate": "2014-12",
       "endDate": "2018-06",
       "summary": "Managed and developed distributed database platforms for a multinational retail environment",
       "tech": ["Java", "MariaDB", "Linux"],
@@ -122,14 +159,16 @@
       "area": "Computer Engineering",
       "studyType": "Degree",
       "startDate": "2008",
-      "endDate": "2014"
+      "endDate": "2014",
+      "tech": ["Java", "Algorithms & Data Structures", "SQL"]
     },
     {
       "institution": "International University of La Rioja (UNIR)",
       "area": "Big Data and Visual Analytics",
       "studyType": "Master",
       "startDate": "2016",
-      "endDate": "2018"
+      "endDate": "2018",
+      "tech": ["Spark", "Python", "MongoDb", "D3js"]
     }
   ],
   "skills": [
@@ -140,28 +179,39 @@
                     {
                       "name": "Go",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/go.svg"
                     },
                     {
                       "name": "Java",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/java.svg"
                     },
                     {
                       "name": "Bash",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/bash.svg"
                     },
                     {
                       "name": "Python",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/python.svg"
                     },
                     {
                       "name": "Scala",
                       "level": "Intermediate",
-                      "notes": ""
-                    }, "Spring Boot"]
+                      "notes": "",
+                      "logo": "./assets/logos/scala.svg"
+                    }, 
+                    {
+                      "name": "Spring Boot",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "./assets/logos/spring-boot.svg"
+                    }]
     },
     {
       "name": "Databases",
@@ -169,7 +219,8 @@
       "keywords": [{
                       "name": "PostgreSQL",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/postgresql.svg" 
                     }, 
                     {
                       "name": "ClickHouse",
@@ -180,24 +231,33 @@
                                           "issuer": "ClickHouse", 
                                           "url": "https://www.credly.com/badges/09a51399-9a62-4619-9d6b-3096e2b8070c/linked_in?t=t2irdp"
                                         }],
-                      "notes": "Expediction date: 2025-09-13"
+                      "notes": "Expedition date: 2025-09-13",
+                      "logo": "./assets/logos/clickhouse.svg"
                     }, 
                     {
                       "name": "MariaDb",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/mariadb.svg"
                     },
                     {
                       "name": "Redis",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/redis.svg"
                     },
                     {
                       "name": "MongoDB",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/mongodb.svg"
                     },
-                    "Snowflake"]
+                    {
+                      "name": "Snowflake",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "./assets/logos/snowflake.svg"
+                    }]
     },
     {
       "name": "Data Processing",
@@ -206,58 +266,136 @@
                     {
                       "name": "Kafka",
                       "level": "Expert",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/kafka.svg"
                     },
                     {
                       "name": "Flink",
                       "level": "Intemediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/flink.svg"
                     },
                     {
                       "name": "Databricks",
                       "level": "Advanced",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/databricks.svg"
                     },
                     {
                       "name": "Spark",
                       "level": "Advanced",
-                      "notes": ""
-                    },"DBT", "Airflow"]
+                      "notes": "",
+                      "logo": "./assets/logos/spark.svg"
+                    },
+                    {
+                      "name": "RabbitMQ",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/rabbitmq.svg"
+                    },
+                    {
+                      "name": "DBT",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/dbt.svg"
+                    }  , 
+                    {
+                      "name": "Airflow",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/airflow.svg"
+                    }                    
+                  ]
     },
     {
       "name": "AI Engineering",
       "level": "Intermediate",
-      "keywords": ["OpenSpec", "AI coding workflows", "Agentic Systems", "Tool orchestration", "MCP", "Model Interoperability", "Context Engineering", "Workflow Automation"]
+      "keywords": [
+                    "OpenSpec", 
+                    {
+                      "name": "AI coding workflows",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "CodeGen"
+                    },
+                    {
+                      "name": "Agentic Systems",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "Agentic AI"
+                    },
+                    {
+                      "name": "Tool orchestration",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "Orchestration"
+                    },
+                    {
+                      "name": "Model Interoperability",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "Multi-Model"
+                    },
+                    {
+                      "name": "Context Engineering",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "Context Eng"
+                    },
+                    {
+                      "name": "Workflow Automation",
+                      "level": "Intermediate",
+                      "notes": "",
+                      "logo": "Automation"
+                    } , "MCP"]
     },
     {
       "name": "Infra & DevOps",
       "level": "Advanced",
       "keywords": [
                   {
-                      "name": "Docker",
-                      "level": "Expert",
-                      "notes": ""
+                      "name": "CI/CD",
+                      "level": "Advanced",
+                      "notes": "GitHub, Github Actions, Jenkins, GitLab, Bitbucket",
+                      "logo": ["./assets/logos/github.svg",
+                              "./assets/logos/jenkins.svg",
+                              "./assets/logos/gitlab.svg",
+                              "./assets/logos/bitbucket.svg"]
                     },
                     {
-                      "name": "CI/CD (GitHub Actions, Jenkins, GitLab CI)",
-                      "level": "Advanced",
-                      "notes": ""
+                      "name": "Docker",
+                      "level": "Expert",
+                      "notes": "",
+                      "logo": "./assets/logos/docker.svg"
                     },
                     {
                       "name": "Kubernetes",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/kubernetes.svg"
                     },
                     {
                       "name": "Terraform",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/terraform.svg"
                     }]
     },
     {
       "name": "Cloud",
       "level": "Intermediate",
-      "keywords": ["AWS", "Azure", "Google Cloud"]
+      "keywords": [{
+                      "name": "AWS",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/aws.svg"
+                    },
+                    {
+                      "name": "Azure",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/azure.svg"
+                    },
+                    {
+                      "name": "Google Cloud",
+                      "level": "intermediate",
+                      "logo": "./assets/logos/gcp.svg"
+                    }]
     },
     {
       "name": "Observability & Analytics",
@@ -266,32 +404,38 @@
                    {
                       "name": "Grafana",
                       "level": "Expert",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/grafana.svg"
                     },
                     {
                       "name": "OpenTelemetry",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/opentelemetry.svg"
                     },
                     {
                       "name": "Prometheus",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/prometheus.svg"
                     },
                     {
                       "name": "Superset",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/superset.svg"
                     },
                     {
                       "name": "Elastic (ELK)",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/elasticsearch.svg"
                     },
                     {
                       "name": "Power BI",
                       "level": "Intermediate",
-                      "notes": ""
+                      "notes": "",
+                      "logo": "./assets/logos/powerbi.svg"
                     } ]
     }
   ],

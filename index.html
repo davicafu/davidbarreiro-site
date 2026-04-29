@@ -7,7 +7,7 @@
 <meta name="description" content="Interactive CV with Tailwind CSS, D3.js, and animations.">
 <link rel="icon" href="./favicon/favicon.ico">
 <link rel="stylesheet" href="./dist/styles.css">
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
 <style>
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -93,6 +93,10 @@
     transform: none;
     border-color: rgba(103, 232, 249, .55);
     box-shadow: 0 14px 34px rgba(2, 6, 23, .45);
+  }
+  .timeline-card-edu,
+  .timeline-card-edu:hover {
+    border-color: transparent !important;
   }
 
   .timeline-card::before {
@@ -187,7 +191,7 @@
           >
         </div>
         <div class="w-28 h-28 rounded-[1.7rem] border border-slate-700/80 bg-white/5 grid place-items-center">
-          <img src="./favicon/logo-clear.png" alt="Site badge" class="w-full h-full object-contain opacity-90">
+          <img src="./favicon/logo-clear-tiny.png" alt="Site badge" class="w-full h-full object-contain opacity-90">
         </div>
       </div>
       <div class="grid grid-cols-2 gap-4">
@@ -322,7 +326,7 @@
     </div>
   </div>
 </footer>
-
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script>
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CURRENT_YEAR = new Date().getFullYear();
@@ -375,7 +379,7 @@ function normalizeKeywordItem(item) {
     return null;
   };
 
-  if (typeof item === "string") return { name: item, level: "", certifications: [], notes: "" };
+  if (typeof item === "string") return { name: item, level: "", certifications: [], notes: "", logo: "" };
   if (item && typeof item === "object") {
     let certs = [];
     if (Array.isArray(item.certifications)) {
@@ -398,10 +402,13 @@ function normalizeKeywordItem(item) {
       name: safeText(item.name, safeText(item.keyword, "Skill")).replace(/\*+\s*$/, ""),
       level: safeText(item.level, ""),
       certifications: certs,
-      notes: safeText(item.notes, safeText(item.summary, ""))
+      notes: safeText(item.notes, safeText(item.summary, "")),
+      logo: Array.isArray(item.logo)
+        ? item.logo.map(x => safeText(x, "")).filter(Boolean)
+        : safeText(item.logo, "")
     };
   }
-  return { name: "Skill", level: "", certifications: [], notes: "" };
+  return { name: "Skill", level: "", certifications: [], notes: "", logo: "" };
 }
 function parseDateToYear(value, fallbackYear = CURRENT_YEAR) {
   if (!value) return fallbackYear;
@@ -459,18 +466,34 @@ function deriveFlow(skills) {
 function mapResumeToViewModel(data) {
   const basics = data.basics || {};
   const work = Array.isArray(data.work) ? data.work : [];
+  const education = Array.isArray(data.education) ? data.education : [];
   const skills = Array.isArray(data.skills) ? data.skills : [];
   const portfolio = Array.isArray(data.portfolio) ? data.portfolio : [];
 
-  jobs = work.map(entry => ({
+  const workItems = work.map(entry => ({
     company: safeText(entry.name, "Empresa"),
     role: safeText(entry.position, "Software Engineer"),
     start: parseDateToYear(entry.startDate, CURRENT_YEAR - 1),
     end: parseDateToYear(entry.endDate, CURRENT_YEAR),
     text: safeText(entry.summary, "Contributions to data platform initiatives."),
     highlights: Array.isArray(entry.highlights) ? entry.highlights.filter(Boolean) : [],
-    tech: Array.isArray(entry.tech) ? entry.tech.filter(Boolean) : []
-  })).sort((a, b) => a.start - b.start);
+    tech: Array.isArray(entry.tech) ? entry.tech.filter(Boolean) : [],
+    type: "work"
+  }));
+  const educationItems = education.map(entry => ({
+    company: safeText(entry.institution, "Institution"),
+    role: safeText(entry.studyType, "Education"),
+    start: parseDateToYear(entry.startDate, CURRENT_YEAR - 1),
+    end: parseDateToYear(entry.endDate, CURRENT_YEAR),
+    text: safeText(entry.area, "Academic program"),
+    highlights: [],
+    tech: Array.isArray(entry.tech) && entry.tech.length
+      ? entry.tech.filter(Boolean)
+      : ["Education", safeText(entry.studyType, "Degree"), safeText(entry.area, "Program")].filter(Boolean),
+    type: "education"
+  }));
+
+  jobs = [...workItems, ...educationItems].sort((a, b) => a.start - b.start);
 
   skillGroups = skills.map((entry, i) => {
     const name = safeText(entry.name, `Skill Group ${i + 1}`);
@@ -555,35 +578,16 @@ function renderMetrics(basics = {}, meta = {}) {
 function renderProjects(portfolio) {
   const grid = document.querySelector("#portfolio .grid");
   if (!grid) return;
-  const fallbackPortfolio = [
-    {
-      name: "HexagoLab",
-      description: "Personal platform for experimenting with APIs, gateway patterns, authentication, OpenShift deployments, and backend architecture.",
-      highlights: ["APIs", "OpenShift", "Architecture"]
-    },
-    {
-      name: "Board Game Automation / AI Bots",
-      description: "Rule-based automata and decision systems for board games, focused on solo play, bot behavior, and tactical prioritization.",
-      highlights: ["AI Bots", "Automation", "Decision Systems"]
-    },
-    {
-      name: "Data Platform Playground",
-      description: "Sandbox for Kafka, stream processing, observability, ingestion patterns, and scalable data-serving architectures.",
-      highlights: ["Kafka", "Streaming", "Observability"]
-    },
-    {
-      name: "Technical Writing / Architecture Notes",
-      description: "Short articles, diagrams, and implementation notes about backend systems, streaming, APIs, and platform engineering.",
-      highlights: ["System Design", "Backend", "Documentation"]
-    }
-  ];
-
-  const list = (portfolio && portfolio.length ? portfolio : fallbackPortfolio).slice(0, 4);
+  const list = (portfolio && portfolio.length ? portfolio : []).slice(0, 8);
+  if (!list.length) {
+    grid.innerHTML = `<article class=\"glass rounded-[2rem] p-7 border border-slate-800\"><h3 class=\"text-xl font-black mb-3\">Portfolio in progress</h3><p class=\"text-slate-400 leading-relaxed\">Project entries will appear here once <code>portfolio</code> is defined in <code>resume.json</code>.</p></article>`;
+    return;
+  }
   grid.innerHTML = list.map((project, index) => {
     const tags = (project.highlights || []).slice(0, 3);
     const borderClass = index % 2 === 0 ? "hover:border-cyan-300/60" : "hover:border-violet-300/60";
     const chipClass = index % 2 === 0 ? "bg-cyan-300/10 text-cyan-200" : "bg-violet-300/10 text-violet-200";
-    return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, "Project")}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, "Technical personal project.")}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map(tag => `<span class=\"px-3 py-1 rounded-full ${chipClass} text-sm\">${safeText(tag).slice(0, 38)}</span>`).join("")}</div></article>`;
+    return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, "Project")}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, "Technical personal project.")}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map(tag => `<span class=\"px-3 py-1 rounded-full ${chipClass} text-sm\">${safeText(typeof tag === "string" ? tag : (tag?.text || tag?.name || "")).slice(0, 38)}</span>`).join("")}</div></article>`;
   }).join("");
 }
 
@@ -674,13 +678,14 @@ function timeline(){
   el.innerHTML = "";
   const w = el.clientWidth || 980;
   const isMobile = w < 820;
+  const isNarrowMobile = w < 560;
   const minYear = Math.floor(d3.min(jobs, d => d.start) || 2015);
   const maxYear = Math.ceil(d3.max(jobs, d => d.end) || CURRENT_YEAR);
   const trackY = 56;
   const cardsTopOffset = 76;
   const cardW = isMobile ? Math.min(w - 28, 440) : 320;
-  const cardH = 154;
-  const rowGap = 22;
+  const cardH = 178;
+  const rowGap = 30;
   const cardXMin = 14;
   const cardXMax = w - cardW - 14;
   const rowMinGap = 14;
@@ -688,7 +693,7 @@ function timeline(){
 
   const clampCardX = cx => Math.max(cardXMin, Math.min(cardXMax, cx - cardW / 2));
   const placedRows = [];
-  const placed = jobs
+  let placed = jobs
     .slice()
     .sort((a, b) => a.start - b.start)
     .map((job) => {
@@ -707,8 +712,29 @@ function timeline(){
     return hits.slice(0, 4);
   }
 
+  if (isMobile) {
+    const mobileLeft = (w - cardW) / 2;
+    let cursorY = trackY + cardsTopOffset;
+    placed = placed.map((item, idx) => {
+      const withLayout = {
+        ...item,
+        row: idx,
+        left: mobileLeft,
+        cx: x((item.start + item.end) / 2),
+        cardTop: cursorY,
+        cardHeight: 210
+      };
+      cursorY += withLayout.cardHeight + 22;
+      return withLayout;
+    });
+  }
+
   const totalRows = d3.max(placed, d => d.row) + 1;
-  const h = trackY + cardsTopOffset + totalRows * (cardH + rowGap) + 84;
+  const desktopH = trackY + cardsTopOffset + totalRows * (cardH + rowGap) + 84;
+  const mobileBottom = isMobile && placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : 0;
+  const h = isMobile ? mobileBottom : desktopH;
+  const getCardTop = d => isMobile ? d.cardTop : (trackY + cardsTopOffset + d.row * (cardH + rowGap));
+  const getCardHeight = d => isMobile ? d.cardHeight : cardH;
   const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
 
   svg.append("line")
@@ -722,7 +748,11 @@ function timeline(){
 
   svg.append("g")
     .attr("transform", `translate(0,${trackY + 18})`)
-    .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(Math.min(9, Math.max(4, maxYear - minYear + 1))))
+    .call(
+      d3.axisBottom(x)
+        .tickFormat(d3.format("d"))
+        .ticks(isMobile ? (isNarrowMobile ? 4 : 5) : Math.min(9, Math.max(4, maxYear - minYear + 1)))
+    )
     .call(g => g.selectAll("text").attr("fill", "#94a3b8").attr("font-size", 11))
     .call(g => g.selectAll("path,line").attr("stroke", "rgba(148,163,184,.22)"));
 
@@ -746,7 +776,7 @@ function timeline(){
     .attr("x1", 0)
     .attr("x2", 0)
     .attr("y1", 8)
-    .attr("y2", d => cardsTopOffset + d.row * (cardH + rowGap) - (isMobile ? 10 : 2))
+    .attr("y2", d => getCardTop(d) - trackY - (isMobile ? 10 : 2))
     .attr("stroke", "rgba(103,232,249,.62)")
     .attr("stroke-width", isMobile ? 1.4 : 2)
     .attr("stroke-linecap", "round")
@@ -761,7 +791,7 @@ function timeline(){
     .data(placed)
     .join("g")
     .attr("class", "timeline-card-group")
-    .attr("transform", d => `translate(${d.left},${trackY + cardsTopOffset + d.row * (cardH + rowGap)})`)
+    .attr("transform", d => `translate(${d.left},${getCardTop(d)})`)
     .attr("opacity", 0)
     .on("mousemove", (event, d) => {
       if (isMobile) return;
@@ -769,9 +799,10 @@ function timeline(){
       const highlightsHtml = highlights.length
         ? `<p class="mt-2 text-slate-300"><small>${highlights.map(item => `• ${item}`).join("<br>")}</small></p>`
         : "";
+      const kind = d.type === "education" ? "Education" : "Work";
       showTip(
         event,
-        `<strong>${d.company}</strong><br><small>${d.role}</small>${highlightsHtml}`,
+        `<strong>${d.company}</strong><br><small>${kind} · ${d.role}</small>${highlightsHtml}`,
         true
       );
     })
@@ -794,20 +825,29 @@ function timeline(){
     });
 
   cards.append("foreignObject")
+    .attr("class", "timeline-card-fo")
     .attr("x", -2)
     .attr("y", -18)
     .attr("width", cardW + 4)
-    .attr("height", cardH + 36)
+    .attr("height", d => getCardHeight(d) + 36)
     .html(d => {
       const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? "Present" : Math.floor(d.end)}`;
       const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
+      const isEducation = d.type === "education";
+      const shellBorder = isEducation ? "border-transparent" : "border-slate-800";
+      const shellBg = isEducation ? "" : "";
+      const shellStyle = isEducation
+        ? "background: linear-gradient(135deg, rgba(14,116,144,.46) 0%, rgba(8,47,73,.52) 45%, rgba(15,23,42,.84) 100%);"
+        : "background: linear-gradient(135deg, rgba(15,23,42,.88) 0%, rgba(30,41,59,.72) 52%, rgba(15,23,42,.9) 100%);";
+      const roleColor = "text-cyan-200";
+      const timelineTypeClass = isEducation ? "timeline-card-edu" : "";
       return `
-        <div class="timeline-card h-full rounded-2xl border border-slate-800 bg-slate-950/78 p-4 text-slate-200">
+        <div class="timeline-card ${timelineTypeClass} rounded-2xl border ${shellBorder} ${shellBg} p-4 text-slate-200" style="${shellStyle}">
           <div class="flex items-center justify-between gap-3">
             <p class="font-black text-white text-sm">${d.company}</p>
             <span class="text-xs text-slate-400">${period}</span>
           </div>
-          <p class="text-sm text-cyan-200 mt-1">${d.role}</p>
+          <p class="text-sm ${roleColor} mt-1">${d.role}</p>
           <p class="text-xs text-slate-400 mt-2 leading-relaxed">${d.text}</p>
           <div class="flex flex-wrap gap-1.5 mt-3">
             ${chips.map(chip => `<span class="px-2 py-0.5 rounded-full border border-slate-700 bg-white/5 text-[10px] text-slate-300">${chip}</span>`).join("")}
@@ -823,49 +863,227 @@ function timeline(){
     .attr("opacity", 1)
     .attrTween("transform", function(d) {
       const baseX = d.left;
-      const baseY = trackY + cardsTopOffset + d.row * (cardH + rowGap);
+      const baseY = getCardTop(d);
       const iy = d3.interpolateNumber(14, 0);
       return t => `translate(${baseX},${baseY + iy(t)})`;
     });
 
-  if (isMobile) {
-    const detailsPanel = document.createElement("div");
-    detailsPanel.className = "mt-3 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300 hidden";
-    el.appendChild(detailsPanel);
-    let activeNode = null;
-
-    const renderDetails = d => {
-      const highlights = (d.highlights || []).slice(0, 6);
-      detailsPanel.innerHTML = `
-        <p class="text-white font-bold">${d.company}</p>
-        <p class="text-slate-400 mt-1">${d.role}</p>
-        <ul class="mt-2 space-y-1 text-slate-300">
-          ${(highlights.length ? highlights : ["No highlights provided."]).map(item => `<li>• ${item}</li>`).join("")}
-        </ul>
-      `;
-      detailsPanel.classList.remove("hidden");
+  if (!isMobile) {
+    let desktopActiveNode = null;
+    const applyDesktopFocus = (selected = null) => {
+      const hasSelected = !!selected;
+      cards.transition().duration(220)
+        .attr("opacity", d => !hasSelected ? 1 : (d === selected ? 1 : 0.38));
+      cards.select(".timeline-card").transition().duration(220)
+        .style("box-shadow", d => (!hasSelected || d === selected)
+          ? "0 16px 38px rgba(8,47,73,.45)"
+          : "0 8px 18px rgba(2,6,23,.26)")
+        .style("filter", d => (!hasSelected || d === selected) ? "none" : "saturate(.75)");
+      nodes.select("line").transition().duration(220)
+        .attr("opacity", d => !hasSelected ? .95 : (d === selected ? .95 : .18));
+      nodes.select("circle").transition().duration(220)
+        .attr("opacity", d => !hasSelected ? 1 : (d === selected ? 1 : .45))
+        .attr("stroke-width", d => !hasSelected ? 1.2 : (d === selected ? 1.9 : 1.1));
     };
 
-    const resetDetails = () => {
-      activeNode = null;
-      detailsPanel.classList.add("hidden");
-      detailsPanel.innerHTML = "";
-      cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", false);
+    const toggleDesktopSelection = (event, d) => {
+      event.stopPropagation();
+      desktopActiveNode = desktopActiveNode === d ? null : d;
+      applyDesktopFocus(desktopActiveNode);
+    };
+
+    cards.on("click", toggleDesktopSelection);
+    nodes.on("click", toggleDesktopSelection);
+    svg.on("click", () => {
+      desktopActiveNode = null;
+      applyDesktopFocus(null);
+    });
+  }
+
+  if (isMobile) {
+    const detailGap = 10;
+    const baseCardY = d => getCardTop(d);
+    let activeNode = null;
+    const mobileCardGap = 24;
+
+    const recalculateMobileLayout = () => {
+      let cursorY = trackY + cardsTopOffset;
+      cards.each(function(d) {
+        const cardEl = this.querySelector(".timeline-card");
+        const measured = cardEl ? Math.ceil(cardEl.getBoundingClientRect().height) : 170;
+        d.cardHeight = Math.max(170, measured + 4);
+        d.cardTop = cursorY;
+        cursorY += d.cardHeight + mobileCardGap;
+      });
+      cards.attr("transform", d => `translate(${d.left},${baseCardY(d)})`);
+      cards.select(".timeline-card-fo").attr("height", d => getCardHeight(d) + 36);
+      nodes.select("line").attr("y2", d => getCardTop(d) - trackY - 10);
+      const baseBottom = placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : (trackY + 200);
+      svg.attr("viewBox", [0, 0, w, baseBottom]);
+      cards.attr("opacity", 1);
+    };
+
+    const detailGroup = svg.append("g").style("display", "none");
+    const detailFo = detailGroup.append("foreignObject")
+      .attr("x", -2)
+      .attr("y", 0)
+      .attr("width", cardW + 4)
+      .attr("height", 160);
+    const detailBorderColor = () => {
+      if (!activeNode) return "rgba(103,232,249,.70)";
+      const idx = placed.indexOf(activeNode);
+      return rgbaWithAlpha(palette[Math.max(0, idx) % palette.length], 0.78);
+    };
+    let activeDetailHeight = 0;
+    const rgbaWithAlpha = (color, alpha) => {
+      const c = d3.color(color);
+      if (!c) return color;
+      c.opacity = alpha;
+      return c.formatRgb();
+    };
+    const styleCardsBySelection = () => {
+      cards.select(".timeline-card")
+        .style("border-style", x => (activeNode && x === activeNode ? "solid" : "dashed"))
+        .style("border-color", (x, i) => {
+          if (activeNode && x === activeNode) return rgbaWithAlpha(palette[i % palette.length], 0.9);
+          return rgbaWithAlpha(palette[i % palette.length], 0.62);
+        })
+        .style("border-width", "1px");
+    };
+
+    const getDetailHeight = d => {
+      if (!d) return 0;
+      const items = Array.isArray(d.highlights) && d.highlights.length ? d.highlights : ["No highlights provided."];
+      return Math.max(166, 92 + items.length * 24);
+    };
+
+    const rowShift = row => (activeNode && row > activeNode.row ? activeDetailHeight + detailGap + 6 : 0);
+
+    const renderDetailHtml = d => {
+      const highlights = Array.isArray(d.highlights) ? d.highlights : [];
+      const items = highlights.length ? highlights : ["No highlights provided."];
+      const beautifyHighlight = value => {
+        const txt = safeText(value, "");
+        if (!txt) return "";
+        const normalized = txt.replace(/\s+/g, " ").trim();
+        return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
+      };
+      return `
+        <div style="border-color:${detailBorderColor()};border-style:dashed;" class="h-full rounded-2xl border bg-slate-950/98 p-4 text-xs text-slate-200 shadow-[0_14px_34px_rgba(8,47,73,.45)]">
+          <ul class="space-y-2 text-slate-300 leading-relaxed">
+            ${items.map(item => `<li class="flex items-start gap-2"><span class="text-cyan-300 mt-[1px]">•</span><span>${beautifyHighlight(item)}</span></li>`).join("")}
+          </ul>
+        </div>
+      `;
+    };
+
+    const applyMobileTimelineLayout = (animated = true) => {
+      const duration = animated && !reducedMotion ? 360 : 0;
+      const baseBottom = placed.length
+        ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 36)
+        : (trackY + 200);
+
+      if (activeNode) {
+        const estimatedHeight = getDetailHeight(activeNode);
+        detailGroup.style("display", null);
+        detailGroup.attr("transform", `translate(${activeNode.left},${baseCardY(activeNode) + getCardHeight(activeNode) + detailGap})`);
+        detailFo.attr("height", estimatedHeight);
+        detailFo.html(renderDetailHtml(activeNode));
+        const detailRoot = detailFo.node()?.firstElementChild;
+        const measuredDetailHeight = detailRoot
+          ? Math.ceil(Math.max(detailRoot.getBoundingClientRect().height, detailRoot.scrollHeight)) + 28
+          : estimatedHeight;
+        activeDetailHeight = Math.max(estimatedHeight, measuredDetailHeight);
+        detailFo.attr("height", activeDetailHeight);
+      } else {
+        activeDetailHeight = 0;
+      }
+
+      cards.transition()
+        .duration(duration)
+        .ease(d3.easeCubicOut)
+        .attr("transform", d => `translate(${d.left},${baseCardY(d) + rowShift(d.row)})`);
+
+      nodes.select("line")
+        .transition()
+        .duration(duration)
+        .ease(d3.easeCubicOut)
+        .attr("y2", d => getCardTop(d) - trackY + rowShift(d.row) - 10);
+
+      if (!activeNode) {
+        detailGroup.attr("data-open", "");
+        if (duration > 0) {
+          detailGroup.transition()
+            .duration(200)
+            .ease(d3.easeCubicInOut)
+            .attr("opacity", 0)
+            .attr("transform", `translate(${detailGroup.attr("data-x") || 0},${(Number(detailGroup.attr("data-y")) || 0) + 8})`)
+            .on("end", () => detailGroup.style("display", "none"));
+        } else {
+          detailGroup.attr("opacity", 0).style("display", "none");
+        }
+        cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", false);
+        styleCardsBySelection();
+        svg.attr("viewBox", [0, 0, w, baseBottom]);
+        return;
+      }
+
+      const targetX = activeNode.left;
+      const targetY = baseCardY(activeNode) + getCardHeight(activeNode) + detailGap;
+      detailGroup.transition()
+        .duration(duration)
+        .ease(d3.easeCubicOut)
+        .attr("transform", `translate(${targetX},${targetY})`)
+        .attr("opacity", 1);
+      if (!detailGroup.attr("data-open")) {
+        detailGroup
+          .style("display", null)
+          .attr("opacity", 0)
+          .attr("transform", `translate(${targetX},${targetY + 10})`);
+        detailGroup.transition()
+          .duration(duration)
+          .ease(d3.easeCubicOut)
+          .attr("transform", `translate(${targetX},${targetY})`)
+          .attr("opacity", 1);
+      } else {
+        detailGroup.style("display", null).attr("opacity", 1);
+      }
+      detailGroup.attr("data-open", "1").attr("data-x", targetX).attr("data-y", targetY);
+      cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", x => x === activeNode);
+      styleCardsBySelection();
+      const shiftedLastBottom = placed.length
+        ? (placed[placed.length - 1].cardTop + rowShift(placed[placed.length - 1].row) + placed[placed.length - 1].cardHeight)
+        : (trackY + 180);
+      const activeDetailBottom = baseCardY(activeNode) + getCardHeight(activeNode) + detailGap + activeDetailHeight;
+      const expandedBottom = Math.max(shiftedLastBottom, activeDetailBottom) + 36;
+      svg.attr("viewBox", [0, 0, w, expandedBottom]);
     };
 
     cards.on("click", (event, d) => {
       event.stopPropagation();
-      if (activeNode === d) {
-        resetDetails();
-        return;
-      }
-      activeNode = d;
-      renderDetails(d);
-      cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", x => x === d);
+      activeNode = activeNode === d ? null : d;
+      applyMobileTimelineLayout();
     });
 
-    svg.on("click", resetDetails);
+    svg.on("click", () => {
+      activeNode = null;
+      detailGroup.attr("data-open", "");
+      applyMobileTimelineLayout();
+    });
+
+    requestAnimationFrame(() => {
+      recalculateMobileLayout();
+      applyMobileTimelineLayout(false);
+      styleCardsBySelection();
+    });
   }
+
+  const timelineTip = document.createElement("div");
+  timelineTip.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+  timelineTip.innerHTML = isMobile
+    ? "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work or education card to expand highlights. Tap outside to close."
+    : "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover cards to inspect details, or click a card/point to focus and dim the rest. Click outside to reset.";
+  el.appendChild(timelineTip);
 }
 
 function bubbles() {
@@ -873,7 +1091,9 @@ function bubbles() {
   el.innerHTML = "";
   const w = el.clientWidth || 680;
   const isMobile = w < 640;
-  const h = Math.max(560, Math.round(w * (isMobile ? 1.18 : 0.9)));
+  const h = isMobile
+    ? Math.max(430, Math.round(w * 0.96))
+    : Math.max(560, Math.round(w * 0.9));
   const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]).attr("class", "overflow-hidden");
   const clipId = `bubble-clip-${Math.random().toString(36).slice(2, 9)}`;
   svg.append("defs")
@@ -966,8 +1186,26 @@ function bubbles() {
     const c = d3.color(color);
     return c ? c.darker(0.28).formatHex() : color;
   };
+  const getLogoList = meta => {
+    const raw = meta?.logo;
+    if (Array.isArray(raw)) return raw.map(x => safeText(x, "")).filter(Boolean);
+    const single = safeText(raw, "");
+    return single ? [single] : [];
+  };
+  const isLogoAsset = value => {
+    if (typeof value !== "string") return false;
+    const v = value.trim();
+    if (!v) return false;
+    if (/^https?:\/\//i.test(v)) return true;
+    return /^\.?\/?assets\/logos\/.+\.(svg|png|webp|avif)$/i.test(v) || /^\.\/assets\/logos\/.+$/i.test(v);
+  };
+  const getBubbleText = d => {
+    const logos = getLogoList(d.meta);
+    if (logos.length === 1 && !isLogoAsset(logos[0])) return logos[0];
+    return `${fitLabel(d)}${d.meta?.certifications?.length ? " •" : ""}`;
+  };
   const fitLabel = d => {
-    const maxChars = Math.max(4, Math.floor(d.r * 0.78));
+    const maxChars = Math.max(4, Math.floor(d.r * (isMobile ? 0.7 : 0.76)));
     const baseName = d.name.replace(/\*+\s*$/, "");
     if (baseName.length <= maxChars) return baseName;
     if (maxChars <= 4) return d.name.slice(0, maxChars);
@@ -975,19 +1213,63 @@ function bubbles() {
   };
   const fitFontSize = d => {
     const label = fitLabel(d);
-    const sizeByRadius = d.r * 0.42;
-    const sizeByLength = (d.r * 1.7) / Math.max(5, label.length);
-    return Math.max(7.2, Math.min(12, sizeByRadius, sizeByLength * 2.2));
+    const sizeByRadius = d.r * (isMobile ? 0.34 : 0.38);
+    const sizeByLength = (d.r * (isMobile ? 1.45 : 1.62)) / Math.max(5, label.length);
+    return Math.max(isMobile ? 6.2 : 7, Math.min(isMobile ? 10 : 11.5, sizeByRadius, sizeByLength * 2.05));
   };
 
   node.append("circle").attr("class", "bubble").attr("r", d => reducedMotion ? d.r : 1).attr("fill", d => bubbleFill(d.color)).attr("opacity", 0.9).attr("stroke", "rgba(255,255,255,.42)").attr("stroke-width", 1);
-  node.append("text")
+  node.filter(d => {
+      const logos = getLogoList(d.meta);
+      return logos.length === 0 || (logos.length === 1 && !isLogoAsset(logos[0]));
+    }).append("text")
     .attr("text-anchor", "middle")
-    .attr("dy", ".32em")
+    .attr("dy", ".3em")
     .attr("fill", "white")
-    .attr("font-weight", 800)
+    .attr("font-weight", 700)
+    .attr("letter-spacing", isMobile ? ".01em" : ".005em")
+    .attr("paint-order", "stroke")
+    .attr("stroke", "rgba(2,6,23,.35)")
+    .attr("stroke-width", isMobile ? 0.7 : 0.5)
     .attr("font-size", d => fitFontSize(d))
-    .text(d => `${fitLabel(d)}${d.meta?.certifications?.length ? " •" : ""}`);
+    .text(d => getBubbleText(d));
+  const logoNode = node.filter(d => getLogoList(d.meta).some(isLogoAsset));
+  logoNode.each(function(d) {
+    const group = d3.select(this);
+    const logos = getLogoList(d.meta).filter(isLogoAsset).slice(0, 4);
+    if (!logos.length) return;
+    if (logos.length === 1) {
+      const size = Math.max(14, Math.min(isMobile ? 34 : 38, d.r * 1.05));
+      group.append("image")
+        .attr("href", logos[0])
+        .attr("x", -size / 2)
+        .attr("y", -size / 2)
+        .attr("width", size)
+        .attr("height", size)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .style("filter", "drop-shadow(0 1px 3px rgba(2,6,23,.55))")
+        .style("pointer-events", "none");
+      return;
+    }
+    const cell = Math.max(10, Math.min(isMobile ? 15 : 17, d.r * 0.55));
+    const gap = Math.max(2, Math.round(cell * 0.22));
+    const total = cell * 2 + gap;
+    logos.forEach((logo, i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const x = -total / 2 + col * (cell + gap);
+      const y = -total / 2 + row * (cell + gap);
+      group.append("image")
+        .attr("href", logo)
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", cell)
+        .attr("height", cell)
+        .attr("preserveAspectRatio", "xMidYMid meet")
+        .style("filter", "drop-shadow(0 1px 2px rgba(2,6,23,.5))")
+        .style("pointer-events", "none");
+    });
+  });
   node.transition().duration(reducedMotion ? 0 : 700).delay((d, i) => i * 35).attr("opacity", 1);
   node.select("circle").transition().duration(reducedMotion ? 0 : 900).delay((d, i) => i * 35).ease(d3.easeElasticOut.amplitude(.8).period(.45)).attr("r", d => d.r);
   let hasInteracted = false;
@@ -1031,13 +1313,24 @@ function bubbles() {
     .scaleExtent([1, maxScale])
     .extent([[0, 0], [w, h]])
     .translateExtent([[0, 0], [w, h]])
-    .wheelDelta(event => -event.deltaY * (event.deltaMode === 1 ? 0.033 : event.deltaMode ? 0.66 : 0.0013) * (event.ctrlKey ? 7 : 1))
+    .wheelDelta(event => {
+      const base = isMobile ? 0.0008 : 0.0013;
+      return -event.deltaY * (event.deltaMode === 1 ? 0.028 : event.deltaMode ? 0.55 : base) * (event.ctrlKey ? 6 : 1);
+    })
     .on("zoom", event => {
       camera.attr("transform", event.transform);
       applyStateFromTransform(event.transform);
     });
 
   svg.call(zoomBehavior).on("dblclick.zoom", null);
+  if (isMobile) {
+    svg
+      .style("touch-action", "manipulation")
+      .on("touchstart", event => {
+        if (event.touches && event.touches.length > 1) return;
+        event.stopPropagation();
+      });
+  }
 
   const nodesForBounds = [...groupsData, ...nodes];
   const minX = d3.min(nodesForBounds, d => d.x - d.r) ?? 0;
@@ -1046,7 +1339,7 @@ function bubbles() {
   const maxY = d3.max(nodesForBounds, d => d.y + d.r) ?? h;
   const boundsW = Math.max(1, maxX - minX);
   const boundsH = Math.max(1, maxY - minY);
-  const fitPad = isMobile ? 0.94 : 0.92;
+  const fitPad = isMobile ? 0.985 : 0.92;
   const fitScale = Math.max(1, Math.min(maxScale, Math.min((w / boundsW) * fitPad, (h / boundsH) * fitPad)));
   const initialScale = fitScale;
   const fitCx = minX + boundsW / 2;
@@ -1126,6 +1419,9 @@ function bubbles() {
   }
 
   node.attr("transform", d => `translate(${d.x},${d.y})`);
+  if (isMobile) {
+    node.select("circle").attr("stroke-width", 0.8);
+  }
   document.querySelectorAll(".skill-filter").forEach(button => { button.addEventListener("click", () => selectGroup(button.dataset.group)); });
   svg.on("click", () => { hideInitialTip(); resetSelection(); });
 }
@@ -1141,7 +1437,7 @@ function dataFlow(){
   const left = (w - cardW) / 2;
   const detailPanelPad = 10;
   const detailPanelH = isMobile ? 144 : 126;
-  const bottomPad = 28 + detailPanelH + detailPanelPad;
+  const baseBottomPad = 28;
   const baseCardH = isMobile ? 134 : 116;
 
   const wrapTextLines = (value, maxCharsPerLine) => {
@@ -1209,7 +1505,8 @@ function dataFlow(){
     return item;
   });
 
-  const h = runningY - gap + bottomPad;
+  const baseChartBottom = runningY - gap;
+  const h = baseChartBottom + baseBottomPad;
 
   const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
   const layerLinks = svg.append("g");
@@ -1237,6 +1534,24 @@ function dataFlow(){
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
     .attr("fill", "#67e8f9");
+  const flowDefs = svg.append("defs");
+  flowDefs.append("linearGradient")
+    .attr("id", "flow-card-fx")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .selectAll("stop")
+    .data([
+      { o: "0%", c: "rgba(34,211,238,0)" },
+      { o: "35%", c: "rgba(34,211,238,0)" },
+      { o: "50%", c: "rgba(255,255,255,.24)" },
+      { o: "65%", c: "rgba(34,211,238,.28)" },
+      { o: "100%", c: "rgba(34,211,238,0)" }
+    ])
+    .join("stop")
+    .attr("offset", d => d.o)
+    .attr("stop-color", d => d.c);
 
   const linkEl = layerLinks.selectAll(".flow-link")
     .data(links)
@@ -1381,14 +1696,121 @@ function dataFlow(){
     .attr("fill", "#cbd5e1")
     .attr("font-size", isMobile ? 10 : 11)
     .attr("font-weight", 700);
+  detailCard.attr("opacity", 0);
+  const triggerFlowCardFx = index => {
+    if (index < 0) return;
+    const target = card.filter(d => d.i === index);
+    if (target.empty()) return;
+    target.selectAll(".flow-card-fx-overlay").remove();
+    const baseRect = target.select("rect");
+    baseRect.interrupt()
+      .transition()
+      .duration(reducedMotion ? 0 : 170)
+      .ease(d3.easeCubicOut)
+      .attr("fill", "rgba(20,40,68,.84)")
+      .attr("stroke", "rgba(34,211,238,.42)")
+      .attr("stroke-width", 1.6)
+      .transition()
+      .duration(reducedMotion ? 0 : 260)
+      .ease(d3.easeCubicInOut)
+      .attr("fill", "rgba(15,23,42,.7)")
+      .attr("stroke", "rgba(148,163,184,.22)")
+      .attr("stroke-width", 1.3);
+
+    const trace = target.append("rect")
+      .attr("class", "flow-card-fx-overlay")
+      .attr("x", 0.5)
+      .attr("y", 0.5)
+      .attr("width", cardW - 1)
+      .attr("height", d => d.height - 1)
+      .attr("rx", 18)
+      .attr("ry", 18)
+      .attr("fill", "none")
+      .attr("stroke", "rgba(34,211,238,.9)")
+      .attr("stroke-width", 1.35)
+      .attr("opacity", 0.95)
+      .attr("stroke-linecap", "round")
+      .style("pointer-events", "none");
+    const per = 2 * (cardW + (layout[index]?.height || baseCardH));
+    trace
+      .attr("stroke-dasharray", per)
+      .attr("stroke-dashoffset", per)
+      .transition()
+      .duration(reducedMotion ? 0 : 560)
+      .ease(d3.easeCubicInOut)
+      .attr("stroke-dashoffset", 0)
+      .transition()
+      .duration(reducedMotion ? 0 : 220)
+      .attr("opacity", 0.12)
+      .remove();
+
+    if (reducedMotion) return;
+    const cardHeight = layout[index]?.height || baseCardH;
+    const sparks = target.append("g")
+      .attr("class", "flow-card-fx-overlay")
+      .style("pointer-events", "none");
+    const cornerData = [
+      { x: 14, y: 14, dx: 16, dy: 12 },
+      { x: cardW - 14, y: 14, dx: -16, dy: 12 },
+      { x: 14, y: cardHeight - 14, dx: 16, dy: -12 },
+      { x: cardW - 14, y: cardHeight - 14, dx: -16, dy: -12 }
+    ];
+    sparks.selectAll("line")
+      .data(cornerData)
+      .join("line")
+      .attr("x1", d => d.x)
+      .attr("y1", d => d.y)
+      .attr("x2", d => d.x)
+      .attr("y2", d => d.y)
+      .attr("stroke", "rgba(103,232,249,.95)")
+      .attr("stroke-width", 1.6)
+      .attr("stroke-linecap", "round")
+      .attr("opacity", 0.95)
+      .transition()
+      .duration(320)
+      .ease(d3.easeCubicOut)
+      .attr("x2", d => d.x + d.dx)
+      .attr("y2", d => d.y + d.dy)
+      .attr("opacity", 0)
+      .remove();
+    sparks.selectAll("circle")
+      .data(cornerData)
+      .join("circle")
+      .attr("cx", d => d.x)
+      .attr("cy", d => d.y)
+      .attr("r", 1.2)
+      .attr("fill", "rgba(186,230,253,.95)")
+      .attr("opacity", 1)
+      .transition()
+      .duration(280)
+      .ease(d3.easeCubicOut)
+      .attr("r", 0.2)
+      .attr("opacity", 0)
+      .on("end", function(_, i) {
+        if (i === cornerData.length - 1) sparks.remove();
+      });
+  };
 
   const getDetailShift = () => detailPanelH + detailPanelPad + 8;
   const getCardOffsetY = (cardIndex, expandedIndex) => (
     expandedIndex >= 0 && cardIndex > expandedIndex ? getDetailShift() : 0
   );
+  const setFlowViewBox = expandedIndex => {
+    if (expandedIndex < 0) {
+      svg.attr("viewBox", [0, 0, w, baseChartBottom + baseBottomPad]);
+      return;
+    }
+    const step = layout[expandedIndex];
+    const detailBottom = step.y + step.height + detailPanelPad + detailPanelH;
+    const shiftedLastBottom = layout.length
+      ? (layout[layout.length - 1].y + getCardOffsetY(layout[layout.length - 1].i, expandedIndex) + layout[layout.length - 1].height)
+      : baseChartBottom;
+    const finalBottom = Math.max(detailBottom, shiftedLastBottom);
+    svg.attr("viewBox", [0, 0, w, finalBottom + baseBottomPad]);
+  };
 
   function applyFlowLayout(expandedIndex = -1, animated = true) {
-    const duration = animated && !reducedMotion ? 420 : 0;
+    const duration = animated && !reducedMotion ? 620 : 0;
     card.transition().duration(duration).ease(d3.easeCubicOut)
       .attr("transform", d => `translate(${d.x},${d.y + getCardOffsetY(d.i, expandedIndex)})`);
 
@@ -1403,7 +1825,15 @@ function dataFlow(){
       });
 
     if (expandedIndex < 0) {
-      detailCard.style("display", "none");
+      if (duration > 0) {
+        detailCard.transition().duration(240).ease(d3.easeCubicInOut)
+          .attr("opacity", 0)
+          .attr("transform", `${detailCard.attr("transform") || "translate(0,0)"} scale(.992)`)
+          .on("end", () => detailCard.style("display", "none"));
+      } else {
+        detailCard.attr("opacity", 0).style("display", "none");
+      }
+      setFlowViewBox(-1);
       return;
     }
 
@@ -1411,11 +1841,16 @@ function dataFlow(){
     const targetY = step.y + getCardOffsetY(step.i, expandedIndex) + step.height + detailPanelPad;
     detailCard.style("display", null);
     if (duration > 0) {
+      detailCard
+        .attr("transform", `translate(${step.x},${targetY + 14}) scale(.992)`)
+        .attr("opacity", 0);
       detailCard.transition().duration(duration).ease(d3.easeCubicOut)
-        .attr("transform", `translate(${step.x},${targetY})`);
+        .attr("transform", `translate(${step.x},${targetY}) scale(1)`)
+        .attr("opacity", 1);
     } else {
-      detailCard.attr("transform", `translate(${step.x},${targetY})`);
+      detailCard.attr("transform", `translate(${step.x},${targetY}) scale(1)`).attr("opacity", 1);
     }
+    setFlowViewBox(expandedIndex);
   }
 
   function setFlowFocus(index = -1) {
@@ -1469,18 +1904,24 @@ function dataFlow(){
   };
 
   card.on("mouseenter", (event, d) => {
+      if (isMobile) return;
+      if (pinnedFlowIndex >= 0) return;
       hoverFlowIndex = d.i;
       syncFlowState();
+      triggerFlowCardFx(d.i);
     })
     .on("mouseleave", () => {
+      if (isMobile) return;
+      if (pinnedFlowIndex >= 0) return;
       hoverFlowIndex = -1;
       syncFlowState();
     })
     .on("click", (event, d) => {
       event.stopPropagation();
-      pinnedFlowIndex = d.i;
-      hoverFlowIndex = d.i;
+      pinnedFlowIndex = pinnedFlowIndex === d.i ? -1 : d.i;
+      hoverFlowIndex = pinnedFlowIndex >= 0 ? d.i : -1;
       syncFlowState();
+      if (pinnedFlowIndex >= 0) triggerFlowCardFx(d.i);
     });
 
   svg.on("click", () => {
@@ -1490,7 +1931,7 @@ function dataFlow(){
   });
 
   const notePanel = document.createElement("div");
-  notePanel.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+  notePanel.className = "mt-2 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
   notePanel.innerHTML = "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.";
   el.appendChild(notePanel);
 
