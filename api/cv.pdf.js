@@ -5,7 +5,8 @@ module.exports = async (req, res) => {
   let browser;
   try {
     const host = req.headers.host;
-    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const forwardedProto = req.headers['x-forwarded-proto'];
+    const proto = typeof forwardedProto === 'string' ? forwardedProto.split(',')[0].trim() : 'https';
     const targetPath = typeof req.query.path === 'string' && req.query.path.startsWith('/') ? req.query.path : '/';
     const url = `${proto}://${host}${targetPath}${targetPath.includes('?') ? '&' : '?'}pdf=1`;
 
@@ -18,7 +19,8 @@ module.exports = async (req, res) => {
 
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
-    await page.waitForTimeout(800);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    await page.emulateMediaType('screen');
 
     const pdf = await page.pdf({
       format: 'A4',

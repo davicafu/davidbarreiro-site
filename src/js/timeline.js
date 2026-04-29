@@ -123,14 +123,19 @@ function timeline(){
     .attr("opacity", 0)
     .on("mousemove", (event, d) => {
       if (isMobile) return;
-      const highlights = (d.highlights || []).slice(0, 5);
-      const highlightsHtml = highlights.length
-        ? `<p class="mt-2 text-slate-300"><small>${highlights.map(item => `• ${item}`).join("<br>")}</small></p>`
+      const isEducation = d.type === "education";
+      const detailItems = (isEducation
+        ? (Array.isArray(d.tech) ? d.tech.filter(Boolean) : [])
+        : (Array.isArray(d.highlights) ? d.highlights.filter(Boolean) : [])
+      ).slice(0, 5);
+      const detailLabel = isEducation ? "Tech" : "Highlights";
+      const detailsHtml = detailItems.length
+        ? `<p class="mt-2 text-slate-300"><small><strong>${detailLabel}:</strong><br>${detailItems.map(item => `• ${item}`).join("<br>")}</small></p>`
         : "";
       const kind = d.type === "education" ? "Education" : "Work";
       showTip(
         event,
-        `<strong>${d.company}</strong><br><small>${kind} · ${d.role}</small>${highlightsHtml}`,
+        `<strong>${d.company}</strong><br><small>${kind} · ${d.role}</small>${detailsHtml}`,
         true
       );
     })
@@ -279,17 +284,27 @@ function timeline(){
         .style("border-width", "1px");
     };
 
+    const getDetailItems = d => {
+      if (!d) return [];
+      if (d.type === "education") {
+        const techItems = Array.isArray(d.tech) ? d.tech.filter(Boolean) : [];
+        return techItems.length ? techItems : ["No tech provided."];
+      }
+      const highlights = Array.isArray(d.highlights) ? d.highlights.filter(Boolean) : [];
+      return highlights.length ? highlights : ["No highlights provided."];
+    };
+
     const getDetailHeight = d => {
       if (!d) return 0;
-      const items = Array.isArray(d.highlights) && d.highlights.length ? d.highlights : ["No highlights provided."];
+      const items = getDetailItems(d);
       return Math.max(166, 92 + items.length * 24);
     };
 
     const rowShift = row => (activeNode && row > activeNode.row ? activeDetailHeight + detailGap + 6 : 0);
 
     const renderDetailHtml = d => {
-      const highlights = Array.isArray(d.highlights) ? d.highlights : [];
-      const items = highlights.length ? highlights : ["No highlights provided."];
+      const items = getDetailItems(d);
+      const sectionLabel = d?.type === "education" ? "Tech" : "Highlights";
       const beautifyHighlight = value => {
         const txt = safeText(value, "");
         if (!txt) return "";
@@ -298,6 +313,7 @@ function timeline(){
       };
       return `
         <div style="border-color:${detailBorderColor()};border-style:dashed;" class="h-full rounded-2xl border bg-slate-950/98 p-4 text-xs text-slate-200 shadow-[0_14px_34px_rgba(8,47,73,.45)]">
+          <p class="mb-2 text-cyan-300 font-bold">${sectionLabel}</p>
           <ul class="space-y-2 text-slate-300 leading-relaxed">
             ${items.map(item => `<li class="flex items-start gap-2"><span class="text-cyan-300 mt-[1px]">•</span><span>${beautifyHighlight(item)}</span></li>`).join("")}
           </ul>
@@ -409,7 +425,7 @@ function timeline(){
   const timelineTip = document.createElement("div");
   timelineTip.className = "mt-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
   timelineTip.innerHTML = isMobile
-    ? "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work or education card to expand highlights. Tap outside to close."
+    ? "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work card to expand highlights, or an education card to expand tech. Tap outside to close."
     : "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover cards to inspect details, or click a card/point to focus and dim the rest. Click outside to reset.";
   el.appendChild(timelineTip);
 }
