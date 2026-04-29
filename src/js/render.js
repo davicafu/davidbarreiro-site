@@ -191,7 +191,7 @@ function renderKeywordsPanel(group, selectedKeywordName = "") {
   }).filter(Boolean).join(", ");
 
   const detail = selected ? `
-    <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/65 p-3 text-xs text-slate-300">
+    <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/65 text-xs text-slate-300" style="padding:1rem;">
       ${selected.level ? `<p class="text-slate-400 mt-1">Level: <span class="text-slate-200">${selected.level}</span></p>` : ""}
       ${selected.certifications.length ? `<p class="text-slate-400 mt-1">Certifications: <span class="text-slate-200">${renderCerts(selected.certifications)}</span></p>` : ""}
       ${selected.notes ? `<p class="text-slate-400 mt-2">${selected.notes}</p>` : ""}
@@ -199,13 +199,13 @@ function renderKeywordsPanel(group, selectedKeywordName = "") {
   ` : "";
 
   panel.innerHTML = `
-    <div class="flex items-center gap-2 mb-3">
+    <div class="flex items-center gap-2 mb-3" style="margin-bottom:.9rem;">
       <span class="w-3 h-3 rounded-full" style="background:${group.color}"></span>
       <strong class="text-white">${group.name}</strong>
       <span class="text-slate-500">· ${group.level}</span>
     </div>
-    <div class="flex flex-wrap gap-2">
-      ${group.keywords.map(k => `<button type="button" data-group="${group.name}" data-keyword="${k.name}" class="keyword-chip px-2 py-1 rounded-full bg-white/5 border border-slate-800 hover:border-cyan-300/70 transition">${k.name}${k.certifications?.length ? '<span class="cert-badge">CERT</span>' : ""}</button>`).join("")}
+    <div class="flex flex-wrap gap-2" style="gap:.85rem;">
+      ${group.keywords.map(k => `<button type="button" data-group="${group.name}" data-keyword="${k.name}" class="keyword-chip rounded-full bg-white/5 border border-slate-800 hover:border-cyan-300/70 transition" style="padding:.62rem 1.02rem; line-height:1.25;">${k.name}${k.certifications?.length ? '<span class="cert-badge">CERT</span>' : ""}</button>`).join("")}
     </div>
     ${detail}
   `;

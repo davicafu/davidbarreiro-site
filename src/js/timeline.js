@@ -181,9 +181,9 @@ function timeline(){
             <span class="text-xs text-slate-400">${period}</span>
           </div>
           <p class="text-sm ${roleColor} mt-1">${d.role}</p>
-          <p class="text-xs text-slate-400 mt-2 leading-relaxed">${d.text}</p>
-          <div class="flex flex-wrap gap-1.5 mt-3">
-            ${chips.map(chip => `<span class="px-2 py-0.5 rounded-full border border-slate-700 bg-white/5 text-[10px] text-slate-300">${chip}</span>`).join("")}
+          <p class="text-xs text-slate-400 mt-2 leading-relaxed" style="margin-top:.7rem;">${d.text}</p>
+          <div class="mt-3" style="margin-top:1.05rem;">
+            ${chips.map(chip => `<span class="timeline-tech-chip" style="display:inline-block; margin:0 .55rem .55rem 0; padding:.44rem .84rem;">${chip}</span>`).join("")}
           </div>
         </div>
       `;

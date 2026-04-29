@@ -60,17 +60,17 @@
     pointer-events: none;
     z-index: 50;
     max-width: 320px;
-    padding: .85rem 1rem;
+    padding: .95rem 1.05rem;
     border-radius: 1rem;
-    background: rgba(2,6,23,.94);
-    border: 1px solid rgba(148,163,184,.25);
-    color: #e2e8f0;
-    box-shadow: 0 20px 70px rgba(0,0,0,.4);
+    background: rgba(2,6,23,.985);
+    border: 1px solid rgba(103,232,249,.42);
+    color: #f1f5f9;
+    box-shadow: 0 22px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(34,211,238,.18) inset;
     transform: translate(-50%, calc(-100% - 18px));
     transition: opacity .12s ease;
   }
 
-  .tooltip small { color:#94a3b8; }
+  .tooltip small { color:#cbd5e1; }
 
   .timeline-bar,
   .bubble,
@@ -126,6 +126,24 @@
     background: rgba(34,211,238,.12);
     color: #cffafe;
     box-shadow: 0 0 0 1px rgba(34,211,238,.2) inset;
+  }
+  .keyword-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: .5rem .9rem !important;
+    line-height: 1.25rem;
+  }
+
+  .timeline-tech-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: .38rem .75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(51, 65, 85, .95);
+    background: rgba(255,255,255,.06);
+    color: #cbd5e1;
+    font-size: 10px;
+    line-height: 1.2;
   }
   .cert-badge {
     display: inline-flex;
@@ -421,7 +439,7 @@
     d3Script.onload = function () {
       const appScript = document.createElement("script");
       appScript.type = "module";
-      appScript.src = "./src/js/main.js";
+      appScript.src = "./src/js/main.js?v=20260429-1";
       document.body.appendChild(appScript);
     };
     document.body.appendChild(d3Script);
