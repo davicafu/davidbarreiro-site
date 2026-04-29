@@ -1,10 +1,15 @@
-﻿const tooltip = d3.select('body').append('div').attr('class', 'tooltip');
+const tooltip = document.createElement('div');
+tooltip.className = 'tooltip';
+document.body.appendChild(tooltip);
 
 export function showTip(event, html, below = false) {
-  tooltip.html(html).style('left', event.clientX + 'px').style('top', event.clientY + 'px').style('opacity', 1);
-  tooltip.style('transform', below ? 'translate(-50%, 18px)' : 'translate(-50%, calc(-100% - 18px))');
+  tooltip.innerHTML = html;
+  tooltip.style.left = `${event.clientX}px`;
+  tooltip.style.top = `${event.clientY}px`;
+  tooltip.style.opacity = '1';
+  tooltip.style.transform = below ? 'translate(-50%, 18px)' : 'translate(-50%, calc(-100% - 18px))';
 }
 
 export function hideTip() {
-  tooltip.style('opacity', 0);
+  tooltip.style.opacity = '0';
 }

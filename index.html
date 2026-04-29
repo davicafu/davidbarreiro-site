@@ -442,6 +442,14 @@
       appScript.src = "./src/js/main.js?v=20260429-1";
       document.body.appendChild(appScript);
     };
+    d3Script.onerror = function () {
+      const targets = ["timeline", "bubbles", "flow"];
+      targets.forEach(function (id) {
+        const node = document.getElementById(id);
+        if (!node) return;
+        node.innerHTML = '<div class="rounded-xl border border-amber-400/40 bg-amber-300/10 p-4 text-sm text-amber-100">Visualization unavailable: D3 could not be loaded (CSP/network restriction).</div>';
+      });
+    };
     document.body.appendChild(d3Script);
   })();
 </script>
