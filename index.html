@@ -455,6 +455,20 @@
     </div>
   </div>
 </footer>
+<script type="importmap">
+{
+  "imports": {
+    "/src/js/state.js": "/src/js/state.js?v=20260430-4",
+    "/src/js/utils.js": "/src/js/utils.js?v=20260430-4",
+    "/src/js/render.js": "/src/js/render.js?v=20260430-4",
+    "/src/js/timeline.js": "/src/js/timeline.js?v=20260430-4",
+    "/src/js/bubbles.js": "/src/js/bubbles.js?v=20260430-4",
+    "/src/js/flow.js": "/src/js/flow.js?v=20260430-4",
+    "/src/js/ui.js": "/src/js/ui.js?v=20260430-4",
+    "/src/js/main.js": "/src/js/main.js?v=20260430-4"
+  }
+}
+</script>
 <script>
   (function () {
     const pdfLink = document.getElementById("hero-pdf-link");
@@ -486,7 +500,7 @@
     d3Script.onload = function () {
       const appScript = document.createElement("script");
       appScript.type = "module";
-      appScript.src = "./src/js/main.js?v=20260429-1";
+      appScript.src = "./src/js/main.js?v=20260430-4";
       document.body.appendChild(appScript);
     };
     d3Script.onerror = function () {

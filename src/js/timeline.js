@@ -63,7 +63,12 @@ function timeline(){
   const h = isMobile ? mobileBottom : desktopH;
   const getCardTop = d => isMobile ? d.cardTop : (trackY + cardsTopOffset + d.row * (cardH + rowGap));
   const getCardHeight = d => isMobile ? d.cardHeight : cardH;
-  const svg = d3.select(el).append("svg").attr("viewBox", [0, 0, w, h]);
+  const svg = d3.select(el)
+    .append("svg")
+    .attr("viewBox", [0, 0, w, h])
+    .attr("width", "100%")
+    .attr("height", h)
+    .style("display", "block");
 
   svg.append("line")
     .attr("x1", x(minYear))
@@ -254,7 +259,7 @@ function timeline(){
       cards.select(".timeline-card-fo").attr("height", d => getCardHeight(d) + 4);
       nodes.select("line").attr("y2", d => getCardTop(d) - trackY - 10);
       const baseBottom = placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : (trackY + 200);
-      svg.attr("viewBox", [0, 0, w, baseBottom]);
+      svg.attr("viewBox", [0, 0, w, baseBottom]).attr("height", baseBottom);
       cards.attr("opacity", 1);
     };
 
@@ -398,7 +403,7 @@ function timeline(){
         cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", false);
         triggerMobileSweep(null);
         styleCardsBySelection();
-        svg.attr("viewBox", [0, 0, w, baseBottom]);
+        svg.attr("viewBox", [0, 0, w, baseBottom]).attr("height", baseBottom);
         return;
       }
 
@@ -431,7 +436,7 @@ function timeline(){
         : (trackY + 180);
       const activeDetailBottom = baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap + activeDetailHeight;
       const expandedBottom = Math.max(shiftedLastBottom, activeDetailBottom) + 36;
-      svg.attr("viewBox", [0, 0, w, expandedBottom]);
+      svg.attr("viewBox", [0, 0, w, expandedBottom]).attr("height", expandedBottom);
     };
 
     cards.on("click", (event, d) => {
