@@ -98,25 +98,59 @@ function timeline(){
 
     const nodes = [];
     let activeIndex = -1;
+    const detailTransitionMs = 300;
 
     const closeAt = index => {
       if (index < 0 || index >= nodes.length) return;
       const current = nodes[index];
       current.card.style.borderStyle = "dashed";
       current.card.style.borderColor = neutralBorder;
+      if (current.detail.__collapseRaf) {
+        cancelAnimationFrame(current.detail.__collapseRaf);
+        current.detail.__collapseRaf = null;
+      }
       if (current.detail.__closeTimer) {
         clearTimeout(current.detail.__closeTimer);
         current.detail.__closeTimer = null;
       }
-      current.detail.style.maxHeight = "0px";
-      current.detail.style.opacity = "0";
-      current.detail.style.transform = "translateY(-6px)";
-      current.detail.style.marginTop = "0px";
-      current.detail.style.borderColor = "transparent";
-      current.detail.__closeTimer = setTimeout(() => {
+      if (reducedMotion) {
+        current.detail.style.maxHeight = "0px";
+        current.detail.style.opacity = "0";
+        current.detail.style.transform = "translateY(-6px)";
+        current.detail.style.marginTop = "0px";
+        current.detail.style.paddingTop = "0px";
+        current.detail.style.paddingBottom = "0px";
+        current.detail.style.borderWidth = "0px";
+        current.detail.style.borderColor = "transparent";
         current.detail.style.display = "none";
-        current.detail.__closeTimer = null;
-      }, reducedMotion ? 0 : 300);
+      } else {
+        const currentHeight = Math.ceil(current.detail.scrollHeight || current.detail.getBoundingClientRect().height || 0);
+        current.detail.style.display = "block";
+        current.detail.style.maxHeight = `${Math.max(0, currentHeight)}px`;
+        current.detail.style.opacity = "1";
+        current.detail.style.transform = "translateY(0)";
+        current.detail.style.marginTop = "6px";
+        current.detail.style.paddingTop = "16px";
+        current.detail.style.paddingBottom = "16px";
+        current.detail.style.borderWidth = "1px";
+        current.detail.style.borderColor = pointBorderColor(current.data, 0.84);
+        void current.detail.offsetHeight;
+        current.detail.__collapseRaf = requestAnimationFrame(() => {
+          current.detail.__collapseRaf = null;
+          current.detail.style.maxHeight = "0px";
+          current.detail.style.opacity = "0";
+          current.detail.style.transform = "translateY(-6px)";
+          current.detail.style.marginTop = "0px";
+          current.detail.style.paddingTop = "0px";
+          current.detail.style.paddingBottom = "0px";
+          current.detail.style.borderWidth = "0px";
+          current.detail.style.borderColor = "transparent";
+        });
+        current.detail.__closeTimer = setTimeout(() => {
+          current.detail.style.display = "none";
+          current.detail.__closeTimer = null;
+        }, detailTransitionMs + 24);
+      }
       activeIndex = -1;
     };
 
@@ -145,9 +179,12 @@ function timeline(){
         current.detail.__closeTimer = null;
       }
       current.detail.style.display = "block";
+      current.detail.style.paddingTop = "16px";
+      current.detail.style.paddingBottom = "16px";
+      current.detail.style.borderWidth = "1px";
       current.detail.style.borderColor = pointBorderColor(current.data, 0.84);
       void current.detail.offsetHeight;
-      const targetHeight = Math.ceil(current.detail.scrollHeight);
+      const targetHeight = Math.ceil(current.detail.scrollHeight) + 6;
       current.detail.style.maxHeight = `${targetHeight}px`;
       current.detail.style.opacity = "1";
       current.detail.style.transform = "translateY(0)";
@@ -201,10 +238,13 @@ function timeline(){
       detail.style.opacity = "0";
       detail.style.transform = "translateY(-6px)";
       detail.style.marginTop = "0px";
+      detail.style.paddingTop = "0px";
+      detail.style.paddingBottom = "0px";
+      detail.style.borderWidth = "0px";
       detail.style.borderColor = "transparent";
       detail.style.transition = reducedMotion
         ? "none"
-        : "max-height .3s cubic-bezier(0.22, 1, 0.36, 1), opacity .3s cubic-bezier(0.22, 1, 0.36, 1), transform .3s cubic-bezier(0.22, 1, 0.36, 1), margin-top .3s cubic-bezier(0.22, 1, 0.36, 1), border-color .22s ease";
+        : `max-height ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), transform ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), margin-top ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), padding-top ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), padding-bottom ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), border-width ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), border-color .22s ease`;
       detail.innerHTML = `
         <p class="mb-2 text-cyan-300 font-bold">${d.type === "education" ? "Tech" : "Highlights"}</p>
         <ul class="space-y-2 text-slate-300 leading-relaxed">
@@ -237,6 +277,10 @@ function timeline(){
         if (card && card.__sweepTimer) {
           clearTimeout(card.__sweepTimer);
           card.__sweepTimer = null;
+        }
+        if (detail && detail.__collapseRaf) {
+          cancelAnimationFrame(detail.__collapseRaf);
+          detail.__collapseRaf = null;
         }
         if (detail && detail.__closeTimer) {
           clearTimeout(detail.__closeTimer);
