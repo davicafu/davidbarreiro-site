@@ -124,7 +124,7 @@ function timeline(){
     .data(placed)
     .join("g")
     .attr("class", "timeline-card-group")
-    .attr("transform", d => `translate(${d.left},${getCardTop(d)})`)
+    .attr("transform", d => (isMobile ? "translate(0,0)" : `translate(${d.left},${getCardTop(d)})`))
     .attr("opacity", 0)
     .on("mousemove", (event, d) => {
       if (isMobile) return;
@@ -164,8 +164,8 @@ function timeline(){
 
   cards.append("foreignObject")
     .attr("class", "timeline-card-fo")
-    .attr("x", -2)
-    .attr("y", isMobile ? 0 : -18)
+    .attr("x", d => (isMobile ? d.left - 2 : -2))
+    .attr("y", d => (isMobile ? getCardTop(d) : -18))
     .attr("width", cardW + 4)
     .attr("height", d => getCardHeight(d) + (isMobile ? 4 : 36))
     .html(d => {
@@ -180,17 +180,19 @@ function timeline(){
       const roleColor = "text-cyan-200";
       const timelineTypeClass = isEducation ? "timeline-card-edu" : "";
       return `
-        <div class="timeline-card ${timelineTypeClass} rounded-2xl border ${shellBorder} ${shellBg} p-4 text-slate-200" style="${shellStyle}">
-          <div class="flex items-center justify-between gap-3">
-            <p class="font-black text-white text-sm">${d.company}</p>
-            <span class="text-xs text-slate-400">${period}</span>
+        <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;">
+          <div class="timeline-card ${timelineTypeClass} rounded-2xl border ${shellBorder} ${shellBg} p-4 text-slate-200" style="${shellStyle}">
+            <div class="flex items-center justify-between gap-3">
+              <p class="font-black text-white text-sm">${d.company}</p>
+              <span class="text-xs text-slate-400">${period}</span>
+            </div>
+            <p class="text-sm ${roleColor} mt-1">${d.role}</p>
+            <p class="text-xs text-slate-400 mt-2 leading-relaxed" style="margin-top:.7rem;">${d.text}</p>
+            <div class="mt-3" style="margin-top:1.05rem;">
+              ${chips.map(chip => `<span class="timeline-tech-chip" style="display:inline-block; margin:0 .55rem .55rem 0; padding:.44rem .84rem;">${chip}</span>`).join("")}
+            </div>
           </div>
-          <p class="text-sm ${roleColor} mt-1">${d.role}</p>
-          <p class="text-xs text-slate-400 mt-2 leading-relaxed" style="margin-top:.7rem;">${d.text}</p>
-          <div class="mt-3" style="margin-top:1.05rem;">
-            ${chips.map(chip => `<span class="timeline-tech-chip" style="display:inline-block; margin:0 .55rem .55rem 0; padding:.44rem .84rem;">${chip}</span>`).join("")}
-          </div>
-        </div>
+        </body>
       `;
     });
 
@@ -200,6 +202,7 @@ function timeline(){
     .ease(d3.easeCubicOut)
     .attr("opacity", 1)
     .attrTween("transform", function(d) {
+      if (isMobile) return () => "translate(0,0)";
       const baseX = d.left;
       const baseY = getCardTop(d);
       const iy = d3.interpolateNumber(14, 0);
@@ -255,8 +258,11 @@ function timeline(){
         d.cardTop = cursorY;
         cursorY += d.cardHeight + mobileCardGap;
       });
-      cards.attr("transform", d => `translate(${d.left},${baseCardY(d)})`);
+      cards.attr("transform", "translate(0,0)");
       cards.select(".timeline-card-fo").attr("height", d => getCardHeight(d) + 4);
+      cards.select(".timeline-card-fo")
+        .attr("x", d => d.left - 2)
+        .attr("y", d => baseCardY(d));
       nodes.select("line").attr("y2", d => getCardTop(d) - trackY - 10);
       const baseBottom = placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : (trackY + 200);
       svg.attr("viewBox", [0, 0, w, baseBottom]).attr("height", baseBottom);
@@ -326,12 +332,14 @@ function timeline(){
         return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
       };
       return `
-        <div style="border-color:${detailBorderColor()};border-style:dashed;" class="h-full rounded-2xl border bg-slate-950/98 p-4 text-xs text-slate-200 shadow-[0_14px_34px_rgba(8,47,73,.45)]">
-          <p class="mb-2 text-cyan-300 font-bold">${sectionLabel}</p>
-          <ul class="space-y-2 text-slate-300 leading-relaxed">
-            ${items.map(item => `<li class="flex items-start gap-2"><span class="text-cyan-300 mt-[1px]">•</span><span>${beautifyHighlight(item)}</span></li>`).join("")}
-          </ul>
-        </div>
+        <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;">
+          <div style="border-color:${detailBorderColor()};border-style:dashed;" class="h-full rounded-2xl border bg-slate-950/98 p-4 text-xs text-slate-200 shadow-[0_14px_34px_rgba(8,47,73,.45)]">
+            <p class="mb-2 text-cyan-300 font-bold">${sectionLabel}</p>
+            <ul class="space-y-2 text-slate-300 leading-relaxed">
+              ${items.map(item => `<li class="flex items-start gap-2"><span class="text-cyan-300 mt-[1px]">•</span><span>${beautifyHighlight(item)}</span></li>`).join("")}
+            </ul>
+          </div>
+        </body>
       `;
     };
 
@@ -364,7 +372,9 @@ function timeline(){
         const estimatedHeight = getDetailHeight(activeNode);
         const minDetailHeight = activeNode.type === "education" ? 96 : 112;
         detailGroup.style("display", null);
-        detailGroup.attr("transform", `translate(${activeNode.left},${baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap})`);
+        detailFo
+          .attr("x", activeNode.left - 2)
+          .attr("y", baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap);
         detailFo.attr("height", estimatedHeight);
         detailFo.html(renderDetailHtml(activeNode));
         const detailRoot = detailFo.node()?.firstElementChild;
@@ -380,7 +390,14 @@ function timeline(){
       cards.transition()
         .duration(duration)
         .ease(d3.easeCubicOut)
-        .attr("transform", d => `translate(${d.left},${baseCardY(d) + rowShift(d.row)})`);
+        .attr("transform", "translate(0,0)");
+
+      cards.select(".timeline-card-fo")
+        .transition()
+        .duration(duration)
+        .ease(d3.easeCubicOut)
+        .attr("x", d => d.left - 2)
+        .attr("y", d => baseCardY(d) + rowShift(d.row));
 
       nodes.select("line")
         .transition()
@@ -395,7 +412,10 @@ function timeline(){
             .duration(200)
             .ease(d3.easeCubicInOut)
             .attr("opacity", 0)
-            .attr("transform", `translate(${detailGroup.attr("data-x") || 0},${(Number(detailGroup.attr("data-y")) || 0) + 8})`)
+            .on("start", () => {
+              const y = Number(detailFo.attr("y")) || 0;
+              detailFo.attr("y", y + 8);
+            })
             .on("end", () => detailGroup.style("display", "none"));
         } else {
           detailGroup.attr("opacity", 0).style("display", "none");
@@ -412,22 +432,32 @@ function timeline(){
       detailGroup.transition()
         .duration(duration)
         .ease(d3.easeCubicOut)
-        .attr("transform", `translate(${targetX},${targetY})`)
         .attr("opacity", 1);
+      detailFo.transition()
+        .duration(duration)
+        .ease(d3.easeCubicOut)
+        .attr("x", targetX - 2)
+        .attr("y", targetY);
       if (!detailGroup.attr("data-open")) {
         detailGroup
           .style("display", null)
-          .attr("opacity", 0)
-          .attr("transform", `translate(${targetX},${targetY + 10})`);
+          .attr("opacity", 0);
+        detailFo
+          .attr("x", targetX - 2)
+          .attr("y", targetY + 10);
         detailGroup.transition()
           .duration(duration)
           .ease(d3.easeCubicOut)
-          .attr("transform", `translate(${targetX},${targetY})`)
           .attr("opacity", 1);
+        detailFo.transition()
+          .duration(duration)
+          .ease(d3.easeCubicOut)
+          .attr("x", targetX - 2)
+          .attr("y", targetY);
       } else {
         detailGroup.style("display", null).attr("opacity", 1);
       }
-      detailGroup.attr("data-open", "1").attr("data-x", targetX).attr("data-y", targetY);
+      detailGroup.attr("data-open", "1");
       cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", x => x === activeNode);
       triggerMobileSweep(activeNode);
       styleCardsBySelection();
