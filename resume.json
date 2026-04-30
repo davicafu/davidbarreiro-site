@@ -1,4 +1,4 @@
-{ "meta": { "theme": "stackoverflow" },
+{ "meta": { "theme": "stackoverflow", "themeBakcup": "creative-confidence,macchiato" },
   "basics": {
     "name": "David Barreiro Salgueiro",
     "label": "Senior Software Engineer | Distributed Systems · Data Platforms · Streaming",

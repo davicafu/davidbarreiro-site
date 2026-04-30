@@ -246,8 +246,10 @@ function timeline(){
     const detailTopGap = Math.round(mobileCardGap / 4);
     const detailBottomGap = mobileCardGap;
     const mobileSweepDurationMs = 620;
+    const canSmoothScroll = typeof document !== "undefined" && "scrollBehavior" in document.documentElement.style;
     const baseCardY = d => getCardTop(d);
     let activeNode = null;
+    let pendingScrollTimer = null;
 
     const recalculateMobileLayout = () => {
       let cursorY = trackY + cardsTopOffset;
@@ -362,6 +364,35 @@ function timeline(){
       }, mobileSweepDurationMs);
     };
 
+    const scrollActiveDetailIntoView = () => {
+      if (!activeNode || detailGroup.style("display") === "none") return;
+      const detailRect = detailFo.node()?.getBoundingClientRect();
+      if (!detailRect) return;
+      const topMargin = 96;
+      const bottomMargin = 40;
+      const scrollByDelta = delta => {
+        if (!delta || Number.isNaN(delta)) return;
+        const behavior = !reducedMotion && canSmoothScroll ? "smooth" : "auto";
+        if (typeof window.scrollBy === "function") {
+          window.scrollBy({ top: delta, behavior });
+          return;
+        }
+        const current = window.pageYOffset || document.documentElement.scrollTop || 0;
+        window.scrollTo(0, current + delta);
+      };
+      if (detailRect.bottom > window.innerHeight - bottomMargin) {
+        const delta = detailRect.bottom - (window.innerHeight - bottomMargin);
+        if (Math.abs(delta) < 16) return;
+        scrollByDelta(Math.ceil(delta + 6));
+        return;
+      }
+      if (detailRect.top < topMargin) {
+        const delta = detailRect.top - topMargin;
+        if (Math.abs(delta) < 16) return;
+        scrollByDelta(Math.floor(delta - 6));
+      }
+    };
+
     const applyMobileTimelineLayout = (animated = true) => {
       const duration = animated && !reducedMotion ? 360 : 0;
       const baseBottom = placed.length
@@ -381,7 +412,7 @@ function timeline(){
         const measuredDetailHeight = detailRoot
           ? Math.ceil(Math.max(detailRoot.getBoundingClientRect().height, detailRoot.scrollHeight)) + 24
           : estimatedHeight;
-        activeDetailHeight = Math.max(minDetailHeight, measuredDetailHeight);
+        activeDetailHeight = Math.max(minDetailHeight, estimatedHeight, measuredDetailHeight);
         detailFo.attr("height", activeDetailHeight);
       } else {
         activeDetailHeight = 0;
@@ -467,6 +498,11 @@ function timeline(){
       const activeDetailBottom = baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap + activeDetailHeight;
       const expandedBottom = Math.max(shiftedLastBottom, activeDetailBottom) + 36;
       svg.attr("viewBox", [0, 0, w, expandedBottom]).attr("height", expandedBottom);
+      if (pendingScrollTimer) clearTimeout(pendingScrollTimer);
+      pendingScrollTimer = setTimeout(() => {
+        pendingScrollTimer = null;
+        scrollActiveDetailIntoView();
+      }, duration + 40);
     };
 
     cards.on("click", (event, d) => {
