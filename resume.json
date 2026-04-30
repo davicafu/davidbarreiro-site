@@ -270,16 +270,16 @@
                       "logo": "./assets/logos/kafka.svg"
                     },
                     {
-                      "name": "Flink",
-                      "level": "Intemediate",
-                      "notes": "",
-                      "logo": "./assets/logos/flink.svg"
-                    },
-                    {
                       "name": "Databricks",
                       "level": "Advanced",
                       "notes": "",
                       "logo": "./assets/logos/databricks.svg"
+                    },
+                    {
+                      "name": "Flink",
+                      "level": "Intemediate",
+                      "notes": "",
+                      "logo": "./assets/logos/flink.svg"
                     },
                     {
                       "name": "Spark",
@@ -403,7 +403,7 @@
       "keywords": [
                    {
                       "name": "Grafana",
-                      "level": "Expert",
+                      "level": "Advanced",
                       "notes": "",
                       "logo": "./assets/logos/grafana.svg"
                     },

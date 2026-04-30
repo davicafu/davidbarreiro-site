@@ -90,11 +90,6 @@
     overflow: hidden;
   }
 
-  .timeline-card:hover {
-    transform: none;
-    border-color: rgba(103, 232, 249, .55);
-    box-shadow: 0 14px 34px rgba(2, 6, 23, .45);
-  }
   .timeline-card-edu,
   .timeline-card-edu:hover {
     border-color: transparent !important;
@@ -111,8 +106,34 @@
     pointer-events: none;
   }
 
-  .timeline-card:hover::before {
-    transform: translateX(120%);
+  @keyframes timeline-sweep-mobile {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(120%); }
+  }
+
+  .timeline-card.sweep-mobile::before {
+    animation: timeline-sweep-mobile .55s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .timeline-card:hover {
+      transform: none;
+      border-color: rgba(103, 232, 249, .55);
+      box-shadow: 0 14px 34px rgba(2, 6, 23, .45);
+    }
+    .timeline-card:hover::before {
+      transform: translateX(120%);
+    }
+  }
+  @media (hover: none), (pointer: coarse) {
+    .timeline-card:hover {
+      border-color: inherit;
+      box-shadow: none;
+    }
+    .timeline-card:hover:not(.sweep-mobile)::before,
+    .timeline-card:not(.sweep-mobile)::before {
+      transform: translateX(-120%) !important;
+    }
   }
 
   .skill-filter.active {
@@ -162,6 +183,9 @@
   svg text { user-select: none; }
 
   .pdf-menu {
+    position: absolute;
+    top: calc(100% + .6rem);
+    left: 0;
     min-width: 270px;
     border-radius: 1rem;
     border: 1px solid rgba(56, 189, 248, .3);
@@ -171,6 +195,20 @@
     box-shadow: 0 24px 60px rgba(2, 6, 23, .55), inset 0 1px 0 rgba(255,255,255,.05);
     backdrop-filter: blur(10px);
     overflow: hidden;
+    z-index: 5001;
+  }
+  .pdf-dropdown {
+    position: relative;
+    z-index: 5000;
+    isolation: isolate;
+  }
+  @media (max-width: 1023px) {
+    #hero-metrics-card {
+      z-index: 1 !important;
+    }
+    #pdf-style-menu {
+      z-index: 99999 !important;
+    }
   }
 
   .pdf-option {
@@ -223,7 +261,7 @@
 <div class="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.14),transparent_28rem),radial-gradient(circle_at_90%_20%,rgba(139,92,246,.14),transparent_30rem),linear-gradient(135deg,#020617,#0f172a_55%,#020617)]"></div>
 <div class="fixed inset-0 -z-10 opacity-[.08] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:52px_52px]"></div>
 
-<header class="relative z-50 max-w-7xl mx-auto px-6 py-8" style="z-index:2000">
+<header class="relative z-50 max-w-7xl mx-auto px-6 py-8" style="z-index:2000; overflow:visible; isolation:isolate">
   <nav class="reveal flex flex-wrap items-center justify-between gap-5 mb-14">
     <div class="text-sm text-slate-400">davidbarreiro.dev</div>
     <div class="flex gap-6 text-slate-400 text-sm">
@@ -234,8 +272,8 @@
     </div>
   </nav>
 
-  <section class="grid lg:grid-cols-3 gap-8 items-center min-h-[72vh]">
-    <div class="lg:col-span-2 reveal">
+  <section class="grid lg:grid-cols-3 gap-8 items-center min-h-[72vh] relative isolate overflow-visible">
+    <div class="lg:col-span-2 reveal relative overflow-visible" style="z-index:2200">
       <p id="hero-kicker" class="uppercase tracking-[0.28em] text-cyan-300 text-xs font-black mb-4">Senior Software Engineer | Distributed Systems · Data Platforms · Streaming</p>
       <h1 class="text-5xl md:text-8xl font-black leading-none tracking-tight mb-7">
         <span id="hero-name">David Barreiro</span><br><span id="hero-surname" class="gradient-text animate-gradient">Salgueiro</span>
@@ -251,12 +289,12 @@
         </a>
         <a id="hero-github-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://github.com/davicafu" target="_blank" rel="noreferrer">GitHub</a>
         <a id="hero-linkedin-link" class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition" href="https://www.linkedin.com/in/david-barreiro-a9370657/" target="_blank" rel="noreferrer">LinkedIn</a>
-        <div class="relative z-50" style="z-index:2100">
+        <div class="pdf-dropdown" style="z-index:5000; overflow:visible">
           <button id="hero-pdf-link" type="button" class="group px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition inline-flex items-center gap-2">
             <span>Download PDF</span>
             <span class="text-slate-400 group-hover:text-cyan-300 transition">▾</span>
           </button>
-          <div id="pdf-style-menu" class="pdf-menu hidden absolute left-0 top-full mt-3 p-2 z-[120]" style="display:none; z-index:9999">
+          <div id="pdf-style-menu" class="pdf-menu hidden p-2" style="display:none">
             <a class="pdf-option" href="./cv-one-page.pdf" target="_blank" rel="noreferrer">
               <span class="font-semibold">One Page</span><small>Compact</small>
             </a>
@@ -271,7 +309,7 @@
       </div>
     </div>
 
-    <aside class="reveal glass rounded-[2rem] p-6 shadow-glow animate-float">
+    <aside id="hero-metrics-card" class="reveal glass rounded-[2rem] p-6 shadow-glow animate-float relative" style="z-index:1200">
       <div class="flex items-start gap-4 mb-7">
         <div class="relative inline-block">
           <img
@@ -303,7 +341,7 @@
   </section>
 </header>
 
-<main class="max-w-7xl mx-auto px-6 pb-28 space-y-24" style="position:relative; z-index:1">
+<main class="max-w-7xl mx-auto px-6 pb-28 space-y-24" style="position:relative; z-index:0">
   <section class="reveal grid md:grid-cols-3 gap-5">
 
     <div class="glass rounded-3xl p-6">
@@ -427,6 +465,15 @@
         const isHidden = pdfMenu.style.display === "none";
         pdfMenu.style.display = isHidden ? "block" : "none";
         pdfMenu.classList.toggle("hidden", !isHidden);
+      });
+      pdfMenu.addEventListener("click", function (event) {
+        const option = event.target.closest("a");
+        if (!option) return;
+        pdfMenu.style.display = "none";
+        pdfMenu.classList.add("hidden");
+      });
+      pdfMenu.addEventListener("click", function (event) {
+        event.stopPropagation();
       });
       document.addEventListener("click", function () {
         pdfMenu.style.display = "none";

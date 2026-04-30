@@ -160,9 +160,9 @@ function timeline(){
   cards.append("foreignObject")
     .attr("class", "timeline-card-fo")
     .attr("x", -2)
-    .attr("y", -18)
+    .attr("y", isMobile ? 0 : -18)
     .attr("width", cardW + 4)
-    .attr("height", d => getCardHeight(d) + 36)
+    .attr("height", d => getCardHeight(d) + (isMobile ? 4 : 36))
     .html(d => {
       const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? "Present" : Math.floor(d.end)}`;
       const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
@@ -234,10 +234,12 @@ function timeline(){
   }
 
   if (isMobile) {
-    const detailGap = 10;
+    const mobileCardGap = 24;
+    const detailTopGap = Math.round(mobileCardGap / 4);
+    const detailBottomGap = mobileCardGap;
+    const mobileSweepDurationMs = 620;
     const baseCardY = d => getCardTop(d);
     let activeNode = null;
-    const mobileCardGap = 24;
 
     const recalculateMobileLayout = () => {
       let cursorY = trackY + cardsTopOffset;
@@ -249,7 +251,7 @@ function timeline(){
         cursorY += d.cardHeight + mobileCardGap;
       });
       cards.attr("transform", d => `translate(${d.left},${baseCardY(d)})`);
-      cards.select(".timeline-card-fo").attr("height", d => getCardHeight(d) + 36);
+      cards.select(".timeline-card-fo").attr("height", d => getCardHeight(d) + 4);
       nodes.select("line").attr("y2", d => getCardTop(d) - trackY - 10);
       const baseBottom = placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : (trackY + 200);
       svg.attr("viewBox", [0, 0, w, baseBottom]);
@@ -297,10 +299,17 @@ function timeline(){
     const getDetailHeight = d => {
       if (!d) return 0;
       const items = getDetailItems(d);
-      return Math.max(166, 92 + items.length * 24);
+      const isEducation = d.type === "education";
+      const base = isEducation ? 56 : 72;
+      const perItem = isEducation ? 20 : 24;
+      return Math.max(isEducation ? 96 : 112, base + items.length * perItem);
     };
 
-    const rowShift = row => (activeNode && row > activeNode.row ? activeDetailHeight + detailGap + 6 : 0);
+    const rowShift = row => {
+      if (!activeNode || row <= activeNode.row) return 0;
+      const extraSpaceNeeded = activeDetailHeight + detailTopGap + detailBottomGap;
+      return Math.max(0, extraSpaceNeeded - mobileCardGap);
+    };
 
     const renderDetailHtml = d => {
       const items = getDetailItems(d);
@@ -321,6 +330,25 @@ function timeline(){
       `;
     };
 
+    const triggerMobileSweep = targetNode => {
+      cards.select(".timeline-card").each(function() {
+        if (this.__sweepTimer) {
+          clearTimeout(this.__sweepTimer);
+          this.__sweepTimer = null;
+        }
+        this.classList.remove("sweep-mobile");
+      });
+      if (!targetNode) return;
+      const cardNode = cards.filter(x => x === targetNode).select(".timeline-card").node();
+      if (!cardNode) return;
+      void cardNode.offsetWidth;
+      cardNode.classList.add("sweep-mobile");
+      cardNode.__sweepTimer = setTimeout(() => {
+        cardNode.classList.remove("sweep-mobile");
+        cardNode.__sweepTimer = null;
+      }, mobileSweepDurationMs);
+    };
+
     const applyMobileTimelineLayout = (animated = true) => {
       const duration = animated && !reducedMotion ? 360 : 0;
       const baseBottom = placed.length
@@ -329,15 +357,16 @@ function timeline(){
 
       if (activeNode) {
         const estimatedHeight = getDetailHeight(activeNode);
+        const minDetailHeight = activeNode.type === "education" ? 96 : 112;
         detailGroup.style("display", null);
-        detailGroup.attr("transform", `translate(${activeNode.left},${baseCardY(activeNode) + getCardHeight(activeNode) + detailGap})`);
+        detailGroup.attr("transform", `translate(${activeNode.left},${baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap})`);
         detailFo.attr("height", estimatedHeight);
         detailFo.html(renderDetailHtml(activeNode));
         const detailRoot = detailFo.node()?.firstElementChild;
         const measuredDetailHeight = detailRoot
-          ? Math.ceil(Math.max(detailRoot.getBoundingClientRect().height, detailRoot.scrollHeight)) + 28
+          ? Math.ceil(Math.max(detailRoot.getBoundingClientRect().height, detailRoot.scrollHeight)) + 24
           : estimatedHeight;
-        activeDetailHeight = Math.max(estimatedHeight, measuredDetailHeight);
+        activeDetailHeight = Math.max(minDetailHeight, measuredDetailHeight);
         detailFo.attr("height", activeDetailHeight);
       } else {
         activeDetailHeight = 0;
@@ -367,13 +396,14 @@ function timeline(){
           detailGroup.attr("opacity", 0).style("display", "none");
         }
         cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", false);
+        triggerMobileSweep(null);
         styleCardsBySelection();
         svg.attr("viewBox", [0, 0, w, baseBottom]);
         return;
       }
 
       const targetX = activeNode.left;
-      const targetY = baseCardY(activeNode) + getCardHeight(activeNode) + detailGap;
+      const targetY = baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap;
       detailGroup.transition()
         .duration(duration)
         .ease(d3.easeCubicOut)
@@ -394,11 +424,12 @@ function timeline(){
       }
       detailGroup.attr("data-open", "1").attr("data-x", targetX).attr("data-y", targetY);
       cards.select(".timeline-card").classed("ring-2 ring-cyan-300/60", x => x === activeNode);
+      triggerMobileSweep(activeNode);
       styleCardsBySelection();
       const shiftedLastBottom = placed.length
         ? (placed[placed.length - 1].cardTop + rowShift(placed[placed.length - 1].row) + placed[placed.length - 1].cardHeight)
         : (trackY + 180);
-      const activeDetailBottom = baseCardY(activeNode) + getCardHeight(activeNode) + detailGap + activeDetailHeight;
+      const activeDetailBottom = baseCardY(activeNode) + getCardHeight(activeNode) + detailTopGap + activeDetailHeight;
       const expandedBottom = Math.max(shiftedLastBottom, activeDetailBottom) + 36;
       svg.attr("viewBox", [0, 0, w, expandedBottom]);
     };
