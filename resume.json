@@ -9,7 +9,7 @@
       "city": "A Coruña",
       "countryCode": "ES"
     },
-    "summary": "Senior Software Engineer with hands-on experience designing and building scalable platforms, distributed systems and real-time data solutions.\n\nMy background combines backend engineering, data infrastructure and cloud-native platforms. I have worked with Java, Go, Kafka, Spark(Python), ClickHouse, Kubernetes, Docker and modern CI/CD environments, delivering reliable systems for demanding workloads.\n\nRecently focused on Golang for high-performance backend services and modern platform development.\nI enjoy simplifying complex problems, improving performance and building practical solutions that scale.\n\nCore areas include backend engineering with Go and Java, distributed systems, Kafka-based streaming architectures, cloud-native platforms, APIs, microservices and DevOps automation.",
+    "summary": "Senior Software Engineer with hands-on experience designing and building scalable platforms, distributed systems and real-time data solutions.\n\nMy background combines backend engineering, data infrastructure and cloud-native platforms. I have worked with Java, Go, Kafka, Spark(Python), ClickHouse, Kubernetes, Docker and modern CI/CD environments, delivering reliable systems for demanding workloads.\n\nI enjoy simplifying complex problems, improving performance and building practical solutions that scale.\n\nCore areas include backend engineering with Go and Java, distributed systems, Kafka-based streaming architectures, cloud-native platforms, APIs, microservices and DevOps automation.",
     "profiles": [{
 		"network": "Linkedin",
 		"username": "David Barreiro",
@@ -76,17 +76,17 @@
     {
       "name": "observekit",
       "description": "Observability demo stack for modern backend systems. It integrates OpenTelemetry instrumentation, distributed tracing, Prometheus metrics, Grafana dashboards, centralized logs, SLO-oriented views, and Superset analytics boards for exploratory analysis. The project is focused on making system behavior observable end-to-end: from request-level traces to service KPIs, alerting, and product-level analytical insights.",
-      "highlights": ["OpenTelemetry", "Tracing", "Prometheus", "Grafana", "Superset"]
+      "highlights": ["OpenTelemetry", "Tracing", "Prometheus", "Grafana", "Superset", "OpenSpec"]
     },
     {
       "name": "CLI Suite",
       "description": "Professional Go CLI toolkit designed as a multi-command platform for operational and engineering workflows. Planned commands include Data Quality CLI, API Audit CLI, Benchmark CLI, Migration CLI, and Kubernetes helper utilities. The suite emphasizes robust UX, strong error handling, testability, and repeatable automation for day-to-day engineering tasks.",
-      "highlights": ["Go", "Automation", "Benchmarking", "Migrations", "Testing"]
+      "highlights": ["Go", "Automation", "Benchmarking", "OpenSpec", "Testing"]
     },
     {
       "name": "CLI Games Collection",
       "description": "Progressive terminal game collection used as a technical playground for architecture and algorithmic practice. The roadmap advances from grid-based games (Snake, Sokoban) to physics and action loops (Flappy, Breakout, Space Invaders), and then to more complex systems (Pac-Man style AI, Asteroids movement, platformers, Tetris). It is intentionally structured to improve game loops, input handling, collision systems, and reusable engine patterns.",
-      "highlights": ["Game Loops", "Collision Systems", "Terminal UI", "Algorithms", "Architecture"]
+      "highlights": ["Game Loops", "Collision Systems", "Terminal UI", "Algorithms", "Architecture", "OpenSpec"]
     }
   ],
   "work": [
@@ -305,46 +305,34 @@
                   ]
     },
     {
-      "name": "AI Engineering",
+      "name": "AI-Assisted Engineering",
       "level": "Intermediate",
       "keywords": [
-                    "OpenSpec", 
-                    {
-                      "name": "AI coding workflows",
-                      "level": "Intermediate",
-                      "notes": "",
-                      "logo": "CodeGen"
-                    },
                     {
                       "name": "Agentic Systems",
                       "level": "Intermediate",
-                      "notes": "",
-                      "logo": "Agentic AI"
-                    },
-                    {
-                      "name": "Tool orchestration",
-                      "level": "Intermediate",
-                      "notes": "",
-                      "logo": "Orchestration"
-                    },
-                    {
-                      "name": "Model Interoperability",
-                      "level": "Intermediate",
-                      "notes": "",
-                      "logo": "Multi-Model"
+                      "notes": "Designing autonomous workflows where AI agents execute tasks under structured control and goals",
+                      "logo": "Agentic"
                     },
                     {
                       "name": "Context Engineering",
                       "level": "Intermediate",
-                      "notes": "",
-                      "logo": "Context Eng"
+                      "notes": "Structuring and controlling context to guide LLM behavior, responses and decision quality",
+                      "logo": "Context"
                     },
                     {
-                      "name": "Workflow Automation",
+                      "name": "LLM Integration",
                       "level": "Intermediate",
-                      "notes": "",
-                      "logo": "Automation"
-                    } , "MCP"]
+                      "notes": "Integrating LLMs into backend systems, APIs and workflows for real-world applications",
+                      "logo": "LLM"
+                    },
+                    {
+                      "name": "Human-in-the-Loop Development",
+                      "level": "Intermediate",
+                      "notes": "AI-accelerated development guided by human architecture, decisions and validation",
+                      "logo": "Human + IA"
+                    }
+                  ]
     },
     {
       "name": "Infra & DevOps",
