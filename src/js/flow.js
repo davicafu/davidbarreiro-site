@@ -503,10 +503,17 @@ function dataFlow(){
     syncFlowState();
   });
 
-  const notePanel = document.createElement("div");
-  notePanel.className = "mt-2 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
-  notePanel.innerHTML = "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.";
-  el.appendChild(notePanel);
+  const flowTipHtml = "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.";
+  const flowTipTarget = document.getElementById("flow-tip");
+  if (flowTipTarget) {
+    flowTipTarget.className = "section-tip-contrast mb-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+    flowTipTarget.innerHTML = flowTipHtml;
+  } else {
+    const notePanel = document.createElement("div");
+    notePanel.className = "section-tip-contrast mt-2 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
+    notePanel.innerHTML = flowTipHtml;
+    el.appendChild(notePanel);
+  }
 
 }
 

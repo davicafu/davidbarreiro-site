@@ -90,9 +90,8 @@
     overflow: hidden;
   }
 
-  .timeline-card-edu,
-  .timeline-card-edu:hover {
-    border-color: transparent !important;
+  .timeline-card-edu {
+    border-color: rgba(148, 163, 184, .22);
   }
 
   .timeline-card::before {
@@ -121,9 +120,12 @@
       border-color: rgba(103, 232, 249, .55);
       box-shadow: 0 14px 34px rgba(2, 6, 23, .45);
     }
-    .timeline-card:hover::before {
+  .timeline-card:hover::before {
       transform: translateX(120%);
     }
+  }
+  .capability-backend:hover {
+    border-color: rgba(110, 231, 183, .82) !important;
   }
   @media (hover: none), (pointer: coarse) {
     .timeline-card:hover {
@@ -234,6 +236,9 @@
     font-size: .72rem;
     letter-spacing: .02em;
   }
+  .section-tip-contrast {
+    box-shadow: 0 16px 34px rgba(2, 6, 23, .56), 0 0 0 1px rgba(34, 211, 238, .12) inset;
+  }
 
   body.pdf-mode .spotlight,
   body.pdf-mode .tooltip,
@@ -329,8 +334,8 @@
           <p class="text-2xl font-black counter" data-target="10">0</p>
         </div>
         <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
-          <p class="text-slate-400 text-xs">Domain</p>
-          <p class="font-bold">Microservices · Data Pipelines</p>
+          <p class="text-slate-400 text-xs">Core Skills</p>
+          <p class="text-2xl font-black counter" data-target="0">0</p>
         </div>
         <div class="col-span-2 rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
           <p class="text-slate-400 text-xs">Focus</p>
@@ -344,7 +349,7 @@
 <main class="max-w-7xl mx-auto px-6 pb-28 space-y-24" style="position:relative; z-index:0">
   <section class="reveal grid md:grid-cols-3 gap-5">
 
-    <div class="glass rounded-3xl p-6">
+    <div class="glass capability-backend rounded-3xl p-6 hover:-translate-y-2 hover:border-emerald-300/60 transition duration-300">
       <p class="text-emerald-300 text-sm font-bold">Backend</p>
       <h3 class="text-2xl font-black mt-2">Hexagonal · DDD · Event-Driven</h3>
       <p class="text-slate-400 mt-3">
@@ -352,7 +357,7 @@
       </p>
     </div>
 
-    <div class="glass rounded-3xl p-6">
+    <div class="glass rounded-3xl p-6 hover:-translate-y-2 hover:border-violet-300/60 transition duration-300">
       <p class="text-violet-300 text-sm font-bold">Data</p>
       <h3 class="text-2xl font-black mt-2">Batch & Stream · High Throughput · Scalability</h3>
       <p class="text-slate-400 mt-3">
@@ -360,7 +365,7 @@
       </p>
     </div>
 
-    <div class="glass rounded-3xl p-6">
+    <div class="glass rounded-3xl p-6 hover:-translate-y-2 hover:border-cyan-300/60 transition duration-300">
       <p class="text-cyan-300 text-sm font-bold">Platform</p>
       <h3 class="text-2xl font-black mt-2">High Availability · Automation · Observability</h3>
       <p class="text-slate-400 mt-3">
@@ -376,6 +381,7 @@
       <h2 class="text-4xl md:text-5xl font-black">Professional experience</h2>
     </div>
     <div class="glass rounded-[2rem] p-6">
+      <div id="timeline-tip" class="mb-4"></div>
       <div id="timeline"></div>
     </div>
   </section>
@@ -384,10 +390,6 @@
     <div class="reveal">
       <p class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">Skills</p>
       <h2 class="text-4xl md:text-5xl font-black mb-5">Stack technology</h2>
-      <p class="text-slate-400 leading-relaxed text-lg">
-        Skills are grouped by category. Click a legend category,
-        a large topic bubble, or a specific skill to filter and highlight the stack.
-      </p>
       <div id="legend" class="flex flex-wrap gap-2 mt-6"></div>
       <div id="skill-keywords" class="mt-5 rounded-2xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-300">
         <strong class="text-cyan-300">Tip:</strong> select a category to view its keywords.
@@ -404,6 +406,7 @@
       <h2 class="text-4xl md:text-5xl font-black">How I design data platforms</h2>
     </div>
     <div class="glass rounded-[2rem] p-6">
+      <div id="flow-tip" class="mb-4"></div>
       <div id="flow"></div>
     </div>
   </section>
@@ -516,6 +519,5 @@
 </script>
 </body>
 </html>
-
 
 

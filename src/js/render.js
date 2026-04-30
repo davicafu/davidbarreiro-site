@@ -106,10 +106,13 @@ function renderMetrics(basics = {}, meta = {}) {
   const workJobs = appState.jobs.filter(j => j.type !== 'education');
   const firstStart = workJobs.length ? Math.min(...workJobs.map(j => j.start)) : CURRENT_YEAR;
   const years = Math.max(1, Math.round(CURRENT_YEAR - firstStart));
-  const stacks = appState.skillGroups.length;
+  const advancedCoreSkills = appState.skillGroups
+    .flatMap(group => Array.isArray(group.keywords) ? group.keywords : [])
+    .filter(keyword => /\badvanced\b/i.test(safeText(keyword.level, "")))
+    .length;
   //const topFocus = safeText(basics.focus, safeText(meta.focus, "Data Engineering"));
   if (cards[0]) cards[0].dataset.target = years;
-  if (cards[1]) cards[1].dataset.target = stacks;
+  if (cards[1]) cards[1].dataset.target = advancedCoreSkills;
   //if (focus) focus.textContent = topFocus;
 }
 
