@@ -305,12 +305,11 @@ function timeline(){
   }
 
   const totalRows = d3.max(placed, d => d.row) + 1;
-  const desktopH = trackY + cardsTopOffset + totalRows * (cardH + rowGap) + 84;
-  const mobileBottom = isMobile && placed.length ? (placed[placed.length - 1].cardTop + placed[placed.length - 1].cardHeight + 84) : 0;
-  const h = isMobile ? mobileBottom : desktopH;
-  const getCardTop = d => isMobile ? d.cardTop : (trackY + cardsTopOffset + d.row * (cardH + rowGap));
-  const getCardHeight = d => isMobile ? d.cardHeight : cardH;
-  const getCardVisualHeight = d => isMobile ? (d.renderedCardHeight || d.cardHeight) : cardH;
+  const h = trackY + cardsTopOffset + totalRows * (cardH + rowGap) + 84;
+  const getCardTop = d => trackY + cardsTopOffset + d.row * (cardH + rowGap);
+
+  el.style.position = "relative";
+
   const svg = d3.select(el)
     .append("svg")
     .attr("viewBox", [0, 0, w, h])
@@ -332,7 +331,7 @@ function timeline(){
     .call(
       d3.axisBottom(x)
         .tickFormat(d3.format("d"))
-        .ticks(isMobile ? (isNarrowMobile ? 4 : 5) : Math.min(9, Math.max(4, maxYear - minYear + 1)))
+        .ticks(isNarrowMobile ? 4 : Math.min(9, Math.max(4, maxYear - minYear + 1)))
     )
     .call(g => g.selectAll("text").attr("fill", "#94a3b8").attr("font-size", 11))
     .call(g => g.selectAll("path,line").attr("stroke", "rgba(148,163,184,.22)"));
@@ -348,6 +347,7 @@ function timeline(){
     .attr("fill", (d, i) => palette[i % palette.length])
     .attr("stroke", "rgba(255,255,255,.45)")
     .attr("stroke-width", 1.2)
+    .style("cursor", "pointer")
     .transition()
     .duration(reducedMotion ? 0 : 500)
     .delay((d, i) => i * 90)
@@ -357,141 +357,128 @@ function timeline(){
     .attr("x1", 0)
     .attr("x2", 0)
     .attr("y1", 8)
-    .attr("y2", d => getCardTop(d) - trackY - (isMobile ? 10 : 2))
+    .attr("y2", d => getCardTop(d) - trackY - 2)
     .attr("stroke", "rgba(103,232,249,.62)")
-    .attr("stroke-width", isMobile ? 1.4 : 2)
+    .attr("stroke-width", 2)
     .attr("stroke-linecap", "round")
     .attr("stroke-dasharray", "5 7")
     .attr("opacity", 0)
     .transition()
     .duration(reducedMotion ? 0 : 520)
     .delay((d, i) => 120 + i * 80)
-    .attr("opacity", isMobile ? .55 : .95);
+    .attr("opacity", .95);
 
-  const cards = svg.selectAll(".timeline-card-group")
-    .data(placed)
-    .join("g")
-    .attr("class", "timeline-card-group")
-    .attr("transform", d => (isMobile ? "translate(0,0)" : `translate(${d.left},${getCardTop(d)})`))
-    .attr("opacity", 0)
-    .on("mousemove", (event, d) => {
-      if (isMobile) return;
-      const isEducation = d.type === "education";
+  const overlay = document.createElement("div");
+  overlay.className = "timeline-overlay";
+  overlay.style.position = "absolute";
+  overlay.style.inset = "0";
+  overlay.style.pointerEvents = "none";
+  overlay.style.height = `${h}px`;
+  el.appendChild(overlay);
+
+  const cards = placed.map((d, i) => {
+    const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? t(appState.locale, 'timeline_present', 'Present') : Math.floor(d.end)}`;
+    const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
+    const isEducation = d.type === "education";
+    const shellStyle = isEducation
+      ? "background: linear-gradient(135deg, rgba(14,116,144,.46) 0%, rgba(8,47,73,.52) 45%, rgba(15,23,42,.84) 100%);"
+      : "background: linear-gradient(135deg, rgba(15,23,42,.88) 0%, rgba(30,41,59,.72) 52%, rgba(15,23,42,.9) 100%);";
+    const card = document.createElement("div");
+    card.className = `timeline-card ${isEducation ? "timeline-card-edu" : ""} rounded-2xl border border-slate-800 p-4 text-slate-200`;
+    card.style.cssText = `
+      position:absolute;
+      left:${d.left}px;
+      top:${getCardTop(d)}px;
+      width:${cardW}px;
+      min-height:${cardH}px;
+      box-shadow:0 14px 34px rgba(2,6,23,.45);
+      pointer-events:auto;
+      ${shellStyle}
+    `;
+    card.innerHTML = `
+      <div class="flex items-center justify-between gap-3">
+        <p class="font-black text-white text-sm">${d.company}</p>
+        <span class="text-xs text-slate-400">${period}</span>
+      </div>
+      <p class="text-sm text-cyan-200 mt-1">${d.role}</p>
+      <p class="text-xs text-slate-400 mt-2 leading-relaxed">${d.text}</p>
+      <div class="mt-3">
+        ${chips.map(chip => `<span class="timeline-tech-chip" style="display:inline-block; margin:0 .55rem .55rem 0; padding:.44rem .84rem;">${chip}</span>`).join("")}
+      </div>
+    `;
+    card.style.opacity = "0";
+    card.style.transform = "translateY(14px)";
+    card.style.transition = reducedMotion ? "none" : "opacity .45s ease, transform .45s ease, box-shadow .2s ease, border-color .2s ease, filter .2s ease";
+    setTimeout(() => {
+      card.style.opacity = "1";
+      card.style.transform = "translateY(0)";
+    }, reducedMotion ? 0 : (160 + i * 90));
+
+    overlay.appendChild(card);
+    return { data: d, card };
+  });
+
+  let desktopActiveNode = null;
+  const applyDesktopFocus = (selected = null) => {
+    const hasSelected = !!selected;
+    cards.forEach(({ data, card }) => {
+      const isActive = selected === data;
+      card.style.opacity = !hasSelected || isActive ? "1" : "0.42";
+      card.style.filter = !hasSelected || isActive ? "none" : "saturate(.75)";
+      card.style.boxShadow = (!hasSelected || isActive)
+        ? "0 16px 38px rgba(8,47,73,.45)"
+        : "0 8px 18px rgba(2,6,23,.26)";
+      card.style.borderStyle = !hasSelected ? "solid" : (isActive ? "solid" : "dashed");
+      card.style.borderColor = !hasSelected
+        ? "rgba(148,163,184,.22)"
+        : (isActive ? pointBorderColor(data, 0.92) : "rgba(148,163,184,.22)");
+    });
+    nodes.select("line").transition().duration(220)
+      .attr("opacity", d => !hasSelected ? .95 : (d === selected ? .95 : .18));
+    nodes.select("circle").transition().duration(220)
+      .attr("opacity", d => !hasSelected ? 1 : (d === selected ? 1 : .45))
+      .attr("stroke-width", d => !hasSelected ? 1.2 : (d === selected ? 1.9 : 1.1));
+  };
+
+  cards.forEach(({ data, card }) => {
+    card.addEventListener("mousemove", event => {
+      const isEducation = data.type === "education";
       const detailItems = (isEducation
-        ? (Array.isArray(d.tech) ? d.tech.filter(Boolean) : [])
-        : (Array.isArray(d.highlights) ? d.highlights.filter(Boolean) : [])
+        ? (Array.isArray(data.tech) ? data.tech.filter(Boolean) : [])
+        : (Array.isArray(data.highlights) ? data.highlights.filter(Boolean) : [])
       ).slice(0, 5);
       const detailLabel = isEducation ? "Tech" : "Highlights";
       const detailsHtml = detailItems.length
         ? `<p class="mt-2 text-slate-300"><small><strong>${detailLabel}:</strong><br>${detailItems.map(item => `• ${item}`).join("<br>")}</small></p>`
         : "";
-      const kind = d.type === "education" ? t(appState.locale, 'timeline_kind_education', 'Education') : t(appState.locale, 'timeline_kind_work', 'Work');
-      showTip(
-        event,
-        `<strong>${d.company}</strong><br><small>${kind} · ${d.role}</small>${detailsHtml}`,
-        true
-      );
-    })
-    .on("mouseleave", () => {
-      if (!isMobile) hideTip();
+      const kind = data.type === "education" ? t(appState.locale, 'timeline_kind_education', 'Education') : t(appState.locale, 'timeline_kind_work', 'Work');
+      showTip(event, `<strong>${data.company}</strong><br><small>${kind} · ${data.role}</small>${detailsHtml}`, true);
     });
-
-  cards.on("mouseenter", function() {
-      d3.select(this).select(".timeline-card")
-        .transition()
-        .duration(reducedMotion ? 0 : 180)
-        .style("box-shadow", "0 16px 38px rgba(8,47,73,.45)");
-    })
-    .on("mouseleave", function() {
-      d3.select(this).select(".timeline-card")
-        .transition()
-        .duration(reducedMotion ? 0 : 180)
-        .style("box-shadow", "0 14px 34px rgba(2, 6, 23, .45)");
-      if (!isMobile) hideTip();
-    });
-
-  cards.append("foreignObject")
-    .attr("class", "timeline-card-fo")
-    .attr("x", d => (isMobile ? d.left - 2 : -2))
-    .attr("y", d => (isMobile ? getCardTop(d) : -18))
-    .attr("width", cardW + 4)
-    .attr("height", d => getCardVisualHeight(d) + (isMobile ? 4 : 36))
-    .html(d => {
-      const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? t(appState.locale, 'timeline_present', 'Present') : Math.floor(d.end)}`;
-      const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
-      const isEducation = d.type === "education";
-      const shellBorder = isEducation ? "border-transparent" : "border-slate-800";
-      const shellBg = isEducation ? "" : "";
-      const shellStyle = isEducation
-        ? "background: linear-gradient(135deg, rgba(14,116,144,.46) 0%, rgba(8,47,73,.52) 45%, rgba(15,23,42,.84) 100%);"
-        : "background: linear-gradient(135deg, rgba(15,23,42,.88) 0%, rgba(30,41,59,.72) 52%, rgba(15,23,42,.9) 100%);";
-      const roleColor = "text-cyan-200";
-      const timelineTypeClass = isEducation ? "timeline-card-edu" : "";
-      return `
-        <body xmlns="http://www.w3.org/1999/xhtml" style="margin:0;padding:0;">
-          <div class="timeline-card ${timelineTypeClass} rounded-2xl border ${shellBorder} ${shellBg} p-4 text-slate-200" style="${shellStyle}">
-            <div class="flex items-center justify-between gap-3">
-              <p class="font-black text-white text-sm">${d.company}</p>
-              <span class="text-xs text-slate-400">${period}</span>
-            </div>
-            <p class="text-sm ${roleColor} mt-1">${d.role}</p>
-            <p class="text-xs text-slate-400 mt-2 leading-relaxed" style="margin-top:.7rem;">${d.text}</p>
-            <div class="mt-3" style="margin-top:1.05rem;">
-              ${chips.map(chip => `<span class="timeline-tech-chip" style="display:inline-block; margin:0 .55rem .55rem 0; padding:.44rem .84rem;">${chip}</span>`).join("")}
-            </div>
-          </div>
-        </body>
-      `;
-    });
-
-  cards.transition()
-    .duration(reducedMotion ? 0 : 620)
-    .delay((d, i) => 160 + i * 90)
-    .ease(d3.easeCubicOut)
-    .attr("opacity", 1)
-    .attrTween("transform", function(d) {
-      if (isMobile) return () => "translate(0,0)";
-      const baseX = d.left;
-      const baseY = getCardTop(d);
-      const iy = d3.interpolateNumber(14, 0);
-      return t => `translate(${baseX},${baseY + iy(t)})`;
-    });
-
-  if (!isMobile) {
-    let desktopActiveNode = null;
-    const applyDesktopFocus = (selected = null) => {
-      const hasSelected = !!selected;
-      cards.transition().duration(220)
-        .attr("opacity", d => !hasSelected ? 1 : (d === selected ? 1 : 0.38));
-      cards.select(".timeline-card").transition().duration(220)
-        .style("box-shadow", d => (!hasSelected || d === selected)
-          ? "0 16px 38px rgba(8,47,73,.45)"
-          : "0 8px 18px rgba(2,6,23,.26)")
-        .style("border-style", d => (!hasSelected ? "solid" : (d === selected ? "solid" : "dashed")))
-        .style("border-color", d => (!hasSelected
-          ? "rgba(148,163,184,.22)"
-          : (d === selected ? pointBorderColor(d, 0.92) : "rgba(148,163,184,.22)")))
-        .style("filter", d => (!hasSelected || d === selected) ? "none" : "saturate(.75)");
-      nodes.select("line").transition().duration(220)
-        .attr("opacity", d => !hasSelected ? .95 : (d === selected ? .95 : .18));
-      nodes.select("circle").transition().duration(220)
-        .attr("opacity", d => !hasSelected ? 1 : (d === selected ? 1 : .45))
-        .attr("stroke-width", d => !hasSelected ? 1.2 : (d === selected ? 1.9 : 1.1));
-    };
-
-    const toggleDesktopSelection = (event, d) => {
+    card.addEventListener("mouseleave", () => hideTip());
+    card.addEventListener("click", event => {
       event.stopPropagation();
-      desktopActiveNode = desktopActiveNode === d ? null : d;
+      desktopActiveNode = desktopActiveNode === data ? null : data;
       applyDesktopFocus(desktopActiveNode);
-    };
-
-    cards.on("click", toggleDesktopSelection);
-    nodes.on("click", toggleDesktopSelection);
-    svg.on("click", () => {
-      desktopActiveNode = null;
-      applyDesktopFocus(null);
     });
-  }
+  });
+
+  nodes.style("cursor", "pointer").on("click", (event, d) => {
+    event.stopPropagation();
+    desktopActiveNode = desktopActiveNode === d ? null : d;
+    applyDesktopFocus(desktopActiveNode);
+  });
+
+  const onReset = () => {
+    desktopActiveNode = null;
+    applyDesktopFocus(null);
+    hideTip();
+  };
+  svg.on("click", onReset);
+  overlay.addEventListener("click", onReset);
+
+  el.__timelineCleanup = () => {
+    overlay.removeEventListener("click", onReset);
+  };
 
   if (isMobile) {
     const mobileCardGap = 24;
