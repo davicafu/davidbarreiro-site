@@ -1,4 +1,5 @@
 ﻿import { appState, palette, reducedMotion } from './state.js';
+import { t } from './i18n.js';
 function dataFlow(){
   const el = document.getElementById("flow");
   el.innerHTML = "";
@@ -503,7 +504,7 @@ function dataFlow(){
     syncFlowState();
   });
 
-  const flowTipHtml = "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.";
+  const flowTipHtml = t(appState.locale, 'flow_tip', "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover or click a phase to inspect details. Click outside to close.");
   const flowTipTarget = document.getElementById("flow-tip");
   if (flowTipTarget) {
     flowTipTarget.className = "section-tip-contrast mb-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
@@ -518,3 +519,5 @@ function dataFlow(){
 }
 
 export { dataFlow };
+
+

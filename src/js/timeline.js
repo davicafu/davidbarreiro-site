@@ -1,5 +1,6 @@
 ﻿import { appState, CURRENT_YEAR, palette, reducedMotion } from './state.js';
 import { safeText } from './utils.js';
+import { t } from './i18n.js';
 import { showTip, hideTip } from './ui.js';
 function timeline(){
   const el = document.getElementById("timeline");
@@ -71,7 +72,7 @@ function timeline(){
   };
 
   if (isMobile) {
-    const formatPeriod = d => `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? "Present" : Math.floor(d.end)}`;
+    const formatPeriod = d => `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? t(appState.locale, 'timeline_present', 'Present') : Math.floor(d.end)}`;
     const mobileItems = placed.slice();
     const neutralBorder = "rgba(148,163,184,.32)";
     const list = document.createElement("div");
@@ -83,10 +84,10 @@ function timeline(){
     const getDetailItems = d => {
       if (d.type === "education") {
         const techItems = Array.isArray(d.tech) ? d.tech.filter(Boolean) : [];
-        return techItems.length ? techItems : ["No tech provided."];
+        return techItems.length ? techItems : [t(appState.locale, 'no_tech_provided', 'No tech provided.')];
       }
       const highlights = Array.isArray(d.highlights) ? d.highlights.filter(Boolean) : [];
-      return highlights.length ? highlights : ["No highlights provided."];
+      return highlights.length ? highlights : [t(appState.locale, 'no_highlights_provided', 'No highlights provided.')];
     };
 
     const beautify = value => {
@@ -246,7 +247,7 @@ function timeline(){
         ? "none"
         : `max-height ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), opacity ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), transform ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), margin-top ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), padding-top ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), padding-bottom ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), border-width ${detailTransitionMs}ms cubic-bezier(0.22, 1, 0.36, 1), border-color .22s ease`;
       detail.innerHTML = `
-        <p class="mb-2 text-cyan-300 font-bold">${d.type === "education" ? "Tech" : "Highlights"}</p>
+        <p class="mb-2 text-cyan-300 font-bold">${d.type === "education" ? t(appState.locale, 'timeline_label_tech', 'Tech') : t(appState.locale, 'timeline_label_highlights', 'Highlights')}</p>
         <ul class="space-y-2 text-slate-300 leading-relaxed">
           ${getDetailItems(d).map(itemText => `<li class="flex items-start gap-2"><span class="text-cyan-300 mt-[1px]">•</span><span>${beautify(itemText)}</span></li>`).join("")}
         </ul>
@@ -289,7 +290,7 @@ function timeline(){
       });
     };
 
-    const timelineTipHtml = "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work card to expand highlights, or an education card to expand tech. Tap outside to close.";
+    const timelineTipHtml = t(appState.locale, 'timeline_tip_mobile', "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work card to expand highlights, or an education card to expand tech. Tap outside to close.");
     const timelineTipTarget = document.getElementById("timeline-tip");
     if (timelineTipTarget) {
       timelineTipTarget.className = "section-tip-contrast mb-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
@@ -384,7 +385,7 @@ function timeline(){
       const detailsHtml = detailItems.length
         ? `<p class="mt-2 text-slate-300"><small><strong>${detailLabel}:</strong><br>${detailItems.map(item => `• ${item}`).join("<br>")}</small></p>`
         : "";
-      const kind = d.type === "education" ? "Education" : "Work";
+      const kind = d.type === "education" ? t(appState.locale, 'timeline_kind_education', 'Education') : t(appState.locale, 'timeline_kind_work', 'Work');
       showTip(
         event,
         `<strong>${d.company}</strong><br><small>${kind} · ${d.role}</small>${detailsHtml}`,
@@ -416,7 +417,7 @@ function timeline(){
     .attr("width", cardW + 4)
     .attr("height", d => getCardVisualHeight(d) + (isMobile ? 4 : 36))
     .html(d => {
-      const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? "Present" : Math.floor(d.end)}`;
+      const period = `${Math.floor(d.start)} - ${Math.floor(d.end) >= CURRENT_YEAR ? t(appState.locale, 'timeline_present', 'Present') : Math.floor(d.end)}`;
       const chips = (Array.isArray(d.tech) && d.tech.length ? d.tech : extractTech(d.text)).slice(0, 5);
       const isEducation = d.type === "education";
       const shellBorder = isEducation ? "border-transparent" : "border-slate-800";
@@ -551,10 +552,10 @@ function timeline(){
       if (!d) return [];
       if (d.type === "education") {
         const techItems = Array.isArray(d.tech) ? d.tech.filter(Boolean) : [];
-        return techItems.length ? techItems : ["No tech provided."];
+        return techItems.length ? techItems : [t(appState.locale, 'no_tech_provided', 'No tech provided.')];
       }
       const highlights = Array.isArray(d.highlights) ? d.highlights.filter(Boolean) : [];
-      return highlights.length ? highlights : ["No highlights provided."];
+      return highlights.length ? highlights : [t(appState.locale, 'no_highlights_provided', 'No highlights provided.')];
     };
 
     const getDetailHeight = d => {
@@ -793,8 +794,8 @@ function timeline(){
   }
 
   const timelineTipHtml = isMobile
-    ? "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work card to expand highlights, or an education card to expand tech. Tap outside to close."
-    : "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover cards to inspect details, or click a card/point to focus and dim the rest. Click outside to reset.";
+    ? t(appState.locale, 'timeline_tip_mobile', "<span class=\"text-cyan-300 font-bold\">Tip:</span> tap a work card to expand highlights, or an education card to expand tech. Tap outside to close.")
+    : t(appState.locale, 'timeline_tip_desktop', "<span class=\"text-cyan-300 font-bold\">Tip:</span> hover cards to inspect details, or click a card/point to focus and dim the rest. Click outside to reset.");
   const timelineTipTarget = document.getElementById("timeline-tip");
   if (timelineTipTarget) {
     timelineTipTarget.className = "section-tip-contrast mb-4 rounded-2xl border border-slate-800 bg-slate-950/78 p-3 text-xs text-slate-300";
@@ -808,3 +809,5 @@ function timeline(){
 }
 
 export { timeline };
+
+

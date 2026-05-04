@@ -1,0 +1,550 @@
+﻿{
+  "meta": {
+    "theme": "stackoverflow",
+    "themeBakcup": "creative-confidence,macchiato"
+  },
+  "basics": {
+    "name": "David Barreiro Salgueiro",
+    "label": "Ingeniero de Software Senior | Sistemas Distribuidos - Plataformas de Datos - Streaming",
+    "image": "https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif",
+    "email": "david.barreiro@outlook.es",
+    "phone": "+34 670 308 697",
+    "location": {
+      "city": "A Coruña",
+      "countryCode": "ES"
+    },
+    "summary": "Ingeniero de Software Senior con experiencia práctica en el diseño y construcción de plataformas escalables, sistemas distribuidos y soluciones de datos en tiempo real.\n\nMi trayectoria combina ingeniería backend, infraestructura de datos y plataformas dieñadas para la nube. He trabajado con Java, Go, Kafka, Spark (Python), ClickHouse, Kubernetes, Docker y entornos modernos de CI/CD, entregando sistemas fiables para cargas exigentes.\n\nDisfruto simplificando problemas complejos, mejorando rendimiento y construyendo soluciones prácticas que escalan.\n\nÁreas principales: ingeniería backend con Go y Java, sistemas distribuidos, arquitecturas de streaming basadas en Kafka, plataformas para la nube, APIs, microservicios y automatización DevOps.",
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "David Barreiro",
+        "url": "https://www.linkedin.com/in/david-barreiro-s/"
+      },
+      {
+        "network": "GitHub",
+        "username": "Proyectos personales",
+        "url": "https://github.com/davicafu"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "highlights": [
+        "Administración y optimización de una base de datos distribuida con transacciónes de alto volumen.",
+        "Garantía de alta disponibilidad y rendimiento para un sistema que procesaba millones de consultas diarias.",
+        "Desarrollo e implantación de soluciones de software ad hoc para optimizar ingesta y procesamiento de datos.",
+        "Gestion de cargas masivas de datos desde sistemas empresariales externos como DB2, SQL Server y AS/400.",
+        "Mejora del rendimiento de consultas y recuperación de datos mediante estrategias de indexación y optimización.",
+        "Mantenimiento de un clúster de tamaño medio (100-200 servidores) para almacenamiento y procesamiento paralelo.",
+        "Colaboración en la operación de un clúster SLURM para optimizar recursos de cómputo en consultas de gran escala."
+      ],
+      "description": "Contribución a la administración y desarrollo de una solución de base de datos distribuida para una empresa internaciónal del sector retail, gestionando grandes volúmenes de datos en múltiples servidores. El proyecto exigía ejecución de consultas de alto rendimiento, almacenamiento optimizado e integración con sistemas externos. Aprovechando Java, MySQL y Linux, el equipo aseguró un procesamiento de datos continuo y fiable en un entorno complejo y de alta demanda.",
+      "name": "Administración y desarrollo de soluciones de bases de datos distribuidas.",
+      "startDate": "2015-02",
+      "endDate": "2019-03"
+    },
+    {
+      "highlights": [
+        "Diseño y construcción de una plataforma de procesamiento de datos en tiempo real desde cero.",
+        "Desarrollo y mantenimiento de imágenes Docker para una infraestructura escalable y reproducible.",
+        "Implementación de streaming con Kafka para ingesta de datos desde múltiples fuentes externas.",
+        "Desarrollo de soluciones de procesamiento con Scala y Spark para analítica eficiente en tiempo real.",
+        "Diseño y despliegue de cuadros de mando en Kibana para monitorización y conocimiento.",
+        "Establecimiento de procesos de despliegue automatizados para facilitar escalabilidad y mantenimiento."
+      ],
+      "description": "Liderazgo en el desarrollo de una plataforma de procesamiento de datos en tiempo real desde cero, integrando Kafka, Spark y Elastic para ingesta y analítica de alto rendimiento. El proyecto requirió una arquitectura robusta capaz de gestionar flujos continuos de datos con escalabilidad y fiabilidad. Mediante contenedorización, mensajería y técnicas avanzadas de procesamiento, la plataforma aportó información en tiempo real y automatización para cargas de trabajo de datos a gran escala.",
+      "name": "Desarrollo desde cero de una plataforma de procesamiento de datos en tiempo real.",
+      "startDate": "2018-06",
+      "endDate": "2019-03"
+    }
+  ],
+  "portfolio": [
+    {
+      "name": "go-auth-kit",
+      "description": "Módulo reutilizable de autenticación en Go, pensado para backends productivos. Soporta estrategias configurables (sesiones con cookies o JWT access + refresh), validación de roles y permisos (RBAC), proveedores OAuth (GitHub / Google), recuperación de contraseña, rate limiting en endpoints de autenticación y auditoría orientada a seguridad. El objetivo es ofrecer una base segura y plug-and-play sin reimplementar patrones en cada servicio.",
+      "highlights": [
+        "Go",
+        "JWT + Cookies",
+        "OAuth",
+        "RBAC",
+        "Audit Logs"
+      ]
+    },
+    {
+      "name": "Concurrent Worker Runtime",
+      "description": "Runtime concurrente para procesamiento asíncrono de trabajos en Go. Incluye pools dinámicos de trabajadores, reintentos exponenciales con jitter, gestión de la saturación, colas de entregas fallidas (DLQ), apagado controlado y propagación de cancelación por contexto. El enfoque es fiabilidad bajo carga y comportamiento predecible ante fallos, con observabilidad clara de velocidad, reintentos y salud de colas.",
+      "highlights": [
+        "Concurrencia",
+        "Reintentos",
+        "Backpressure",
+        "DLQ",
+        "Apagado Controlado"
+      ]
+    },
+    {
+      "name": "Go Microservice Suite (gRPC + REST)",
+      "description": "Sistema de microservicios de referencia compuesto por User Service, Notification Service y un Billing Service simulado. La comunicación interna usa contratos gRPC con protobuf, mientras una pasarela REST expone endpoints públicos. Incluye políticas de timeout y reintentos, manejo de errores de transporte y límites de servicio realistas para entornos distribuidos.",
+      "highlights": [
+        "gRPC",
+        "Pasarela REST",
+        "Protobuf"
+      ]
+    },
+    {
+      "name": "Proceso de analítico de eventos",
+      "description": "Arquitectura orientada a eventos que cubre ingesta, modelado, transformaciones ETL, generación de métricas y capas de servicio analítico. Implementada con Go y combinaciones de almacenamiento/analítica como DuckDB, ClickHouse y PostgreSQL. Su objetivo es servir como blueprint pragmático para analítica near real-time con separación clara entre ingesta, procesamiento y consumo.",
+      "highlights": [
+        "Arquitectura Event-Driven",
+        "ETL",
+        "Go",
+        "ClickHouse",
+        "PostgreSQL"
+      ]
+    },
+    {
+      "name": "observekit",
+      "description": "Stack demostrativo de observabilidad para sistemas backend modernos. Integra instrumentación OpenTelemetry, trazas distribuidas, métricas con Prometheus, cuadros de mando en Grafana, logs centralizados, vistas orientadas a SLO y paneles analíticos en Superset. Está orientado a observar el comportamiento end-to-end del sistema: desde trazas por petición hasta KPIs de servicio y producto.",
+      "highlights": [
+        "OpenTelemetry",
+        "Trazas",
+        "Prometheus",
+        "Grafana",
+        "Superset",
+        "OpenSpec"
+      ]
+    },
+    {
+      "name": "CLI Suite",
+      "description": "Toolkit profesional de CLI en Go, diseñado como plataforma multi-comando para flujos operativos y de ingeniería. Incluye comandos previstos como Data Quality CLI, API Audit CLI, Benchmark CLI, Migration CLI y utilidades para Kubernetes. La suite prioriza UX robusta, manejo sólido de errores, testabilidad y automatización repetible.",
+      "highlights": [
+        "Go",
+        "Automatización",
+        "Benchmarks",
+        "OpenSpec",
+        "Testing"
+      ]
+    },
+    {
+      "name": "CLI Games Collection",
+      "description": "Colección progresiva de juegos de terminal usada como laboratorio técnico de arquitectura y algoritmia. La hoja de ruta evoluciona desde juegos de rejilla (Snake, Sokoban) hasta bucles de acción/física (Flappy, Breakout, Space Invaders) y sistemas más complejos (IA estilo Pac-Man, movimiento estilo Asteroids, plataformas y Tetris). Enfocado en mejorar game loops, input handling, colisiones y patrones de motor reutilizables.",
+      "highlights": [
+        "Bucles de Juego",
+        "Sistemas de Colisiones",
+        "Terminal UI",
+        "Algoritmos",
+        "Arquitectura",
+        "OpenSpec"
+      ]
+    }
+  ],
+  "work": [
+    {
+      "name": "SDG Group",
+      "position": "Ingeniero de Software Senior",
+      "startDate": "2022-04",
+      "summary": "Diseño y desarrollo de plataformas de datos en tiempo real, escalables, con Kafka, Spark y entornos contenerizados.",
+      "tech": [
+        "Spark",
+        "Kafka",
+        "Go",
+        "Grafana"
+      ],
+      "highlights": [
+        "Creación y mantenimiento de imágenes de desarrollo con Docker.",
+        "Pipeline de mensajería con Spark para procesamiento de datos en Scala y Python.",
+        "Desarrollo de una solución low-code para exploración de datos con KSQL.",
+        "Construcción de servicios backend y tooling interno en Go y Java para mejorar eficiencia operativa.",
+        "Implementación de Kafka Connect, Debezium, DBT y Airflow para procesamiento de datos.",
+        "Mejora de observabilidad y fiabilidad con cuadros de mando en Grafana, monitorización y despliegues automatizados.",
+        "Participación en decisiones de arquitectura, escalabilidad y mantenibilidad de sistemas críticos."
+      ]
+    },
+    {
+      "name": "Altia",
+      "position": "Ingeniero de Software",
+      "startDate": "2019-03",
+      "endDate": "2022-04",
+      "summary": "Entrega de soluciones backend y data engineering para entornos analíticos empresariales.",
+      "tech": [
+        "Java",
+        "Kafka",
+        "Grafana"
+      ],
+      "highlights": [
+        "Desarrollo de microservicios y APIs con Java / Spring Boot.",
+        "Implementación de pipelines en tiempo real con Kafka Streams.",
+        "Construcción de sistemas de monitorización y observabilidad con Prometheus.",
+        "Automatización de CI/CD y flujos de despliegue.",
+        "Mejora de fiabilidad, escalabilidad y eficiencia operativa."
+      ]
+    },
+    {
+      "name": "Emetel",
+      "position": "Ingeniero de Software",
+      "startDate": "2018-06",
+      "endDate": "2019-03",
+      "summary": "Construcción y operación de una plataforma de procesamiento de datos en tiempo real con Kafka, Spark y Elastic Stack.",
+      "tech": [
+        "Java",
+        "Kafka",
+        "Docker",
+        "Elastic"
+      ],
+      "highlights": [
+        "Creación y mantenimiento de imágenes Docker para despliegues reproducibles.",
+        "Desarrollo de servicios en Java y Scala para procesamiento de streams.",
+        "Implementación de pipelines de ingesta desde múltiples fuentes externas.",
+        "Construcción de cuadros de mando en Kibana para monitorización y analítica.",
+        "Automatización de procesos de despliegue y operación."
+      ]
+    },
+    {
+      "name": "Indra Software Labs S.L.",
+      "position": "Ingeniero de Software Junior",
+      "startDate": "2014-12",
+      "endDate": "2018-06",
+      "summary": "Gestión y desarrollo de plataformas de bases de datos distribuidas para un entorno multinaciónal del sector retail.",
+      "tech": [
+        "Java",
+        "MariaDB",
+        "Linux"
+      ],
+      "highlights": [
+        "Administración de clústers de tamaño medio (100-200 servidores) para cargas de procesamiento de datos a gran escala.",
+        "Desarrollo de herramientas internas para orquestación y operaciones de plataforma.",
+        "Implementación de procesos de ingesta desde DB2, AS/400 y SQL Server.",
+        "Optimización de flujos de procesamiento basados en paradigmas MapReduce.",
+        "Mejora de estabilidad, rendimiento y eficiencia operativa de la plataforma.",
+        "Colaboración en la gestión de un clúster SLURM (Simple Linux Utility for Resource Management)."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Santiago de Compostela University (USC)",
+      "area": "Computer Engineering",
+      "studyType": "Grado",
+      "startDate": "2008",
+      "endDate": "2014",
+      "tech": [
+        "Java",
+        "Algorithms & Data Structures",
+        "SQL"
+      ]
+    },
+    {
+      "institution": "International University of La Rioja (UNIR)",
+      "area": "Big Data y Analítica Visual",
+      "studyType": "Master",
+      "startDate": "2016",
+      "endDate": "2018",
+      "tech": [
+        "Spark",
+        "Python",
+        "MongoDb",
+        "D3js"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Lenguajes de Programación",
+      "level": "Avanzado",
+      "keywords": [
+        {
+          "name": "Go",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/go.svg"
+        },
+        {
+          "name": "Java",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/java.svg"
+        },
+        {
+          "name": "Bash",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/bash.svg"
+        },
+        {
+          "name": "Python",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/python.svg"
+        },
+        {
+          "name": "Scala",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/scala.svg"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/spring-boot.svg"
+        }
+      ]
+    },
+    {
+      "name": "Bases de Datos",
+      "level": "Avanzado",
+      "keywords": [
+        {
+          "name": "PostgreSQL",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/postgresql.svg"
+        },
+        {
+          "name": "ClickHouse",
+          "level": "Avanzado",
+          "certifications": [
+            {
+              "name": "ClickHouse Certified Developer",
+              "date": "2025-09-13",
+              "issuer": "ClickHouse",
+              "url": "https://www.credly.com/badges/09a51399-9a62-4619-9d6b-3096e2b8070c/linked_int=t2irdp"
+            }
+          ],
+          "notes": "Fecha de emisión: 2025-09-13",
+          "logo": "./assets/logos/clickhouse.svg"
+        },
+        {
+          "name": "MariaDb",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/mariadb.svg"
+        },
+        {
+          "name": "Redis",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/redis.svg"
+        },
+        {
+          "name": "MongoDB",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/mongodb.svg"
+        },
+        {
+          "name": "Snowflake",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/snowflake.svg"
+        }
+      ]
+    },
+    {
+      "name": "Procesamiento de Datos",
+      "level": "Avanzado",
+      "keywords": [
+        {
+          "name": "Kafka",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/kafka.svg"
+        },
+        {
+          "name": "Databricks",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/databricks.svg"
+        },
+        {
+          "name": "Flink",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/flink.svg"
+        },
+        {
+          "name": "Spark",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/spark.svg"
+        },
+        {
+          "name": "RabbitMQ",
+          "level": "Intermedio",
+          "logo": "./assets/logos/rabbitmq.svg"
+        },
+        {
+          "name": "DBT",
+          "level": "Intermedio",
+          "logo": "./assets/logos/dbt.svg"
+        },
+        {
+          "name": "Airflow",
+          "level": "Intermedio",
+          "logo": "./assets/logos/airflow.svg"
+        }
+      ]
+    },
+    {
+      "name": "Ingeniería Asistida por IA",
+      "level": "Intermedio",
+      "keywords": [
+        {
+          "name": "Agentic Systems",
+          "level": "Intermedio",
+          "notes": "Diseño de flujos autónomos donde agentes de IA ejecutan tareas bajo control estructurado y objetivos definidos",
+          "logo": "Agentic"
+        },
+        {
+          "name": "Context Engineering",
+          "level": "Intermedio",
+          "notes": "Estructuración y control de contexto para guiar comportamiento, respuestas y calidad de decisión de LLMs",
+          "logo": "Context"
+        },
+        {
+          "name": "LLM Integration",
+          "level": "Intermedio",
+          "notes": "Integración de LLMs en sistemas backend, APIs y workflows para casos de uso reales",
+          "logo": "LLM"
+        },
+        {
+          "name": "Human-in-the-Loop Development",
+          "level": "Intermedio",
+          "notes": "Desarrollo acelerado por IA guiado por arquitectura, decisiones y validación humana",
+          "logo": "Humano + IA"
+        }
+      ]
+    },
+    {
+      "name": "Infra y DevOps",
+      "level": "Avanzado",
+      "keywords": [
+        {
+          "name": "CI/CD",
+          "level": "Avanzado",
+          "notes": "GitHub, Github Actions, Jenkins, GitLab, Bitbucket",
+          "logo": [
+            "./assets/logos/github.svg",
+            "./assets/logos/jenkins.svg",
+            "./assets/logos/gitlab.svg",
+            "./assets/logos/bitbucket.svg"
+          ]
+        },
+        {
+          "name": "Docker",
+          "level": "Experto",
+          "notes": "",
+          "logo": "./assets/logos/docker.svg"
+        },
+        {
+          "name": "Kubernetes",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/kubernetes.svg"
+        },
+        {
+          "name": "Terraform",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/terraform.svg"
+        }
+      ]
+    },
+    {
+      "name": "Cloud",
+      "level": "Intermedio",
+      "keywords": [
+        {
+          "name": "AWS",
+          "level": "Intermedio",
+          "logo": "./assets/logos/aws.svg"
+        },
+        {
+          "name": "Azure",
+          "level": "Intermedio",
+          "logo": "./assets/logos/azure.svg"
+        },
+        {
+          "name": "Google Cloud",
+          "level": "Intermedio",
+          "logo": "./assets/logos/gcp.svg"
+        }
+      ]
+    },
+    {
+      "name": "Observabilidad y Analítica",
+      "level": "Avanzado",
+      "keywords": [
+        {
+          "name": "Grafana",
+          "level": "Avanzado",
+          "notes": "",
+          "logo": "./assets/logos/grafana.svg"
+        },
+        {
+          "name": "OpenTelemetry",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/opentelemetry.svg"
+        },
+        {
+          "name": "Prometheus",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/prometheus.svg"
+        },
+        {
+          "name": "Superset",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/superset.svg"
+        },
+        {
+          "name": "Elastic (ELK)",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/elasticsearch.svg"
+        },
+        {
+          "name": "Power BI",
+          "level": "Intermedio",
+          "notes": "",
+          "logo": "./assets/logos/powerbi.svg"
+        }
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "Español",
+      "fluency": "Nativo"
+    },
+    {
+      "language": "Gallego",
+      "fluency": "Nativo"
+    },
+    {
+      "language": "Inglés",
+      "fluency": "Intermedio"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "ClickHouse Certified Developer",
+      "date": "2025-09-13",
+      "issuer": "ClickHouse",
+      "url": "https://www.credly.com/badges/09a51399-9a62-4619-9d6b-3096e2b8070c/linked_int=t2irdp"
+    },
+    {
+      "name": "Oracle Database 11g: Optimización de Rendimiento",
+      "date": "2016-10"
+    },
+    {
+      "name": "Cloudera: Formación para Desarrollo en Spark y Hadoop",
+      "date": "2017-06"
+    },
+    {
+      "name": "AWS Certified SysOps Administrator",
+      "date": "2020-06"
+    }
+  ]
+}

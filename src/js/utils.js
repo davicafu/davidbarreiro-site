@@ -1,9 +1,18 @@
-export function safeText(value, fallback = '') {
+﻿export function safeText(value, fallback = '') {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
 export function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
+}
+
+function normalizeLogoPath(value) {
+  const logo = safeText(value, '');
+  if (!logo) return '';
+  if (isHttpUrl(logo)) return logo;
+  if (logo.startsWith('./assets/')) return `/${logo.slice(2)}`;
+  if (logo.startsWith('assets/')) return `/${logo}`;
+  return logo;
 }
 
 export function normalizeKeywordItem(item) {
@@ -47,8 +56,8 @@ export function normalizeKeywordItem(item) {
       certifications: certs,
       notes: safeText(item.notes, safeText(item.summary, '')),
       logo: Array.isArray(item.logo)
-        ? item.logo.map(x => safeText(x, '')).filter(Boolean)
-        : safeText(item.logo, '')
+        ? item.logo.map(normalizeLogoPath).filter(Boolean)
+        : normalizeLogoPath(item.logo)
     };
   }
   return { name: 'Skill', level: '', certifications: [], notes: '', logo: '' };

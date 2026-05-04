@@ -15,8 +15,10 @@ export const categoryColorMap = {
 };
 
 export const appState = {
+  locale: 'en',
   resumeData: null,
   jobs: [],
   skillGroups: [],
   flow: []
 };
+

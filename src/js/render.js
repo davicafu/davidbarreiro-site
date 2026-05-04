@@ -1,5 +1,6 @@
 ﻿import { appState, CURRENT_YEAR, categoryColorMap, palette, reducedMotion } from './state.js';
 import { safeText, normalizeKeywordItem, parseDateToYear, deriveFlow } from './utils.js';
+import { t } from './i18n.js';
 function mapResumeToViewModel(data) {
   const basics = data.basics || {};
   const work = Array.isArray(data.work) ? data.work : [];
@@ -106,9 +107,16 @@ function renderMetrics(basics = {}, meta = {}) {
   const workJobs = appState.jobs.filter(j => j.type !== 'education');
   const firstStart = workJobs.length ? Math.min(...workJobs.map(j => j.start)) : CURRENT_YEAR;
   const years = Math.max(1, Math.round(CURRENT_YEAR - firstStart));
+  const isCoreAdvanced = value => {
+    const normalized = safeText(value, "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    return normalized.includes("advanced") || normalized.includes("avanzado");
+  };
   const advancedCoreSkills = appState.skillGroups
     .flatMap(group => Array.isArray(group.keywords) ? group.keywords : [])
-    .filter(keyword => /\badvanced\b/i.test(safeText(keyword.level, "")))
+    .filter(keyword => isCoreAdvanced(keyword.level))
     .length;
   //const topFocus = safeText(basics.focus, safeText(meta.focus, "Data Engineering"));
   if (cards[0]) cards[0].dataset.target = years;
@@ -117,19 +125,106 @@ function renderMetrics(basics = {}, meta = {}) {
 }
 
 function renderProjects(portfolio) {
-  const grid = document.querySelector("#portfolio .grid");
-  if (!grid) return;
+  const section = document.getElementById("portfolio");
+  const grid = section?.querySelector(".grid");
+  if (!section || !grid) return;
   const list = (portfolio && portfolio.length ? portfolio : []).slice(0, 8);
   if (!list.length) {
-    grid.innerHTML = `<article class=\"glass rounded-[2rem] p-7 border border-slate-800\"><h3 class=\"text-xl font-black mb-3\">Portfolio in progress</h3><p class=\"text-slate-400 leading-relaxed\">Project entries will appear here once <code>portfolio</code> is defined in <code>resume.json</code>.</p></article>`;
+    grid.innerHTML = `<article class=\"glass rounded-[2rem] p-7 border border-slate-800\"><h3 class=\"text-xl font-black mb-3\">${t(appState.locale, 'portfolio_in_progress', 'Portfolio in progress')}</h3><p class=\"text-slate-400 leading-relaxed\">${t(appState.locale, 'portfolio_in_progress_desc', 'Project entries will appear here once <code>portfolio</code> is defined in <code>resume.json</code>.')}</p></article>`;
+    const oldFilters = section.querySelector("#portfolio-filters-wrap");
+    if (oldFilters) oldFilters.remove();
     return;
   }
-  grid.innerHTML = list.map((project, index) => {
-    const tags = (project.highlights || []).slice(0, 3);
-    const borderClass = index % 2 === 0 ? "hover:border-cyan-300/60" : "hover:border-violet-300/60";
-    const chipClass = index % 2 === 0 ? "bg-cyan-300/10 text-cyan-200" : "bg-violet-300/10 text-violet-200";
-    return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, "Project")}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, "Technical personal project.")}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map(tag => `<span class=\"px-3 py-1 rounded-full ${chipClass} text-sm\">${safeText(typeof tag === "string" ? tag : (tag?.text || tag?.name || "")).slice(0, 38)}</span>`).join("")}</div></article>`;
-  }).join("");
+  const normalizeTag = value => safeText(typeof value === "string" ? value : (value?.text || value?.name || ""), "").trim();
+  const allTags = Array.from(new Set(
+    list.flatMap(project => (project.highlights || []).map(normalizeTag).filter(Boolean))
+  )).slice(0, 28);
+
+  if (!(renderProjects.__selectedTags instanceof Set)) {
+    renderProjects.__selectedTags = new Set();
+  }
+  const selectedTags = renderProjects.__selectedTags;
+  [...selectedTags].forEach(tag => { if (!allTags.includes(tag)) selectedTags.delete(tag); });
+
+  const ensureFiltersWrap = () => {
+    let wrap = section.querySelector("#portfolio-filters-wrap");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.id = "portfolio-filters-wrap";
+      wrap.className = "mb-6 rounded-2xl border border-slate-800 bg-slate-900/55 p-4";
+      const titleBlock = section.querySelector(".mb-8");
+      if (titleBlock && titleBlock.nextSibling) {
+        section.insertBefore(wrap, titleBlock.nextSibling);
+      } else {
+        section.insertBefore(wrap, grid);
+      }
+    }
+    return wrap;
+  };
+
+  const renderGrid = items => {
+    if (!items.length) {
+      grid.innerHTML = `<article class="glass rounded-[2rem] p-7 border border-slate-800 md:col-span-2"><p class="text-slate-300 font-semibold">${t(appState.locale, 'portfolio_filter_empty', 'No projects match the selected filters.')}</p></article>`;
+      return;
+    }
+    grid.innerHTML = items.map((project, index) => {
+      const tags = (project.highlights || []).map(normalizeTag).filter(Boolean).slice(0, 5);
+      const borderClass = index % 2 === 0 ? "hover:border-cyan-300/60" : "hover:border-violet-300/60";
+      const chipClass = index % 2 === 0 ? "bg-cyan-300/10 text-cyan-200 border-cyan-300/20" : "bg-violet-300/10 text-violet-200 border-violet-300/20";
+      return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, "Project")}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, "Technical personal project.")}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map(tag => `<span class=\"px-3 py-1 rounded-full border ${chipClass} text-sm\">${safeText(tag).slice(0, 38)}</span>`).join("")}</div></article>`;
+    }).join("");
+  };
+
+  const renderFilterUI = () => {
+    const wrap = ensureFiltersWrap();
+    const selectedCount = selectedTags.size;
+    const filtered = !selectedCount
+      ? list
+      : list.filter(project => {
+        const projectTags = new Set((project.highlights || []).map(normalizeTag).filter(Boolean));
+        return [...selectedTags].some(tag => projectTags.has(tag));
+      });
+    wrap.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <p class="text-xs uppercase tracking-[0.18em] text-slate-400 font-bold">${t(appState.locale, 'portfolio_filter_label', 'Filter by highlight')}</p>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-slate-400">${filtered.length} ${t(appState.locale, 'portfolio_filter_results', 'projects')}</span>
+          <button type="button" id="portfolio-clear-filters" class="text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:text-cyan-200 hover:border-cyan-300/60 transition ${selectedCount ? '' : 'opacity-50 cursor-not-allowed'}">${t(appState.locale, 'portfolio_filter_clear', 'Clear')}</button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" data-tag="__all__" class="portfolio-filter-chip px-3 py-1.5 rounded-full border text-sm transition ${selectedCount === 0 ? 'border-cyan-300/70 bg-cyan-300/15 text-cyan-100 shadow-[0_0_0_1px_rgba(103,232,249,.16)_inset]' : 'border-slate-700 bg-white/5 text-slate-300 hover:border-cyan-300/60 hover:text-cyan-200'}">${t(appState.locale, 'portfolio_filter_all', 'All')}</button>
+        ${allTags.map(tag => `<button type="button" data-tag="${tag.replace(/"/g, '&quot;')}" class="portfolio-filter-chip px-3 py-1.5 rounded-full border text-sm transition ${selectedTags.has(tag) ? 'border-cyan-300/70 bg-cyan-300/15 text-cyan-100 shadow-[0_0_0_1px_rgba(103,232,249,.16)_inset]' : 'border-slate-700 bg-white/5 text-slate-300 hover:border-cyan-300/60 hover:text-cyan-200'}">${tag}</button>`).join("")}
+      </div>
+    `;
+
+    wrap.querySelectorAll(".portfolio-filter-chip").forEach(button => {
+      button.addEventListener("click", () => {
+        const tag = button.dataset.tag || "";
+        if (tag === "__all__") {
+          selectedTags.clear();
+        } else if (selectedTags.has(tag)) {
+          selectedTags.delete(tag);
+        } else {
+          selectedTags.add(tag);
+        }
+        renderFilterUI();
+      });
+    });
+
+    const clearButton = wrap.querySelector("#portfolio-clear-filters");
+    if (clearButton) {
+      clearButton.addEventListener("click", () => {
+        if (!selectedTags.size) return;
+        selectedTags.clear();
+        renderFilterUI();
+      });
+    }
+
+    renderGrid(filtered);
+  };
+
+  renderFilterUI();
 }
 
 function revealOnScroll() {
@@ -182,7 +277,7 @@ function renderKeywordsPanel(group, selectedKeywordName = "") {
   const panel = document.getElementById("skill-keywords");
   if (!panel) return;
   if (!group) {
-    panel.innerHTML = `<strong class="text-cyan-300">Tip:</strong> select a category to view its keywords.`;
+    panel.innerHTML = `<strong class="text-cyan-300">${t(appState.locale, 'skills_tip', 'Tip:')}</strong> ${t(appState.locale, 'skills_tip_text', 'select a category to view its keywords.')}`;
     return;
   }
 
@@ -195,8 +290,8 @@ function renderKeywordsPanel(group, selectedKeywordName = "") {
 
   const detail = selected ? `
     <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/65 text-xs text-slate-300" style="padding:1rem;">
-      ${selected.level ? `<p class="text-slate-400 mt-1">Level: <span class="text-slate-200">${selected.level}</span></p>` : ""}
-      ${selected.certifications.length ? `<p class="text-slate-400 mt-1">Certifications: <span class="text-slate-200">${renderCerts(selected.certifications)}</span></p>` : ""}
+      ${selected.level ? `<p class="text-slate-400 mt-1">${t(appState.locale, 'level_label', 'Level')}: <span class="text-slate-200">${selected.level}</span></p>` : ""}
+      ${selected.certifications.length ? `<p class="text-slate-400 mt-1">${t(appState.locale, 'cert_label', 'Certifications')}: <span class="text-slate-200">${renderCerts(selected.certifications)}</span></p>` : ""}
       ${selected.notes ? `<p class="text-slate-400 mt-2">${selected.notes}</p>` : ""}
     </div>
   ` : "";
@@ -227,3 +322,5 @@ export {
   clearActiveLegend,
   renderKeywordsPanel
 };
+
+

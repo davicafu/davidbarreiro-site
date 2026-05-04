@@ -1,5 +1,6 @@
 ﻿import { PDF_MODE, appState } from './state.js';
 import { validateResumeData } from './utils.js';
+import { detectLocale, applyStaticTranslations } from './i18n.js';
 import {
   mapResumeToViewModel,
   renderHeader,
@@ -24,16 +25,20 @@ if (yearNode) {
 }
 
 async function renderAll() {
+  appState.locale = detectLocale();
+  applyStaticTranslations(appState.locale);
+  const resumeFile = appState.locale === 'es' ? '/resume.es.json' : '/resume.json';
+
   try {
-    const response = await fetch('./resume.json');
+    const response = await fetch(resumeFile);
     appState.resumeData = await response.json();
     const schemaWarnings = validateResumeData(appState.resumeData);
     if (schemaWarnings.length) {
-      console.warn('resume.json validation warnings:');
+      console.warn(`${resumeFile} validation warnings:`);
       schemaWarnings.forEach(item => console.warn(`- ${item}`));
     }
   } catch (error) {
-    console.warn('Could not load resume.json', error);
+    console.warn(`Could not load ${resumeFile}`, error);
     appState.resumeData = {};
   }
 
@@ -64,3 +69,4 @@ function initApp() {
 }
 
 initApp();
+

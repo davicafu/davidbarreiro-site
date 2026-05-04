@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://davidbarreiro.vercel.app/sitemap.xml
+Sitemap: https://davidbarreiro.dev/sitemap.xml

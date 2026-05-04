@@ -1,4 +1,4 @@
-const tooltip = document.createElement('div');
+﻿const tooltip = document.createElement('div');
 tooltip.className = 'tooltip';
 document.body.appendChild(tooltip);
 
@@ -13,3 +13,4 @@ export function showTip(event, html, below = false) {
 export function hideTip() {
   tooltip.style.opacity = '0';
 }
+

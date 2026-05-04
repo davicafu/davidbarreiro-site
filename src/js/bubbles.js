@@ -1,6 +1,7 @@
 ﻿import { appState, palette, reducedMotion } from './state.js';
 import { safeText } from './utils.js';
 import { showTip, hideTip } from './ui.js';
+import { t } from './i18n.js';
 import { renderKeywordsPanel, setActiveLegend, clearActiveLegend } from './render.js';
 function bubbles() {
   const el = document.getElementById("bubbles");
@@ -85,7 +86,7 @@ function bubbles() {
   const groupBubble = groupLayer.selectAll(".group-bubble").data(groupsData).join("g").attr("class", "group-bubble cursor-pointer").attr("transform", d => `translate(${d.x},${d.y})`).on("mouseleave", hideTip).on("click", function(event, d) { event.stopPropagation(); selectGroup(d.name); });
   groupBubble.on("mousemove", (event, d) => {
     const count = appState.skillGroups.find(g => g.name === d.name)?.keywords?.length || 0;
-    showTip(event, `<strong>${d.name}</strong><br><small>${d.level}</small><br><small>${count} skills · click to filter</small>`);
+    showTip(event, `<strong>${d.name}</strong><br><small>${d.level}</small><br><small>${count} ${t(appState.locale, 'bubbles_click_filter', 'skills · click to filter')}</small>`);
   });
   groupBubble.append("circle").attr("r", 1).attr("fill", d => d.color).attr("opacity", 0.12).attr("stroke", d => d.color).attr("stroke-width", 1.5).transition().duration(reducedMotion ? 0 : 900).delay((d, i) => i * 120).ease(d3.easeElasticOut.amplitude(0.8).period(0.5)).attr("r", d => d.r);
   const renderCertsInline = certs => certs.map(cert => {
@@ -96,7 +97,7 @@ function bubbles() {
 
   const node = nodeLayer.selectAll(".skill-node").data(nodes).join("g").attr("class", "skill-node cursor-pointer").attr("opacity", 0).attr("transform", d => `translate(${d.x},${d.y})`).on("mousemove", (event, d) => {
     const meta = d.meta || { level: "", certifications: [], notes: "" };
-    showTip(event, `<small>${d.group}</small>${meta.level ? `<p class="mt-1"><small>Level: ${meta.level}</small></p>` : ""}${meta.certifications?.length ? `<p class="mt-2"><small>Certifications: ${renderCertsInline(meta.certifications)}</small></p>` : ""}${meta.notes ? `<p class="mt-2 text-slate-300">${meta.notes}</p>` : ""}`);
+    showTip(event, `<small>${d.group}</small>${meta.level ? `<p class="mt-1"><small>${t(appState.locale, 'level_label', 'Level')}: ${meta.level}</small></p>` : ""}${meta.certifications?.length ? `<p class="mt-2"><small>${t(appState.locale, 'cert_label', 'Certifications')}: ${renderCertsInline(meta.certifications)}</small></p>` : ""}${meta.notes ? `<p class="mt-2 text-slate-300">${meta.notes}</p>` : ""}`);
   }).on("mouseleave", hideTip).on("click", function(event, d) { event.stopPropagation(); selectSkill(d); });
   const bubbleFill = color => {
     const c = d3.color(color);
@@ -189,7 +190,7 @@ function bubbles() {
   node.transition().duration(reducedMotion ? 0 : 700).delay((d, i) => i * 35).attr("opacity", 1);
   node.select("circle").transition().duration(reducedMotion ? 0 : 900).delay((d, i) => i * 35).ease(d3.easeElasticOut.amplitude(.8).period(.45)).attr("r", d => d.r);
   let hasInteracted = false;
-  const initialTipHTML = `<div class="rounded-2xl border border-slate-800 bg-slate-950/85 p-4 text-sm text-slate-300"><strong class="text-cyan-300">Tip:</strong> click a category, a large bubble, or a skill to filter and highlight technologies.</div>`;
+  const initialTipHTML = `<div class="rounded-2xl border border-slate-800 bg-slate-950/85 p-4 text-sm text-slate-300"><strong class="text-cyan-300">${t(appState.locale, 'bubbles_tip', 'Tip:')}<\/strong> ${t(appState.locale, 'bubbles_tip_text', 'click a category, a large bubble, or a skill to filter and highlight technologies.')}</div>`;
   const detail = detailLayer.append("foreignObject").attr("x", 20).attr("y", h - 104).attr("width", w - 40).attr("height", 96).html(initialTipHTML);
   const hideInitialTip = () => {
     if (hasInteracted) return;
@@ -343,3 +344,5 @@ function bubbles() {
 }
 
 export { bubbles };
+
+
