@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "build:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --minify",
+    "build:d3": "node ./scripts/build-d3-lite.mjs",
     "dev:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --watch",
     "lint": "eslint \"**/*.js\" --ignore-pattern node_modules --ignore-pattern dist",
     "format": "prettier --write \"**/*.{html,css,js,json,md,yml,yaml}\"",
@@ -14,6 +15,18 @@
     "puppeteer-core": "^24.19.0"
   },
   "devDependencies": {
+    "d3-array": "^3.2.4",
+    "d3-axis": "^3.0.0",
+    "d3-color": "^3.1.0",
+    "d3-ease": "^3.0.1",
+    "d3-format": "^3.1.2",
+    "d3-hierarchy": "^3.1.2",
+    "d3-interpolate": "^3.0.1",
+    "d3-scale": "^4.0.2",
+    "d3-selection": "^3.0.0",
+    "d3-transition": "^3.0.1",
+    "d3-zoom": "^3.0.0",
+    "esbuild": "^0.28.0",
     "eslint": "^9.36.0",
     "eslint-plugin-html": "^8.1.3",
     "prettier": "^3.6.2",

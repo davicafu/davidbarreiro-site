@@ -6,7 +6,7 @@
   "basics": {
     "name": "David Barreiro Salgueiro",
     "label": "Ingeniero de Software Senior | Sistemas Distribuidos - Plataformas de Datos - Streaming",
-    "image": "https://i.postimg.cc/j2DqQT94/temp-Imagepr-A9-Gy.avif",
+    "image": "/assets/profile/profile-photo-112-112.avif",
     "email": "david.barreiro@outlook.es",
     "phone": "+34 670 308 697",
     "location": {
@@ -62,67 +62,32 @@
     {
       "name": "go-auth-kit",
       "description": "Módulo reutilizable de autenticación en Go, pensado para backends productivos. Soporta estrategias configurables (sesiones con cookies o JWT access + refresh), validación de roles y permisos (RBAC), proveedores OAuth (GitHub / Google), recuperación de contraseña, rate limiting en endpoints de autenticación y auditoría orientada a seguridad. El objetivo es ofrecer una base segura y plug-and-play sin reimplementar patrones en cada servicio.",
-      "highlights": [
-        "Go",
-        "JWT + Cookies",
-        "OAuth",
-        "RBAC",
-        "Audit Logs"
-      ]
+      "highlights": ["Go", "JWT + Cookies", "OAuth", "RBAC", "Audit Logs"]
     },
     {
       "name": "Concurrent Worker Runtime",
       "description": "Runtime concurrente para procesamiento asíncrono de trabajos en Go. Incluye pools dinámicos de trabajadores, reintentos exponenciales con jitter, gestión de la saturación, colas de entregas fallidas (DLQ), apagado controlado y propagación de cancelación por contexto. El enfoque es fiabilidad bajo carga y comportamiento predecible ante fallos, con observabilidad clara de velocidad, reintentos y salud de colas.",
-      "highlights": [
-        "Concurrencia",
-        "Reintentos",
-        "Backpressure",
-        "DLQ",
-        "Apagado Controlado"
-      ]
+      "highlights": ["Concurrencia", "Reintentos", "Backpressure", "DLQ", "Apagado Controlado"]
     },
     {
       "name": "Go Microservice Suite (gRPC + REST)",
       "description": "Sistema de microservicios de referencia compuesto por User Service, Notification Service y un Billing Service simulado. La comunicación interna usa contratos gRPC con protobuf, mientras una pasarela REST expone endpoints públicos. Incluye políticas de timeout y reintentos, manejo de errores de transporte y límites de servicio realistas para entornos distribuidos.",
-      "highlights": [
-        "gRPC",
-        "Pasarela REST",
-        "Protobuf"
-      ]
+      "highlights": ["gRPC", "Pasarela REST", "Protobuf"]
     },
     {
       "name": "Proceso de analítico de eventos",
       "description": "Arquitectura orientada a eventos que cubre ingesta, modelado, transformaciones ETL, generación de métricas y capas de servicio analítico. Implementada con Go y combinaciones de almacenamiento/analítica como DuckDB, ClickHouse y PostgreSQL. Su objetivo es servir como blueprint pragmático para analítica near real-time con separación clara entre ingesta, procesamiento y consumo.",
-      "highlights": [
-        "Arquitectura Event-Driven",
-        "ETL",
-        "Go",
-        "ClickHouse",
-        "PostgreSQL"
-      ]
+      "highlights": ["Arquitectura Event-Driven", "ETL", "Go", "ClickHouse", "PostgreSQL"]
     },
     {
       "name": "observekit",
       "description": "Stack demostrativo de observabilidad para sistemas backend modernos. Integra instrumentación OpenTelemetry, trazas distribuidas, métricas con Prometheus, cuadros de mando en Grafana, logs centralizados, vistas orientadas a SLO y paneles analíticos en Superset. Está orientado a observar el comportamiento end-to-end del sistema: desde trazas por petición hasta KPIs de servicio y producto.",
-      "highlights": [
-        "OpenTelemetry",
-        "Trazas",
-        "Prometheus",
-        "Grafana",
-        "Superset",
-        "OpenSpec"
-      ]
+      "highlights": ["OpenTelemetry", "Trazas", "Prometheus", "Grafana", "Superset", "OpenSpec"]
     },
     {
       "name": "CLI Suite",
       "description": "Toolkit profesional de CLI en Go, diseñado como plataforma multi-comando para flujos operativos y de ingeniería. Incluye comandos previstos como Data Quality CLI, API Audit CLI, Benchmark CLI, Migration CLI y utilidades para Kubernetes. La suite prioriza UX robusta, manejo sólido de errores, testabilidad y automatización repetible.",
-      "highlights": [
-        "Go",
-        "Automatización",
-        "Benchmarks",
-        "OpenSpec",
-        "Testing"
-      ]
+      "highlights": ["Go", "Automatización", "Benchmarks", "OpenSpec", "Testing"]
     },
     {
       "name": "CLI Games Collection",
@@ -143,12 +108,7 @@
       "position": "Ingeniero de Software Senior",
       "startDate": "2022-04",
       "summary": "Diseño y desarrollo de plataformas de datos en tiempo real, escalables, con Kafka, Spark y entornos contenerizados.",
-      "tech": [
-        "Spark",
-        "Kafka",
-        "Go",
-        "Grafana"
-      ],
+      "tech": ["Spark", "Kafka", "Go", "Grafana"],
       "highlights": [
         "Creación y mantenimiento de imágenes de desarrollo con Docker.",
         "Pipeline de mensajería con Spark para procesamiento de datos en Scala y Python.",
@@ -165,11 +125,7 @@
       "startDate": "2019-03",
       "endDate": "2022-04",
       "summary": "Entrega de soluciones backend y data engineering para entornos analíticos empresariales.",
-      "tech": [
-        "Java",
-        "Kafka",
-        "Grafana"
-      ],
+      "tech": ["Java", "Kafka", "Grafana"],
       "highlights": [
         "Desarrollo de microservicios y APIs con Java / Spring Boot.",
         "Implementación de pipelines en tiempo real con Kafka Streams.",
@@ -184,12 +140,7 @@
       "startDate": "2018-06",
       "endDate": "2019-03",
       "summary": "Construcción y operación de una plataforma de procesamiento de datos en tiempo real con Kafka, Spark y Elastic Stack.",
-      "tech": [
-        "Java",
-        "Kafka",
-        "Docker",
-        "Elastic"
-      ],
+      "tech": ["Java", "Kafka", "Docker", "Elastic"],
       "highlights": [
         "Creación y mantenimiento de imágenes Docker para despliegues reproducibles.",
         "Desarrollo de servicios en Java y Scala para procesamiento de streams.",
@@ -204,11 +155,7 @@
       "startDate": "2014-12",
       "endDate": "2018-06",
       "summary": "Gestión y desarrollo de plataformas de bases de datos distribuidas para un entorno multinaciónal del sector retail.",
-      "tech": [
-        "Java",
-        "MariaDB",
-        "Linux"
-      ],
+      "tech": ["Java", "MariaDB", "Linux"],
       "highlights": [
         "Administración de clústers de tamaño medio (100-200 servidores) para cargas de procesamiento de datos a gran escala.",
         "Desarrollo de herramientas internas para orquestación y operaciones de plataforma.",
@@ -226,11 +173,7 @@
       "studyType": "Grado",
       "startDate": "2008",
       "endDate": "2014",
-      "tech": [
-        "Java",
-        "Algorithms & Data Structures",
-        "SQL"
-      ]
+      "tech": ["Java", "Algorithms & Data Structures", "SQL"]
     },
     {
       "institution": "International University of La Rioja (UNIR)",
@@ -238,12 +181,7 @@
       "studyType": "Master",
       "startDate": "2016",
       "endDate": "2018",
-      "tech": [
-        "Spark",
-        "Python",
-        "MongoDb",
-        "D3js"
-      ]
+      "tech": ["Spark", "Python", "MongoDb", "D3js"]
     }
   ],
   "skills": [

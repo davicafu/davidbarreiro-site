@@ -13,4 +13,3 @@ export function showTip(event, html, below = false) {
 export function hideTip() {
   tooltip.style.opacity = '0';
 }
-

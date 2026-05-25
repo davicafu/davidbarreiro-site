@@ -1,6 +1,7 @@
-﻿import { PDF_MODE, appState } from './state.js';
-import { validateResumeData } from './utils.js';
-import { detectLocale, applyStaticTranslations } from './i18n.js';
+﻿import { PDF_MODE, appState } from '/src/js/state.js';
+import { validateResumeData } from '/src/js/utils.js';
+import { detectLocale, applyStaticTranslations } from '/src/js/i18n.js';
+import { scheduleVisualHydration } from '/src/js/visuals-loader.js';
 import {
   mapResumeToViewModel,
   renderHeader,
@@ -10,10 +11,7 @@ import {
   revealOnScroll,
   counters,
   spotlight
-} from './render.js';
-import { timeline } from './timeline.js';
-import { bubbles } from './bubbles.js';
-import { dataFlow } from './flow.js';
+} from '/src/js/render.js';
 
 if (PDF_MODE) {
   document.body.classList.add('pdf-mode');
@@ -24,7 +22,7 @@ if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
 }
 
-async function renderAll() {
+async function bootstrapCore() {
   appState.locale = detectLocale();
   applyStaticTranslations(appState.locale);
   const resumeFile = appState.locale === 'es' ? '/resume.es.json' : '/resume.json';
@@ -35,7 +33,7 @@ async function renderAll() {
     const schemaWarnings = validateResumeData(appState.resumeData);
     if (schemaWarnings.length) {
       console.warn(`${resumeFile} validation warnings:`);
-      schemaWarnings.forEach(item => console.warn(`- ${item}`));
+      schemaWarnings.forEach((item) => console.warn(`- ${item}`));
     }
   } catch (error) {
     console.warn(`Could not load ${resumeFile}`, error);
@@ -50,23 +48,43 @@ async function renderAll() {
   revealOnScroll();
   counters();
   spotlight();
-  timeline();
-  bubbles();
-  dataFlow();
 }
 
-function initApp() {
-  renderAll();
+async function initApp() {
+  await bootstrapCore();
+
+  const visualsController = await scheduleVisualHydration([
+    {
+      id: 'timeline',
+      mount: async () => {
+        const { timeline } = await import('/src/js/timeline.js');
+        timeline();
+        return { refresh: timeline };
+      }
+    },
+    {
+      id: 'bubbles',
+      mount: async () => {
+        const { bubbles } = await import('/src/js/bubbles.js');
+        return bubbles();
+      }
+    },
+    {
+      id: 'flow',
+      mount: async () => {
+        const { dataFlow } = await import('/src/js/flow.js');
+        return dataFlow();
+      }
+    }
+  ]);
+
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      timeline();
-      bubbles();
-      dataFlow();
+      visualsController.refreshMounted();
     }, 180);
   });
 }
 
 initApp();
-

@@ -16,11 +16,9 @@ function normalizeLogoPath(value) {
 }
 
 export function normalizeKeywordItem(item) {
-  const normalizeCert = cert => {
+  const normalizeCert = (cert) => {
     if (typeof cert === 'string') {
-      return isHttpUrl(cert)
-        ? { name: 'Credential', url: cert }
-        : { name: cert, url: '' };
+      return isHttpUrl(cert) ? { name: 'Credential', url: cert } : { name: cert, url: '' };
     }
     if (cert && typeof cert === 'object') {
       return {
@@ -95,11 +93,12 @@ export function validateResumeData(data) {
 }
 
 export function deriveFlow(skills) {
-  const allKeywords = skills.flatMap(group => group.keywords || []);
-  const has = term => allKeywords.some(k => {
-    const name = typeof k === 'string' ? k : (k?.name || '');
-    return name.toLowerCase().includes(term.toLowerCase());
-  });
+  const allKeywords = skills.flatMap((group) => group.keywords || []);
+  const has = (term) =>
+    allKeywords.some((k) => {
+      const name = typeof k === 'string' ? k : k?.name || '';
+      return name.toLowerCase().includes(term.toLowerCase());
+    });
   return [
     {
       name: 'Sources',
@@ -111,7 +110,11 @@ export function deriveFlow(skills) {
       name: 'Ingestion',
       detail: 'Reliable data intake and continuous event collection.',
       impact: 'Backpressure-aware ingestion layer with replay-friendly patterns for fault tolerance.',
-      tech: [has('kafka') ? 'Kafka' : 'Message Queues', has('connect') ? 'Kafka Connect' : 'Connectors', 'REST / gRPC']
+      tech: [
+        has('kafka') ? 'Kafka' : 'Message Queues',
+        has('connect') ? 'Kafka Connect' : 'Connectors',
+        'REST / gRPC'
+      ]
     },
     {
       name: 'Streaming Backbone',
@@ -123,13 +126,21 @@ export function deriveFlow(skills) {
       name: 'Processing',
       detail: 'Real-time transformation, enrichment, and stateful aggregation.',
       impact: 'Low-latency processing with deterministic, scalable, and testable pipelines.',
-      tech: ['Go Workers', has('flink') ? 'Flink' : 'Streaming Engines', has('spark') ? 'Spark' : 'Scala / Python']
+      tech: [
+        'Go Workers',
+        has('flink') ? 'Flink' : 'Streaming Engines',
+        has('spark') ? 'Spark' : 'Scala / Python'
+      ]
     },
     {
       name: 'Storage & Serving',
       detail: 'Analytical (OLAP) and operational (OLTP) data serving layers.',
       impact: 'Optimized serving layer for high-concurrency reads and deep operational visibility.',
-      tech: [has('postgres') ? 'PostgreSQL' : 'Relational DB', has('clickhouse') ? 'ClickHouse' : 'Analytics DB', 'Elasticsearch']
+      tech: [
+        has('postgres') ? 'PostgreSQL' : 'Relational DB',
+        has('clickhouse') ? 'ClickHouse' : 'Analytics DB',
+        'Elasticsearch'
+      ]
     },
     {
       name: 'Consumers & Observability',
