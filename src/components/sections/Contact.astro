@@ -1,0 +1,22 @@
+---
+interface Props {
+  email: string;
+  kicker: string;
+  title: string;
+  description: string;
+}
+
+const { email, kicker, title, description } = Astro.props;
+---
+
+<section id="contact" class="reveal glass rounded-[2rem] p-8 text-center">
+  <p id="section-contact-kicker" class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">
+    {kicker}
+  </p>
+  <h2 id="section-contact-title" class="text-4xl md:text-5xl font-black mt-3">{title}</h2>
+  <p id="section-contact-desc" class="text-slate-400 mt-4">{description}</p>
+  <a
+    class="inline-flex mt-7 px-6 py-3 rounded-full bg-cyan-300 text-slate-950 font-black"
+    href={`mailto:${email}`}>{email}</a
+  >
+</section>

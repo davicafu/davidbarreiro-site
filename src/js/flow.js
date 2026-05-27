@@ -1,6 +1,6 @@
-import { appState, palette, reducedMotion } from '/src/js/state.js';
-import { t } from '/src/js/i18n.js';
-import { select, pairs, easeCubicOut, interpolateNumber, easeCubicInOut } from '/src/js/vendor/d3-lite.js';
+import { appState, palette, reducedMotion } from './state.js';
+import { t } from './i18n.js';
+import { select, pairs, easeCubicOut, interpolateNumber, easeCubicInOut } from './vendor/d3-lite.js';
 
 const flowControllers = new WeakMap();
 

@@ -1,0 +1,46 @@
+---
+interface Props {
+  title: string;
+  cards: {
+    label: string;
+    heading: string;
+    description: string;
+    labelClass: string;
+    cardClass?: string;
+  }[];
+}
+
+const { title, cards } = Astro.props;
+---
+
+<>
+  <h2 id="section-capabilities-title" class="sr-only">{title}</h2>
+  <section class="reveal grid md:grid-cols-3 gap-5">
+    {
+      cards.map((card, index) => (
+        <div
+          class:list={['glass rounded-3xl p-6 hover:-translate-y-2 transition duration-300', card.cardClass]}
+        >
+          <p
+            id={`capability-${index === 0 ? 'backend' : index === 1 ? 'data' : 'platform'}-label`}
+            class:list={[card.labelClass, 'text-sm font-bold']}
+          >
+            {card.label}
+          </p>
+          <h3
+            id={`capability-${index === 0 ? 'backend' : index === 1 ? 'data' : 'platform'}-title`}
+            class="text-2xl font-black mt-2"
+          >
+            {card.heading}
+          </h3>
+          <p
+            id={`capability-${index === 0 ? 'backend' : index === 1 ? 'data' : 'platform'}-desc`}
+            class="text-slate-400 mt-3"
+          >
+            {card.description}
+          </p>
+        </div>
+      ))
+    }
+  </section>
+</>

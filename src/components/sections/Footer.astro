@@ -1,0 +1,29 @@
+---
+interface Props {
+  email: string;
+  githubUrl: string;
+  linkedinUrl: string;
+  role: string;
+}
+
+const { email, githubUrl, linkedinUrl, role } = Astro.props;
+---
+
+<footer class="max-w-7xl mx-auto px-6 py-10 text-slate-400 border-t border-slate-800">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <p class="text-sm">
+      © <span id="year">{new Date().getFullYear()}</span> David Barreiro Salgueiro · <span id="footer-role"
+        >{role}</span
+      >
+    </p>
+    <div class="flex flex-wrap items-center gap-4 text-sm">
+      <a href={`mailto:${email}`} class="hover:text-cyan-300 transition">Email</a>
+      <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="hover:text-cyan-300 transition"
+        >GitHub</a
+      >
+      <a href={linkedinUrl} target="_blank" rel="noopener noreferrer" class="hover:text-cyan-300 transition"
+        >LinkedIn</a
+      >
+    </div>
+  </div>
+</footer>

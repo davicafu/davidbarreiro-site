@@ -1,8 +1,8 @@
-import { appState, reducedMotion } from '/src/js/state.js';
-import { safeText } from '/src/js/utils.js';
-import { showTip, hideTip } from '/src/js/ui.js';
-import { t } from '/src/js/i18n.js';
-import { renderKeywordsPanel, setActiveLegend, clearActiveLegend } from '/src/js/render.js';
+import { appState, reducedMotion } from './state.js';
+import { safeText } from './utils.js';
+import { showTip, hideTip } from './ui.js';
+import { t } from './i18n.js';
+import { renderKeywordsPanel, setActiveLegend, clearActiveLegend } from './render.js';
 import {
   select,
   hierarchy,
@@ -14,7 +14,7 @@ import {
   min,
   max,
   easeSinInOut
-} from '/src/js/vendor/d3-lite.js';
+} from './vendor/d3-lite.js';
 
 const bubbleControllers = new WeakMap();
 

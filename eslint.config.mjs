@@ -1,6 +1,6 @@
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'src/js/vendor/d3-lite.js']
+    ignores: ['dist/**', 'node_modules/**', 'public/**', '_site/**', 'src/js/vendor/d3-lite.js']
   },
   {
     files: ['src/js/**/*.js', 'scripts/**/*.js'],
@@ -21,6 +21,22 @@ export default [
         IntersectionObserver: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly'
+      }
+    },
+    rules: {
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error'
+    }
+  },
+  {
+    files: ['*.mjs', 'scripts/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        URL: 'readonly'
       }
     },
     rules: {

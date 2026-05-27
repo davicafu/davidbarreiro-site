@@ -1,8 +1,8 @@
-﻿import { appState, CURRENT_YEAR, palette, reducedMotion } from '/src/js/state.js';
-import { safeText } from '/src/js/utils.js';
-import { t } from '/src/js/i18n.js';
-import { showTip, hideTip } from '/src/js/ui.js';
-import { min, max, color, scaleLinear, axisBottom, format, select } from '/src/js/vendor/d3-lite.js';
+﻿import { appState, CURRENT_YEAR, palette, reducedMotion } from './state.js';
+import { safeText } from './utils.js';
+import { t } from './i18n.js';
+import { showTip, hideTip } from './ui.js';
+import { min, max, color, scaleLinear, axisBottom, format, select } from './vendor/d3-lite.js';
 function timeline() {
   const el = document.getElementById('timeline');
   if (typeof el.__timelineCleanup === 'function') {

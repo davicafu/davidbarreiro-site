@@ -1,0 +1,211 @@
+---
+import type { ResumeBasics } from '../../data/resume';
+import type { Locale } from '../../lib/locale';
+
+interface Props {
+  locale: Locale;
+  basics: ResumeBasics;
+  navLabels: {
+    portfolio: string;
+    experience: string;
+    skills: string;
+    contact: string;
+    languageSelector: string;
+  };
+  actionLabels: {
+    contact: string;
+    downloadPdf: string;
+    pdfOnePage: string;
+    pdfOnePageNote: string;
+    pdfProfessional: string;
+    pdfProfessionalNote: string;
+    pdfJsonresume: string;
+    pdfJsonresumeNote: string;
+  };
+  metricLabels: {
+    experience: string;
+    coreSkills: string;
+    focus: string;
+    focusValue: string;
+  };
+}
+
+const { locale, basics, navLabels, actionLabels, metricLabels } = Astro.props;
+
+const fullName = (basics.name || 'David Barreiro Salgueiro').split(' ');
+const firstName = fullName.shift() || 'David';
+const surname = fullName.join(' ') || 'Barreiro Salgueiro';
+const profiles = Array.isArray(basics.profiles) ? basics.profiles : [];
+const githubUrl =
+  profiles.find((profile) => profile.network?.toLowerCase().includes('github'))?.url ||
+  'https://github.com/davicafu';
+const linkedinUrl =
+  profiles.find((profile) => profile.network?.toLowerCase().includes('linkedin'))?.url ||
+  'https://www.linkedin.com/in/david-barreiro-s/';
+---
+
+<header
+  class="relative z-50 max-w-7xl mx-auto px-6 py-8"
+  style="z-index: 2000; overflow: visible; isolation: isolate"
+>
+  <nav class="reveal flex flex-wrap items-center justify-between gap-5 mb-14">
+    <div class="text-sm text-slate-400">davidbarreiro.dev</div>
+    <div class="flex items-center gap-4 text-slate-400 text-sm">
+      <div class:list={['lang-toggle', { 'is-es': locale === 'es' }]} aria-label={navLabels.languageSelector}>
+        <a
+          id="lang-en-link"
+          href="/"
+          class={locale === 'en' ? 'active' : undefined}
+          aria-current={locale === 'en' ? 'page' : 'false'}>EN</a
+        >
+        <a
+          id="lang-es-link"
+          href="/es/"
+          class={locale === 'es' ? 'active' : undefined}
+          aria-current={locale === 'es' ? 'page' : 'false'}>ES</a
+        >
+      </div>
+      <a
+        id="nav-portfolio"
+        href="#portfolio"
+        aria-label="Go to portfolio section"
+        class="hover:text-cyan-300 transition">{navLabels.portfolio}</a
+      >
+      <a
+        id="nav-experience"
+        href="#experience"
+        aria-label="Go to experience section"
+        class="hover:text-cyan-300 transition">{navLabels.experience}</a
+      >
+      <a
+        id="nav-skills"
+        href="#skills"
+        aria-label="Go to skills section"
+        class="hover:text-cyan-300 transition">{navLabels.skills}</a
+      >
+      <a
+        id="nav-contact"
+        href="#contact"
+        aria-label="Go to contact section"
+        class="hover:text-cyan-300 transition">{navLabels.contact}</a
+      >
+    </div>
+  </nav>
+
+  <section class="grid lg:grid-cols-3 gap-8 items-center min-h-[72vh] relative isolate overflow-visible">
+    <div class="lg:col-span-2 reveal relative overflow-visible" style="z-index: 2200">
+      <p id="hero-kicker" class="uppercase tracking-[0.28em] text-cyan-300 text-xs font-black mb-4">
+        {basics.label}
+      </p>
+      <h1 class="text-5xl md:text-8xl font-black leading-none tracking-tight mb-7">
+        <span id="hero-name">{firstName}</span><br /><span
+          id="hero-surname"
+          class="gradient-text animate-gradient">{surname}</span
+        >
+      </h1>
+      <p id="hero-summary" class="text-xl md:text-2xl text-slate-300 max-w-3xl leading-relaxed">
+        {basics.summary}
+      </p>
+      <div class="flex flex-wrap gap-3 mt-9">
+        <a
+          id="hero-email-link"
+          class="group relative overflow-hidden px-6 py-3 rounded-full bg-cyan-300 text-slate-950 font-black shadow-glow"
+          href={`mailto:${basics.email}`}
+        >
+          <span id="hero-email-text" class="relative z-10">{actionLabels.contact}</span>
+          <span class="absolute inset-y-0 left-0 w-1/2 bg-white/40 animate-shimmer"></span>
+        </a>
+        <a
+          id="hero-github-link"
+          class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition"
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer">GitHub</a
+        >
+        <a
+          id="hero-linkedin-link"
+          class="px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition"
+          href={linkedinUrl}
+          target="_blank"
+          rel="noopener noreferrer">LinkedIn</a
+        >
+        <div class="pdf-dropdown" style="z-index: 5000; overflow: visible">
+          <button
+            id="hero-pdf-link"
+            type="button"
+            class="group px-6 py-3 rounded-full border border-slate-700 hover:border-cyan-300 hover:bg-white/5 transition inline-flex items-center gap-2"
+          >
+            <span id="hero-pdf-text">{actionLabels.downloadPdf}</span>
+            <span class="text-slate-400 group-hover:text-cyan-300 transition">▾</span>
+          </button>
+          <div id="pdf-style-menu" class="pdf-menu hidden p-2" style="display: none">
+            <a class="pdf-option" href="/cv-one-page.pdf" target="_blank" rel="noopener noreferrer">
+              <span id="pdf-one-page-label" class="font-semibold">{actionLabels.pdfOnePage}</span><small
+                id="pdf-one-page-note">{actionLabels.pdfOnePageNote}</small
+              >
+            </a>
+            <a class="pdf-option" href="/cv-professional.pdf" target="_blank" rel="noopener noreferrer">
+              <span id="pdf-professional-label" class="font-semibold">{actionLabels.pdfProfessional}</span
+              ><small id="pdf-professional-note">{actionLabels.pdfProfessionalNote}</small>
+            </a>
+            <a class="pdf-option" href="/cv-jsonresume.pdf" target="_blank" rel="noopener noreferrer">
+              <span id="pdf-jsonresume-label" class="font-semibold">{actionLabels.pdfJsonresume}</span><small
+                id="pdf-jsonresume-note">{actionLabels.pdfJsonresumeNote}</small
+              >
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside
+      id="hero-metrics-card"
+      class="reveal glass rounded-[2rem] p-6 shadow-glow animate-float relative"
+      style="z-index: 1200"
+    >
+      <div class="flex items-start gap-4 mb-7">
+        <div class="relative inline-block">
+          <img
+            src={basics.image}
+            width="112"
+            height="112"
+            alt={basics.name}
+            class="w-28 h-28 rounded-[1.7rem] object-cover border border-white/20"
+            onerror="
+              this.onerror = null;
+              this.src = '/favicon/favicon.ico';
+              this.className =
+                'w-28 h-28 rounded-[1.7rem] object-contain p-2 bg-white/5 border border-white/20';
+            "
+          />
+        </div>
+        <div class="w-28 h-28 rounded-[1.7rem] bg-white/5 grid place-items-center">
+          <picture class="w-full h-full">
+            <source srcset="/favicon/logo-clear-tiny-112x112.avif" type="image/avif" />
+            <img
+              src="/favicon/logo-clear-tiny-112x112.png"
+              width="112"
+              height="112"
+              alt="Site badge"
+              class="w-full h-full object-contain opacity-90"
+            />
+          </picture>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p id="metric-experience-label" class="text-slate-400 text-xs">{metricLabels.experience}</p>
+          <p class="text-2xl font-black counter" data-target="10">0</p>
+        </div>
+        <div class="metric-card rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p id="metric-core-skills-label" class="text-slate-400 text-xs">{metricLabels.coreSkills}</p>
+          <p class="text-2xl font-black counter" data-target="0">0</p>
+        </div>
+        <div class="col-span-2 rounded-2xl bg-white/5 p-4 hover:-translate-y-1">
+          <p id="metric-focus-label" class="text-slate-400 text-xs">{metricLabels.focus}</p>
+          <p id="metric-focus-value" class="font-bold">{metricLabels.focusValue}</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</header>

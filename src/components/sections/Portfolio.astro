@@ -1,0 +1,50 @@
+---
+import type { ResumePortfolioItem } from '../../data/resume';
+
+interface Props {
+  kicker: string;
+  title: string;
+  projects: ResumePortfolioItem[];
+}
+
+const { kicker, title, projects } = Astro.props;
+const list = Array.isArray(projects) ? projects.slice(0, 8) : [];
+---
+
+<section id="portfolio" class="reveal">
+  <div class="mb-8">
+    <p id="section-portfolio-kicker" class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">
+      {kicker}
+    </p>
+    <h2 id="section-personal-projects-title" class="text-4xl md:text-5xl font-black">{title}</h2>
+  </div>
+  <div class="grid md:grid-cols-2 gap-6">
+    {
+      list.map((project, index) => {
+        const tags = Array.isArray(project.highlights) ? project.highlights.slice(0, 5) : [];
+        const borderClass = index % 2 === 0 ? 'hover:border-cyan-300/60' : 'hover:border-violet-300/60';
+        const chipClass =
+          index % 2 === 0
+            ? 'bg-cyan-300/10 text-cyan-200 border-cyan-300/20'
+            : 'bg-violet-300/10 text-violet-200 border-violet-300/20';
+
+        return (
+          <article
+            class:list={[
+              'glass rounded-[2rem] p-7 hover:-translate-y-2 transition duration-300',
+              borderClass
+            ]}
+          >
+            <h3 class="text-2xl font-black mb-3">{project.name}</h3>
+            <p class="text-slate-400 leading-relaxed">{project.description}</p>
+            <div class="flex flex-wrap gap-2 mt-5">
+              {tags.map((tag) => (
+                <span class:list={['px-3 py-1 rounded-full border text-sm', chipClass]}>{tag}</span>
+              ))}
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</section>

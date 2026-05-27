@@ -27,13 +27,13 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
+
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install deps
-        run: npm ci
-
-      - name: Build Tailwind
-        run: npm run build:css
+        run: pnpm install --frozen-lockfile
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -47,18 +47,8 @@ jobs:
           python scripts/generate_cv_pdf.py
           test -f cv-one-page.pdf
 
-      - name: Prepare artifact
-        run: |
-          mkdir _site
-          cp index.html _site/
-          for f in cv-one-page.pdf cv-professional.pdf cv-jsonresume.pdf; do
-            if [ -f "$f" ]; then cp "$f" _site/; fi
-          done
-          cp resume.json _site/
-          cp -r favicon _site/
-          cp -r assets _site/
-          cp -r src _site/
-          cp -r dist _site/
+      - name: Build Astro site
+        run: pnpm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

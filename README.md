@@ -1,4 +1,4 @@
-﻿# Interactive CV · Tailwind CSS + D3.js
+﻿# Interactive CV · Astro + Tailwind CSS + D3.js
 
 Interactive CV website with:
 
@@ -17,39 +17,32 @@ Vercel: https://davidbarreiro.vercel.app/
 
 ## Run Locally
 
-Serve the project from the repo root:
-
 ```bash
-npx serve .
+pnpm install
+pnpm run dev
 ```
 
-## Tailwind Build
+Astro runs at `http://localhost:4321/`.
 
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Build CSS:
+## Build
 
 ```bash
-npm run build:css
+pnpm run build
 ```
 
-This generates `dist/styles.css`, which is loaded by `index.html`.
+The static output is generated in `_site/`.
 
 ## Deploy to GitHub Pages
 
 Deployment is automated with GitHub Actions (`.github/workflows/deploy-pages.yml`).
-On push to `main`, the workflow builds Tailwind CSS, generates `cv-one-page.pdf` from `resume.json`, and publishes:
+On push to `main`, the workflow generates `cv-one-page.pdf`, builds Astro, and publishes `_site/`.
 
-- `index.html`
-- `cv-one-page.pdf`
-- `cv-professional.pdf` (if present in repo)
-- `cv-jsonresume.pdf` (if present in repo)
-- `resume.json`
-- `dist/`
-- `favicon/`
-- `assets/`
-- `src/`
+The repo uses pnpm 11.3.0 as the only package manager; if Vercel has `Install Command` or `Build Command` pinned to npm in the dashboard, update both to pnpm before the next deploy.
+
+## Rollback
+
+If parity issues appear in production:
+
+1. Revert the migration commit(s) that removed legacy entrypoints.
+2. Restore workflow artifact preparation to legacy mode (manual copy flow).
+3. Redeploy from `main`.

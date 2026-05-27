@@ -1,0 +1,57 @@
+---
+import SeoHead from '../components/common/SeoHead.astro';
+import ShellScripts from '../components/common/ShellScripts.astro';
+import '../styles/global.css';
+
+import type { Locale } from '../lib/locale';
+
+interface Props {
+  lang: Locale;
+  title: string;
+  description: string;
+  canonical: string;
+  ogLocale: string;
+  ogLocaleAlternate: string;
+  ogTitle: string;
+  ogDescription: string;
+  alternates: { href: string; hreflang: string }[];
+  resumeData?: unknown;
+}
+
+const {
+  lang,
+  title,
+  description,
+  canonical,
+  ogLocale,
+  ogLocaleAlternate,
+  ogTitle,
+  ogDescription,
+  alternates,
+  resumeData
+} = Astro.props;
+---
+
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <SeoHead
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogLocale={ogLocale}
+      ogLocaleAlternate={ogLocaleAlternate}
+      ogTitle={ogTitle}
+      ogDescription={ogDescription}
+      alternates={alternates}
+    />
+  </head>
+  <body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden page-fade-init" data-locale={lang}>
+    <slot />
+    {
+      resumeData && (
+        <script is:inline id="resume-data" type="application/json" set:html={JSON.stringify(resumeData)} />
+      )
+    }
+    <ShellScripts />
+  </body>
+</html>

@@ -7,6 +7,9 @@ pnpm-debug.log*
 
 # Build artifacts (si decides no versionarlos)
 # dist/
+_site/
+.astro/
+public/
 
 # OS / editor
 .DS_Store

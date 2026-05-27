@@ -1,0 +1,169 @@
+---
+import Footer from '../../components/sections/Footer.astro';
+import Hero from '../../components/sections/Hero.astro';
+import Capabilities from '../../components/sections/Capabilities.astro';
+import Contact from '../../components/sections/Contact.astro';
+import Portfolio from '../../components/sections/Portfolio.astro';
+import { getResume, getSocialLinks } from '../../data/resume';
+import { getAlternateLinks, getLocaleMetadata } from '../../lib/locale';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const locale = 'es';
+const seo = getLocaleMetadata(locale);
+const resume = getResume(locale);
+const { githubUrl, linkedinUrl } = getSocialLinks(resume.basics);
+---
+
+<BaseLayout
+  lang={locale}
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  ogLocale={seo.ogLocale}
+  ogLocaleAlternate={seo.ogLocaleAlternate}
+  ogTitle={seo.ogTitle}
+  ogDescription={seo.ogDescription}
+  alternates={getAlternateLinks()}
+  resumeData={resume}
+>
+  <div class="spotlight" id="spotlight"></div>
+  <div
+    class="fixed inset-0 -z-20 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.14),transparent_28rem),radial-gradient(circle_at_90%_20%,rgba(139,92,246,.14),transparent_30rem),linear-gradient(135deg,#020617,#0f172a_55%,#020617)]"
+  >
+  </div>
+  <div
+    class="fixed inset-0 -z-10 opacity-[.08] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:52px_52px]"
+  >
+  </div>
+
+  <Hero
+    locale={locale}
+    basics={resume.basics}
+    navLabels={{
+      portfolio: 'Portfolio',
+      experience: 'Experience',
+      skills: 'Skills',
+      contact: 'Contact',
+      languageSelector: 'Selector de idioma'
+    }}
+    actionLabels={{
+      contact: 'Contact',
+      downloadPdf: 'Download PDF',
+      pdfOnePage: 'One Page',
+      pdfOnePageNote: 'Compact',
+      pdfProfessional: 'Professional',
+      pdfProfessionalNote: 'Minimal',
+      pdfJsonresume: 'JSONResume Style',
+      pdfJsonresumeNote: 'Formal'
+    }}
+    metricLabels={{
+      experience: 'Experience',
+      coreSkills: 'Core Skills',
+      focus: 'Focus',
+      focusValue: 'System Design · Cloud-Native'
+    }}
+  />
+
+  <main class="max-w-7xl mx-auto px-6 pb-28 space-y-24" style="position: relative; z-index: 0">
+    <Capabilities
+      title="Capacidades"
+      cards={[
+        {
+          label: 'Backend',
+          heading: 'Hexagonal · DDD · Event-Driven',
+          description:
+            'Domain-centric design, decoupled architectures and scalable distributed systems focused on long-term maintainability.',
+          labelClass: 'text-emerald-300',
+          cardClass: 'capability-backend hover:border-emerald-300/60'
+        },
+        {
+          label: 'Data',
+          heading: 'Batch & Stream · High Throughput · Scalability',
+          description:
+            'Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.',
+          labelClass: 'text-violet-300',
+          cardClass: 'hover:border-violet-300/60'
+        },
+        {
+          label: 'Platform',
+          heading: 'High Availability · Automation · Observability',
+          description:
+            'Building resilient infrastructure, streamlining operations and providing deep insights into system performance.',
+          labelClass: 'text-cyan-300',
+          cardClass: 'hover:border-cyan-300/60'
+        }
+      ]}
+    />
+
+    <Portfolio kicker="Portfolio" title="Personal projects & technical work" projects={resume.portfolio} />
+
+    <section class="reveal">
+      <div class="mb-8">
+        <p
+          id="section-system-design-kicker"
+          class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black"
+        >
+          System Design
+        </p>
+        <h2 id="section-data-platforms-title" class="text-4xl md:text-5xl font-black">
+          How I design data platforms
+        </h2>
+      </div>
+      <div class="glass rounded-[2rem] p-6">
+        <div id="flow-tip" class="mb-4"></div>
+        <div id="flow"></div>
+      </div>
+    </section>
+
+    <section id="experience" class="reveal">
+      <div class="mb-8">
+        <p id="section-timeline-kicker" class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">
+          Timeline
+        </p>
+        <h2 id="section-professional-experience-title" class="text-4xl md:text-5xl font-black">
+          Professional experience
+        </h2>
+      </div>
+      <div class="glass rounded-[2rem] p-6">
+        <div id="timeline-tip" class="mb-4"></div>
+        <div id="timeline"></div>
+      </div>
+    </section>
+
+    <section id="skills" class="grid lg:grid-cols-2 gap-8 items-start">
+      <div class="reveal">
+        <p id="section-skills-kicker" class="text-cyan-300 uppercase tracking-[0.25em] text-xs font-black">
+          Skills
+        </p>
+        <h2 id="section-stack-technology-title" class="text-4xl md:text-5xl font-black mb-5">
+          Stack technology
+        </h2>
+        <div id="legend" class="flex flex-wrap gap-2 mt-6"></div>
+        <div
+          id="skill-keywords"
+          class="mt-5 rounded-2xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-300"
+        >
+          <strong id="skills-tip-label" class="text-cyan-300">Tip:</strong>
+          <span id="skills-tip-text">select a category to view its keywords.</span>
+        </div>
+      </div>
+      <div class="reveal glass rounded-[2rem] p-6">
+        <div id="bubbles"></div>
+      </div>
+    </section>
+
+    <Contact
+      email={resume.basics.email}
+      kicker="Contact"
+      title="Let's build something with data"
+      description="Available for data engineering, streaming platforms and software architecture."
+    />
+  </main>
+
+  <Footer
+    email={resume.basics.email}
+    githubUrl={githubUrl}
+    linkedinUrl={linkedinUrl}
+    role="Ingeniero de Software"
+  />
+</BaseLayout>

@@ -1,7 +1,7 @@
-﻿import { PDF_MODE, appState } from '/src/js/state.js';
-import { validateResumeData } from '/src/js/utils.js';
-import { detectLocale, applyStaticTranslations } from '/src/js/i18n.js';
-import { scheduleVisualHydration } from '/src/js/visuals-loader.js';
+﻿import { PDF_MODE, appState } from './state.js';
+import { validateResumeData } from './utils.js';
+import { detectLocale, applyStaticTranslations } from './i18n.js';
+import { scheduleVisualHydration } from './visuals-loader.js';
 import {
   mapResumeToViewModel,
   renderHeader,
@@ -11,7 +11,7 @@ import {
   revealOnScroll,
   counters,
   spotlight
-} from '/src/js/render.js';
+} from './render.js';
 
 if (PDF_MODE) {
   document.body.classList.add('pdf-mode');
@@ -25,18 +25,17 @@ if (yearNode) {
 async function bootstrapCore() {
   appState.locale = detectLocale();
   applyStaticTranslations(appState.locale);
-  const resumeFile = appState.locale === 'es' ? '/resume.es.json' : '/resume.json';
+  const resumeDataNode = document.getElementById('resume-data');
 
   try {
-    const response = await fetch(resumeFile);
-    appState.resumeData = await response.json();
+    appState.resumeData = resumeDataNode?.textContent ? JSON.parse(resumeDataNode.textContent) : {};
     const schemaWarnings = validateResumeData(appState.resumeData);
     if (schemaWarnings.length) {
-      console.warn(`${resumeFile} validation warnings:`);
+      console.warn('Embedded resume data validation warnings:');
       schemaWarnings.forEach((item) => console.warn(`- ${item}`));
     }
   } catch (error) {
-    console.warn(`Could not load ${resumeFile}`, error);
+    console.warn('Could not parse embedded resume data', error);
     appState.resumeData = {};
   }
 
@@ -57,7 +56,7 @@ async function initApp() {
     {
       id: 'timeline',
       mount: async () => {
-        const { timeline } = await import('/src/js/timeline.js');
+        const { timeline } = await import('./timeline.js');
         timeline();
         return { refresh: timeline };
       }
@@ -65,14 +64,14 @@ async function initApp() {
     {
       id: 'bubbles',
       mount: async () => {
-        const { bubbles } = await import('/src/js/bubbles.js');
+        const { bubbles } = await import('./bubbles.js');
         return bubbles();
       }
     },
     {
       id: 'flow',
       mount: async () => {
-        const { dataFlow } = await import('/src/js/flow.js');
+        const { dataFlow } = await import('./flow.js');
         return dataFlow();
       }
     }

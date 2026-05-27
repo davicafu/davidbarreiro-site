@@ -1,4 +1,7 @@
 node_modules
 dist
 _site
+public
 src/js/vendor/d3-lite.js
+docs/superpowers/plans
+docs/superpowers/specs

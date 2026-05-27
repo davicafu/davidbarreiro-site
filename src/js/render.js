@@ -1,6 +1,7 @@
-﻿import { appState, CURRENT_YEAR, categoryColorMap, palette } from '/src/js/state.js';
-import { safeText, normalizeKeywordItem, parseDateToYear, deriveFlow } from '/src/js/utils.js';
-import { t } from '/src/js/i18n.js';
+﻿import { appState, CURRENT_YEAR, categoryColorMap, palette } from './state.js';
+import { deriveSystemDesignFlow } from '../data/system-design.js';
+import { safeText, normalizeKeywordItem, parseDateToYear } from './utils.js';
+import { t } from './i18n.js';
 function mapResumeToViewModel(data) {
   const basics = data.basics || {};
   const work = Array.isArray(data.work) ? data.work : [];
@@ -45,7 +46,7 @@ function mapResumeToViewModel(data) {
     };
   });
 
-  appState.flow = deriveFlow(appState.skillGroups);
+  appState.flow = deriveSystemDesignFlow(appState.skillGroups, appState.locale);
   return { basics, portfolio };
 }
 

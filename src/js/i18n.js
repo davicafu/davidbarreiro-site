@@ -150,8 +150,11 @@ const translations = {
 };
 
 function detectLocale() {
-  const path = window.location.pathname || '/';
-  if (path === '/es' || path.startsWith('/es/')) return 'es';
+  const domLocale =
+    document.body?.dataset.locale ||
+    document.documentElement.getAttribute('lang') ||
+    document.documentElement.dataset.locale;
+  if (domLocale === 'es') return 'es';
   return 'en';
 }
 

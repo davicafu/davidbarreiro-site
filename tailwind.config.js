@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./index.html', './src/js/**/*.js'],
+  content: ['./src/**/*.{astro,html,js}'],
   safelist: [
     'bg-slate-950/85',
     'bg-slate-950/78',

@@ -10,16 +10,18 @@ async function readProjectFile(relativePath) {
 }
 
 test('app no longer references the remote full D3 bundle', async () => {
-  const [indexHtml, indexEsHtml, visualsLoader] = await Promise.all([
-    readProjectFile('index.html'),
-    readProjectFile('es/index.html'),
+  const [shellScriptsComponent, pageEn, pageEs, visualsLoader] = await Promise.all([
+    readProjectFile('src/components/common/ShellScripts.astro'),
+    readProjectFile('src/pages/index.astro'),
+    readProjectFile('src/pages/es/index.astro'),
     readProjectFile('src/js/visuals-loader.js')
   ]);
 
   const remoteBundlePattern = /https:\/\/cdn\.jsdelivr\.net\/npm\/d3@7/i;
 
-  assert.doesNotMatch(indexHtml, remoteBundlePattern);
-  assert.doesNotMatch(indexEsHtml, remoteBundlePattern);
+  assert.doesNotMatch(shellScriptsComponent, remoteBundlePattern);
+  assert.doesNotMatch(pageEn, remoteBundlePattern);
+  assert.doesNotMatch(pageEs, remoteBundlePattern);
   assert.doesNotMatch(visualsLoader, remoteBundlePattern);
 });
 
@@ -35,4 +37,17 @@ test('visual modules use the local D3 bundle', async () => {
   assert.match(bubbles, /from '(\.\/vendor|\/src\/js\/vendor)\/d3-lite\.js'/);
   assert.match(flow, /from '(\.\/vendor|\/src\/js\/vendor)\/d3-lite\.js'/);
   assert.ok(bundle.length > 0);
+});
+
+test('astro runtime bootstraps from DOM locale and embedded resume data', async () => {
+  const [mainScript, baseLayout] = await Promise.all([
+    readProjectFile('src/js/main.js'),
+    readProjectFile('src/layouts/BaseLayout.astro')
+  ]);
+
+  assert.match(baseLayout, /id="resume-data"/);
+  assert.match(baseLayout, /data-locale=\{lang\}/);
+  assert.match(mainScript, /document\.getElementById\('resume-data'\)/);
+  assert.doesNotMatch(mainScript, /fetch\('\/resume(?:\.es)?\.json'\)|fetch\("\/resume(?:\.es)?\.json"\)/);
+  assert.doesNotMatch(mainScript, /window\.location\.pathname/);
 });
