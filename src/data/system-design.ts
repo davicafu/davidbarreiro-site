@@ -130,7 +130,8 @@ const FLOW_COPY = {
     },
     consumers: {
       name: 'Consumidores',
-      detail: 'Productos internos, APIs, dashboards, alertas y y flujo de información en sistemas de negocio.',
+      detail:
+        'Productos internos, APIs, dashboards, alertas y y flujo de información en sistemas de negocio.',
       impact:
         'Productos de datos reutilizables expuestos mediante contratos estables en lugar de integraciones ad hoc.',
       tech: ['Dashboards', 'APIs de Cliente', 'Herramientas Internas', 'Productos de Datos']
