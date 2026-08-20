@@ -292,13 +292,14 @@
           "level": "Avanzado",
           "notes": "",
           "logo": "./assets/logos/databricks.svg",
-          "certifications":
-          {
+          "certifications":[
+            {
               "name": "Databricks Certified Data Engineer Professional", 
               "date": "2026-08-08", 
               "issuer": "Databricks", 
               "url": "https://credentials.databricks.com/1d30c7f3-ac17-4b91-a03a-7447fcd3e0fd#acc.B9uxFHyw"
             }
+          ]
         },
         {
           "name": "Flink",
