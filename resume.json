@@ -58,6 +58,7 @@
   "portfolio": [
     {
       "name": "go-auth-kit",
+      "url": "https://github.com/davicafu/go-auth-kit",
       "description": "Reusable Go authentication module designed for production-ready backends. It supports configurable authentication strategies (cookie-based sessions or JWT access + refresh tokens), role and permission checks (RBAC), OAuth login providers (GitHub / Google), password reset flows, rate limiting at auth endpoints, and security-oriented audit logs. The objective is to provide a drop-in foundation for secure auth without reimplementing the same patterns in every service.",
       "highlights": ["Go", "JWT + Cookies", "OAuth", "RBAC", "Audit Logs"]
     },
@@ -68,6 +69,7 @@
     },
     {
       "name": "Go Microservice Suite (gRPC + REST)",
+      "url": "https://github.com/davicafu/hexagolab",
       "description": "Reference microservice system composed of User Service, Notification Service, and a mock Billing Service. Internal communication uses gRPC contracts with protobuf, while an external REST gateway exposes public endpoints. It includes timeout and retry policies, transport-level error handling, and service boundaries oriented to real-world distributed systems. Built to demonstrate practical service decomposition and robust inter-service communication.",
       "highlights": ["gRPC", "REST Gateway", "Protobuf"]
     },
@@ -78,6 +80,7 @@
     },
     {
       "name": "observekit",
+      "url": "https://github.com/davicafu/observe-kit",
       "description": "Observability demo stack for modern backend systems. It integrates OpenTelemetry instrumentation, distributed tracing, Prometheus metrics, Grafana dashboards, centralized logs, SLO-oriented views, and Superset analytics boards for exploratory analysis. The project is focused on making system behavior observable end-to-end: from request-level traces to service KPIs, alerting, and product-level analytical insights.",
       "highlights": ["OpenTelemetry", "Tracing", "Prometheus", "Grafana", "Superset", "OpenSpec"]
     },
@@ -88,6 +91,7 @@
     },
     {
       "name": "CLI Games Collection",
+      "url": "https://github.com/davicafu/retro-games-collection",
       "description": "Progressive terminal game collection used as a technical playground for architecture and algorithmic practice. The roadmap advances from grid-based games (Snake, Sokoban) to physics and action loops (Flappy, Breakout, Space Invaders), and then to more complex systems (Pac-Man style AI, Asteroids movement, platformers, Tetris). It is intentionally structured to improve game loops, input handling, collision systems, and reusable engine patterns.",
       "highlights": [
         "Game Loops",

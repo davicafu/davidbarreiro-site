@@ -1,6 +1,6 @@
 ﻿import { appState, CURRENT_YEAR, categoryColorMap, palette } from './state.js';
 import { deriveSystemDesignFlow } from '../data/system-design.js';
-import { safeText, normalizeKeywordItem, parseDateToYear } from './utils.js';
+import { safeText, isHttpUrl, normalizeKeywordItem, parseDateToYear } from './utils.js';
 import { t } from './i18n.js';
 function mapResumeToViewModel(data) {
   const basics = data.basics || {};
@@ -188,7 +188,12 @@ function renderProjects(portfolio) {
           index % 2 === 0
             ? 'bg-cyan-300/10 text-cyan-200 border-cyan-300/20'
             : 'bg-violet-300/10 text-violet-200 border-violet-300/20';
-        return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${safeText(project.name, 'Project')}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, 'Technical personal project.')}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map((tag) => `<span class=\"px-3 py-1 rounded-full border ${chipClass} text-sm\">${safeText(tag).slice(0, 38)}</span>`).join('')}</div></article>`;
+        const name = safeText(project.name, 'Project');
+        const repoUrl = isHttpUrl(project.url) ? project.url.trim().replace(/"/g, '&quot;') : '';
+        const title = repoUrl
+          ? `<a href="${repoUrl}" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-200 transition">${name} <span aria-hidden="true">↗</span></a>`
+          : name;
+        return `<article class=\"glass rounded-[2rem] p-7 hover:-translate-y-2 ${borderClass} transition duration-300\"><h3 class=\"text-2xl font-black mb-3\">${title}</h3><p class=\"text-slate-400 leading-relaxed\">${safeText(project.description, 'Technical personal project.')}</p><div class=\"flex flex-wrap gap-2 mt-5\">${tags.map((tag) => `<span class=\"px-3 py-1 rounded-full border ${chipClass} text-sm\">${safeText(tag).slice(0, 38)}</span>`).join('')}</div></article>`;
       })
       .join('');
   };
