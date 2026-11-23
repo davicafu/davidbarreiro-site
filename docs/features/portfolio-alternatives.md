@@ -1,4 +1,4 @@
-# Portfolio alternatives (/v2 and redesign options)
+# Portfolio alternatives (redesign options)
 
 Goal: offer an improved version of the current site and several redesign options on separate routes, without changing `/` or `/es/`.
 Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`, `node --test tests/**/*.test.js`, plus a visual check with `impeccable shot`.
@@ -21,6 +21,8 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T4  | S2, S4, S5 | inline | done                          | L7, L8   |
 | T5  | S2, S4, S5 | inline | done                          | L9, L10  |
 | T6  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L9, L11 |
+| T7  | S2         | inline | done                          | L12, L13 |
+| T8  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | in progress | L12 |
 
 ## Non-goals
 
@@ -49,4 +51,5 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L9 (2026-11-23, owner feedback, verbatim): "esta versión esta mucho mejor, quizas cambiaria alguna cosa pero esta si ya esta mejor, aunque en las lineas de metro meteria una a la educiacion y otra a como diseño como ahora, y meteria otra como la linea laboral y despues que estne debajo como la experiencia laboral, pero esta si que tiene buena pinta, hazme dos más asi diferentes con estilo y las comprarmos, esta siguela mejorando tambien". T6: two more redesigns, `/v5/` (event stream) and `/v6/` (Swiss poster), built by parallel writers with disjoint edit surfaces.
 - L10 (T5): `/v4/` now has three map lines: data method (red), work (blue, meets data at the current job) and education (green, crosses work at the first job). The section below holds work experience only, with education as a compact block. The project filter shows the 10 most frequent topics plus a toggle. The probe verifies the education and work stop boards, the topic toggle (11→32 chips) and all previous interactions; it reports no errors and no overflow at 390.
 - L11 (T6): `/v5/` (event stream) and `/v6/` (Swiss poster) were delivered by two parallel writers, each with an EN/ES pair and full parity. Each writer's probe passed all interactions with no page errors, and the writers' captures showed no overflow at 1440 or 390. `/v3/` became the comparison page for v4, v5 and v6. `transit.ts` gained `export {}` so `astro check` stops treating the client scripts as clashing globals. Main build (14 pages): `/` and `/es/` HTML and CSS are identical to `main`; lint is clean; tests are 5 pass and 1 fail (the `flow-tip` failure predates this work).
-
+- L12 (2026-11-23, owner feedback, verbatim): "vale estas, estas 3 versiones si que ya son muy buenas, la a, b y c las puedes olvidar ya, y las web mejorada tambien, quedate son lo con la actual y estas 3 y ofreceme otras dos del mismo nivel de calidad. despues ya nos centraremos en cual elegir o si ofertar todas con cambio de theme entre ellas". T7 removes `/v2/`, `/es/v2/` and `/v3/a|b|c/` (S1 is withdrawn). T8 adds two more redesigns, `/v7/` and `/v8/`.
+- L13 (T7): the old variants and their components were deleted; `previewContent.ts` stays because v4–v6 use it. The build produced 9 pages.
