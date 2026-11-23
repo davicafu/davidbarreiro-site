@@ -1,0 +1,654 @@
+---
+/**
+ * Redesign preview A: the portfolio as an engineering design document.
+ * Plain-language abstract first, a status block holding the actions,
+ * numbered sections because a design doc is read and cited by section.
+ */
+import type { PreviewContent } from './previewContent';
+
+interface Props {
+  content: PreviewContent;
+}
+
+const { content: c } = Astro.props;
+const updated = new Date().toISOString().slice(0, 10);
+const sections = [
+  { id: 'experiencia', title: c.copy.sections.experience },
+  { id: 'metodo', title: c.copy.sections.method },
+  { id: 'proyectos', title: c.copy.sections.projects },
+  { id: 'skills', title: c.copy.sections.skills },
+  { id: 'contacto', title: c.copy.sections.contact }
+];
+---
+
+<div class="doc">
+  <header class="doc-head">
+    <dl class="doc-meta">
+      <div><dt>Documento</dt><dd>DBS-001 · Perfil profesional</dd></div>
+      <div><dt>Autor</dt><dd>{c.name}</dd></div>
+      <div><dt>Estado</dt><dd><span class="doc-status">Abierto a puestos y proyectos</span></dd></div>
+      <div><dt>Actualizado</dt><dd><time datetime={updated}>{updated}</time></dd></div>
+    </dl>
+    <h1>{c.name}</h1>
+    <p class="doc-subtitle">{c.copy.role} · {c.copy.positioning}</p>
+  </header>
+
+  <div class="doc-body">
+    <main class="doc-main">
+      <section class="doc-abstract" aria-labelledby="abstract-title">
+        <h2 id="abstract-title">Resumen</h2>
+        <p>{c.copy.summary}</p>
+      </section>
+
+      <nav class="doc-toc" aria-labelledby="toc-title">
+        <h2 id="toc-title">Índice</h2>
+        <ol>
+          {
+            sections.map((section, index) => (
+              <li>
+                <a href={`#${section.id}`}>
+                  <span class="doc-num">{index + 1}</span>
+                  {section.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <section id="experiencia" class="doc-section">
+        <h2><span class="doc-num">1</span>{c.copy.sections.experience}</h2>
+        <ol class="doc-entries">
+          {
+            c.timeline.map((entry) => (
+              <li class:list={['doc-entry', { 'is-education': entry.kind === 'education' }]}>
+                <p class="doc-period">{entry.period}</p>
+                <div>
+                  <h3>
+                    {entry.organisation} <span class="doc-role">— {entry.role}</span>
+                  </h3>
+                  {entry.summary && <p>{entry.summary}</p>}
+                  {entry.tech.length > 0 && <p class="doc-tech">{entry.tech.join(' · ')}</p>}
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section id="metodo" class="doc-section">
+        <h2><span class="doc-num">2</span>{c.copy.sections.method}</h2>
+        <p>
+          Cada plataforma que diseño recorre las mismas siete etapas, desde las fuentes de datos hasta quien
+          los consume. La figura 1 resume qué resuelve cada una y con qué tecnología.
+        </p>
+        <figure class="doc-figure">
+          <ol class="doc-flow">
+            {
+              c.stages.map((stage, index) => (
+                <li>
+                  <p class="doc-flow-name">
+                    <span class="doc-num">2.{index + 1}</span>
+                    {stage.name}
+                  </p>
+                  <p>{stage.detail}</p>
+                  <p class="doc-tech">{stage.tech.join(' · ')}</p>
+                </li>
+              ))
+            }
+          </ol>
+          <figcaption>
+            <strong>Figura 1.</strong> Flujo de una plataforma de datos, de las fuentes a los consumidores.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="proyectos" class="doc-section">
+        <h2><span class="doc-num">3</span>{c.copy.sections.projects}</h2>
+        <div class="doc-table-wrap">
+          <table class="doc-table">
+            <caption>Tabla 1. Proyectos personales y trabajo técnico.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Proyecto</th>
+                <th scope="col">Qué es</th>
+                <th scope="col">Temas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                c.projects.map((project) => (
+                  <tr>
+                    <th scope="row">
+                      {project.url ? (
+                        <a href={project.url} target="_blank" rel="noopener noreferrer">
+                          {project.name}
+                        </a>
+                      ) : (
+                        project.name
+                      )}
+                    </th>
+                    <td>{project.oneLiner}</td>
+                    <td class="doc-tech">{project.tags.join(' · ')}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="skills" class="doc-section">
+        <h2><span class="doc-num">4</span>{c.copy.sections.skills}</h2>
+        <dl class="doc-skills">
+          {
+            c.skills.map((group) => (
+              <div>
+                <dt>{group.name}</dt>
+                <dd>{group.keywords.join(', ')}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <h3 class="doc-subhead">Certificaciones</h3>
+        <ul class="doc-certs">
+          {c.certificates.map((cert) => <li>{cert}</li>)}
+        </ul>
+      </section>
+
+      <section id="contacto" class="doc-section doc-close">
+        <h2><span class="doc-num">5</span>{c.copy.contactTitle}</h2>
+        <p>{c.copy.contactText}</p>
+        <p>
+          <a class="doc-btn" href={`mailto:${c.email}`}>{c.email}</a>
+        </p>
+      </section>
+    </main>
+
+    <aside class="doc-aside" aria-label="Acciones">
+      <div class="doc-card">
+        <img src={c.image} width="72" height="72" alt={c.name} />
+        <a class="doc-btn" href={`mailto:${c.email}`}>{c.copy.contactCta}</a>
+        <a class="doc-btn doc-btn-quiet" href={c.cvUrl} target="_blank" rel="noopener noreferrer"
+          >{c.copy.cvCta}</a
+        >
+        <p class="doc-note">{c.copy.cvNote}</p>
+        <p class="doc-links">
+          <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+    --paper: #f6f4ee;
+    --ink: #16181d;
+    --ink-soft: #4b4f58;
+    --rule: #d8d2c2;
+    --link: #1b4fd8;
+    --serif: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 1.0625rem/1.65 var(--serif);
+  }
+
+  ::selection {
+    background: var(--link);
+    color: #fff;
+  }
+
+  .doc a {
+    color: var(--link);
+    text-underline-offset: 0.18em;
+  }
+
+  .doc :focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 3px;
+  }
+
+  .doc {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 0 1rem 5rem;
+  }
+
+  .doc-head {
+    padding: clamp(2rem, 5vw, 3.5rem) 0 2rem;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .doc-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0.5rem 1.5rem;
+    margin: 0 0 2.5rem;
+    font: 0.8125rem/1.4 var(--sans);
+  }
+
+  .doc-meta dt {
+    color: var(--ink-soft);
+  }
+
+  .doc-meta dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .doc-status::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    background: #1f8a4c;
+  }
+
+  .doc h1 {
+    margin: 0;
+    font: 800 clamp(2.5rem, 7vw, 5.25rem) / 0.98 var(--sans);
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .doc-subtitle {
+    margin: 1rem 0 0;
+    font: 600 clamp(1.0625rem, 2vw, 1.375rem) / 1.35 var(--sans);
+    color: var(--ink-soft);
+  }
+
+  .doc-body {
+    display: grid;
+    gap: 2.5rem;
+    padding-top: 2.5rem;
+  }
+
+  @media (min-width: 960px) {
+    .doc-body {
+      grid-template-columns: minmax(0, 1fr) 15rem;
+      gap: 4rem;
+    }
+
+    .doc-aside {
+      order: 2;
+    }
+
+    .doc-card {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 959px) {
+    .doc-aside {
+      order: -1;
+    }
+  }
+
+  .doc-main {
+    max-width: 46rem;
+  }
+
+  .doc h2 {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    margin: 0 0 1rem;
+    font: 750 clamp(1.375rem, 2.6vw, 1.75rem) / 1.2 var(--sans);
+    letter-spacing: -0.015em;
+  }
+
+  .doc-num {
+    font: 600 0.875em/1 var(--sans);
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .doc-abstract {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.375rem;
+    background: #fffdf7;
+  }
+
+  .doc-abstract h2 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+  }
+
+  .doc-abstract p {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.55;
+  }
+
+  .doc-toc {
+    margin: 2.5rem 0 0;
+  }
+
+  .doc-toc h2 {
+    font-size: 1rem;
+  }
+
+  .doc-toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    columns: 2 14rem;
+    font-family: var(--sans);
+  }
+
+  .doc-toc a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .doc-toc a:hover {
+    color: var(--link);
+  }
+
+  .doc-section {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .doc-section > p {
+    max-width: 65ch;
+  }
+
+  .doc-entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .doc-entry {
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    padding: 1.125rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 640px) {
+    .doc-entry {
+      grid-template-columns: 9rem 1fr;
+    }
+  }
+
+  .doc-period {
+    margin: 0;
+    font: 600 0.9375rem/1.6 var(--sans);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .doc-entry h3 {
+    margin: 0;
+    font: 700 1.125rem/1.35 var(--sans);
+  }
+
+  .doc-role {
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .doc-entry p {
+    margin: 0.25rem 0 0;
+  }
+
+  .doc-entry.is-education h3 {
+    color: var(--ink-soft);
+  }
+
+  .doc-tech {
+    font: 0.875rem/1.5 var(--sans);
+    color: var(--ink-soft);
+  }
+
+  .doc-figure {
+    margin: 1.5rem 0 0;
+  }
+
+  .doc-flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: none;
+  }
+
+  .doc-flow li {
+    position: relative;
+    margin-left: 1.25rem;
+    padding: 0.875rem 1.25rem;
+    border: 1px solid var(--ink);
+    border-radius: 0.25rem;
+    background: #fffdf7;
+  }
+
+  .doc-flow li + li {
+    margin-top: 1.75rem;
+  }
+
+  .doc-flow li + li::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: -1.75rem;
+    width: 1px;
+    height: 1.75rem;
+    background: var(--ink);
+  }
+
+  .doc-flow li + li::after {
+    content: '';
+    position: absolute;
+    left: calc(1.5rem - 4px);
+    top: -0.5rem;
+    border: 4px solid transparent;
+    border-top: 6px solid var(--ink);
+  }
+
+  .doc-flow p {
+    margin: 0;
+  }
+
+  .doc-flow-name {
+    display: flex;
+    gap: 0.625rem;
+    font: 700 1rem/1.4 var(--sans);
+  }
+
+  .doc-flow-name + p {
+    margin-top: 0.25rem;
+  }
+
+  .doc-figure figcaption,
+  .doc-table caption {
+    margin-top: 0.875rem;
+    font: 0.875rem/1.5 var(--sans);
+    color: var(--ink-soft);
+    text-align: left;
+  }
+
+  .doc-table-wrap {
+    overflow-x: auto;
+  }
+
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    caption-side: bottom;
+  }
+
+  .doc-table th,
+  .doc-table td {
+    padding: 0.75rem 0.75rem 0.75rem 0;
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .doc-table thead th {
+    font: 600 0.8125rem/1.4 var(--sans);
+    color: var(--ink-soft);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .doc-table tbody th {
+    font: 700 1rem/1.4 var(--sans);
+    min-width: 9rem;
+  }
+
+  @media (max-width: 640px) {
+    .doc-table thead {
+      display: none;
+    }
+
+    .doc-table tr {
+      display: grid;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .doc-table th,
+    .doc-table td {
+      border: 0;
+      padding: 0.125rem 0;
+    }
+  }
+
+  .doc-skills {
+    margin: 0;
+  }
+
+  .doc-skills div {
+    display: grid;
+    gap: 0.125rem 1.5rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  @media (min-width: 640px) {
+    .doc-skills div {
+      grid-template-columns: 12rem 1fr;
+    }
+  }
+
+  .doc-skills dt {
+    font: 700 0.9375rem/1.5 var(--sans);
+  }
+
+  .doc-skills dd {
+    margin: 0;
+  }
+
+  .doc-subhead {
+    margin: 2rem 0 0.5rem;
+    font: 700 1.0625rem/1.4 var(--sans);
+  }
+
+  .doc-certs {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .doc-close {
+    margin-top: 1rem;
+  }
+
+  .doc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    padding: 0 1.125rem;
+    border-radius: 0.375rem;
+    background: var(--link);
+    color: #fff !important;
+    font: 650 0.9375rem/1 var(--sans);
+    text-decoration: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .doc-btn:hover {
+    background: #143ba6;
+  }
+
+  .doc-btn-quiet {
+    background: transparent;
+    color: var(--ink) !important;
+    border: 1px solid var(--ink);
+  }
+
+  .doc-btn-quiet:hover {
+    background: #ece7da;
+  }
+
+  .doc-note {
+    margin: -0.375rem 0 0;
+    font: 0.8125rem/1.4 var(--sans);
+    color: var(--ink-soft);
+  }
+
+  .doc-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.375rem;
+    background: #fffdf7;
+  }
+
+  .doc-card img {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 0.375rem;
+    object-fit: cover;
+  }
+
+  .doc-links {
+    display: flex;
+    gap: 1.25rem;
+    margin: 0.25rem 0 0;
+    font: 600 0.9375rem/1.4 var(--sans);
+  }
+
+  @media (max-width: 959px) {
+    .doc-card {
+      grid-template-columns: auto 1fr 1fr;
+      align-items: center;
+    }
+
+    .doc-card img {
+      grid-row: span 2;
+    }
+
+    .doc-links,
+    .doc-note {
+      grid-column: 2 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .doc-card {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

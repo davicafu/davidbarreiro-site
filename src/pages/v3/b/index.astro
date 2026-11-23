@@ -1,0 +1,9 @@
+---
+import OptionMetro from '../../../components/v3/OptionMetro.astro';
+import PreviewLayout from '../../../components/v3/PreviewLayout.astro';
+import { getPreviewContent } from '../../../components/v3/previewContent';
+---
+
+<PreviewLayout option="B" label="Plano de metro">
+  <OptionMetro content={getPreviewContent('es')} />
+</PreviewLayout>

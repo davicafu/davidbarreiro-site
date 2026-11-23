@@ -16,7 +16,7 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | ID  | Specs      | Route  | Status                        | Evidence |
 | --- | ---------- | ------ | ----------------------------- | -------- |
 | T1  | S1, S4, S5 | inline | done                          | L4       |
-| T2  | S2, S4, S5 | inline | pending                       |          |
+| T2  | S2, S4, S5 | inline | done                          | L5, L6   |
 | T3  | S3         | inline | blocked on the owner's choice |          |
 
 ## Non-goals
@@ -31,3 +31,6 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L2: The critique scored the site 16/32. It found one P0 (Contact clipped in the mobile nav), two P1s (section order, mouse-only visuals) and two P2s (overloaded hero, no visual hierarchy).
 - L3: The client JS writes into fixed IDs, and `applyStaticTranslations` overwrites text by ID. `/v2` therefore keeps the IDs the JS needs and avoids the translated IDs wherever its copy differs.
 - L4 (T1): `/v2/` and `/es/v2/` built. Main pages diff against the pre-change build: identical except the CSS bundle filename (same content hash). Screenshots at 1440 and 390 show no JS errors and no horizontal overflow at 390px (scrollWidth 390). Lint passes. Tests 5/6: `flow-tip` marker failing before and after this change.
+- L5 (T2): Three previews built at `/v3/a/` (technical document), `/v3/b/` (metro map) and `/v3/c/` (strip-chart recorder), plus a comparison page at `/v3/`. They share `src/components/v3/previewContent.ts` and are written in Spanish. Captures at 1440 and 390 show no JS errors and no horizontal overflow. Route: inline, because parallel writers would share Astro's build cache and output directory, so their units were not independently verifiable.
+- L6 (T2): Adding non-layout pages split the CSS and exposed a duplicated Tailwind copy on `/`: the integration injected base styles on top of the `@tailwind` directives already in `global.css`, taking the CSS from 21 KB to 38 KB. Fix: `tailwind({ applyBaseStyles: false })`, and v3 is excluded from the Tailwind content scan. Evidence: a `main` build in a scratch worktree compared with this branch shows the `/` and `/es/` HTML identical, the CSS byte-identical (same `BaseLayout.BKhNz53n.css`) and no new JS chunks.
+

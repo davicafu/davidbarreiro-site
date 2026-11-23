@@ -1,0 +1,605 @@
+---
+/**
+ * Redesign preview B: data platform and career drawn as a transit map.
+ * The data line runs through the seven platform stages; the career line climbs
+ * from university to the current role and interchanges with the data line there.
+ */
+import type { PreviewContent } from './previewContent';
+
+interface Props {
+  content: PreviewContent;
+}
+
+const { content: c } = Astro.props;
+
+const DATA = '#e2231a';
+const CAREER = '#0072ce';
+const PROJECT_COLOURS = ['#00a651', '#ffb400', '#8e44ad', '#e2231a', '#0072ce', '#00a3a3', '#f26522'];
+
+// Data line: three stations on an upper level, a 45° drop, four on the lower level.
+const dataStations = c.stages.map((stage, index) => {
+  const upper = index < 3;
+  return {
+    ...stage,
+    x: upper ? 70 + index * 140 : 560 + (index - 3) * 150,
+    y: upper ? 170 : 330
+  };
+});
+const dataPath = 'M 30 170 H 400 L 560 330 H 1040';
+
+// Career line: vertical, oldest at the bottom, ending at the interchange with the data line.
+const careerAscending = [...c.timeline].reverse();
+const interchangeX = 560;
+const careerStations = careerAscending.map((entry, index) => ({
+  ...entry,
+  x: interchangeX,
+  y: 330 + (careerAscending.length - 1 - index) * 44
+}));
+const careerBottom = careerStations[0]?.y ?? 330;
+---
+
+<div class="metro">
+  <header class="metro-head">
+    <div>
+      <h1>{c.name}</h1>
+      <p class="metro-role">{c.copy.role} · {c.copy.positioning}</p>
+    </div>
+    <nav class="metro-nav" aria-label="Secciones">
+      <a href="#experiencia">{c.copy.sections.experience}</a>
+      <a href="#proyectos">{c.copy.sections.projects}</a>
+      <a href="#skills">{c.copy.sections.skills}</a>
+      <a class="metro-btn" href="#contacto">{c.copy.sections.contact}</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="metro-hero" aria-labelledby="map-title">
+      <div class="metro-intro">
+        <h2 id="map-title">{c.copy.sections.method}</h2>
+        <p>{c.copy.summary}</p>
+        <div class="metro-actions">
+          <a class="metro-btn" href={`mailto:${c.email}`}>{c.copy.contactCta}</a>
+          <a class="metro-btn metro-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer"
+            >{c.copy.cvCta}</a
+          >
+          <a class="metro-link" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a class="metro-link" href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+        <ul class="metro-legend" aria-label="Leyenda">
+          <li><span style={`background:${DATA}`}></span>Línea de datos: las 7 etapas de una plataforma</li>
+          <li><span style={`background:${CAREER}`}></span>Línea de carrera: de la universidad a hoy</li>
+        </ul>
+      </div>
+
+      <div class="metro-map-wrap">
+        <svg
+          class="metro-map"
+          viewBox={`0 0 1200 ${careerBottom + 50}`}
+          role="img"
+          aria-labelledby="map-svg-title map-svg-desc"
+        >
+          <title id="map-svg-title">Mapa de la plataforma de datos y de la carrera</title>
+          <desc id="map-svg-desc">
+            {
+              `Línea de datos: ${c.stages.map((s) => s.name).join(', ')}. Línea de carrera: ${careerAscending
+                .map((e) => `${e.organisation} (${e.period})`)
+                .join(', ')}.`
+            }
+          </desc>
+          <path
+            d={dataPath}
+            fill="none"
+            stroke={DATA}
+            stroke-width="12"
+            stroke-linejoin="round"
+            stroke-linecap="round"></path>
+          <path
+            d={`M ${interchangeX} ${careerBottom} V 330`}
+            fill="none"
+            stroke={CAREER}
+            stroke-width="12"
+            stroke-linecap="round"></path>
+          {
+            careerStations.slice(0, -1).map((station) => (
+              <g>
+                <line
+                  x1={interchangeX}
+                  x2={interchangeX + 16}
+                  y1={station.y}
+                  y2={station.y}
+                  stroke={CAREER}
+                  stroke-width="6"
+                />
+                <text class="map-label" x={interchangeX + 26} y={station.y + 5}>
+                  <tspan class="map-year">{station.start}</tspan> {station.organisation}
+                </text>
+              </g>
+            ))
+          }
+          {
+            dataStations.map((station, index) =>
+              index === 3 ? null : (
+                <g>
+                  <circle
+                    cx={station.x}
+                    cy={station.y}
+                    r="11"
+                    fill="#fff"
+                    stroke="#1a1a1a"
+                    stroke-width="4"
+                  />
+                  <text
+                    class="map-label"
+                    transform={`translate(${station.x + 6} ${station.y - 20}) rotate(-32)`}
+                  >
+                    {station.name}
+                  </text>
+                </g>
+              )
+            )
+          }
+          <g>
+            <rect
+              x={interchangeX - 22}
+              y="308"
+              width="44"
+              height="44"
+              rx="22"
+              fill="#fff"
+              stroke="#1a1a1a"
+              stroke-width="5"></rect>
+            <text class="map-label" transform={`translate(${interchangeX + 6} 290) rotate(-32)`}>
+              {dataStations[3]?.name}
+            </text>
+            <text class="map-label map-interchange" x={interchangeX - 34} y="374" text-anchor="end">
+              {careerStations.at(-1)?.organisation} · hoy
+            </text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <section id="experiencia" class="metro-section" aria-labelledby="exp-title">
+      <h2 id="exp-title">{c.copy.sections.experience}</h2>
+      <ol class="metro-line" style={`--line:${CAREER}`}>
+        {
+          c.timeline.map((entry) => (
+            <li class:list={{ 'is-education': entry.kind === 'education' }}>
+              <p class="metro-period">{entry.period}</p>
+              <h3>{entry.organisation}</h3>
+              <p class="metro-sub">{entry.role}</p>
+              {entry.summary && <p>{entry.summary}</p>}
+              {entry.tech.length > 0 && <p class="metro-tags">{entry.tech.join(' · ')}</p>}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="metro-section" aria-labelledby="stages-title">
+      <h2 id="stages-title">Las estaciones de la línea de datos</h2>
+      <ol class="metro-line" style={`--line:${DATA}`}>
+        {
+          c.stages.map((stage) => (
+            <li>
+              <h3>{stage.name}</h3>
+              <p>{stage.detail}</p>
+              <p class="metro-tags">{stage.tech.join(' · ')}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="proyectos" class="metro-section" aria-labelledby="proj-title">
+      <h2 id="proj-title">{c.copy.sections.projects}</h2>
+      <ul class="metro-projects">
+        {
+          c.projects.map((project, index) => (
+            <li>
+              <span
+                class="metro-roundel"
+                style={`background:${PROJECT_COLOURS[index % PROJECT_COLOURS.length]}`}
+                aria-hidden="true"
+              >
+                {String.fromCharCode(65 + index)}
+              </span>
+              <div>
+                <h3>
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noopener noreferrer">
+                      {project.name}
+                    </a>
+                  ) : (
+                    project.name
+                  )}
+                </h3>
+                <p>{project.oneLiner}</p>
+                <p class="metro-tags">{project.tags.join(' · ')}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="skills" class="metro-section" aria-labelledby="skills-title">
+      <h2 id="skills-title">{c.copy.sections.skills}</h2>
+      <dl class="metro-skills">
+        {
+          c.skills.map((group) => (
+            <div>
+              <dt>{group.name}</dt>
+              <dd>{group.keywords.join(' · ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section id="contacto" class="metro-terminus" aria-labelledby="contact-title">
+      <h2 id="contact-title">{c.copy.contactTitle}</h2>
+      <p>{c.copy.contactText}</p>
+      <a class="metro-btn metro-btn-invert" href={`mailto:${c.email}`}>{c.email}</a>
+    </section>
+  </main>
+</div>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+    --m-ink: #1a1a1a;
+    --m-soft: #575757;
+    --m-rule: #e3e3e3;
+    --m-sans: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--m-ink);
+    font: 1rem/1.6 var(--m-sans);
+  }
+
+  ::selection {
+    background: #ffcd00;
+    color: var(--m-ink);
+  }
+
+  .metro a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+  }
+
+  .metro :focus-visible {
+    outline: 3px solid #0072ce;
+    outline-offset: 3px;
+  }
+
+  .metro {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 0 1rem 5rem;
+  }
+
+  .metro-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: 1.5rem 0;
+    border-bottom: 6px solid var(--m-ink);
+  }
+
+  .metro h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .metro-role {
+    margin: 0.35rem 0 0;
+    color: var(--m-soft);
+    font-weight: 500;
+  }
+
+  .metro-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 1.25rem;
+    font-weight: 600;
+  }
+
+  .metro-nav a:not(.metro-btn) {
+    text-decoration: none;
+  }
+
+  .metro-nav a:not(.metro-btn):hover {
+    text-decoration: underline;
+  }
+
+  .metro-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    background: var(--m-ink);
+    color: #fff !important;
+    font-weight: 700;
+    text-decoration: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .metro-btn:hover {
+    background: #0072ce;
+  }
+
+  .metro-btn-line {
+    background: #fff;
+    color: var(--m-ink) !important;
+    box-shadow: inset 0 0 0 3px var(--m-ink);
+  }
+
+  .metro-btn-line:hover {
+    background: #f2f2f2;
+  }
+
+  .metro-btn-invert {
+    background: #fff;
+    color: var(--m-ink) !important;
+  }
+
+  .metro-link {
+    font-weight: 600;
+  }
+
+  .metro-hero {
+    display: grid;
+    gap: 2rem;
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  @media (min-width: 1100px) {
+    .metro-hero {
+      grid-template-columns: 22rem minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .metro-intro h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .metro-intro p {
+    margin: 0;
+    font-size: 1.125rem;
+    color: #333;
+  }
+
+  .metro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.5rem;
+  }
+
+  .metro-legend {
+    list-style: none;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--m-soft);
+  }
+
+  .metro-legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .metro-legend span {
+    width: 2rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    flex: none;
+  }
+
+  .metro-map-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .metro-map {
+    display: block;
+    width: 100%;
+    min-width: 760px;
+    height: auto;
+  }
+
+  .map-label {
+    font: 600 17px/1 var(--m-sans);
+    fill: var(--m-ink);
+  }
+
+  .map-year {
+    font-weight: 400;
+    fill: var(--m-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .map-interchange {
+    font-weight: 700;
+    fill: #0072ce;
+  }
+
+  .metro-section {
+    padding-top: clamp(3.5rem, 7vw, 5rem);
+  }
+
+  .metro-section > h2,
+  .metro-terminus h2 {
+    margin: 0 0 1.5rem;
+    font-size: clamp(1.625rem, 3vw, 2.25rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .metro-line {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .metro-line::before {
+    content: '';
+    position: absolute;
+    left: 0.6875rem;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    width: 0.625rem;
+    border-radius: 999px;
+    background: var(--line);
+  }
+
+  .metro-line li {
+    position: relative;
+    padding: 0 0 1.75rem 3rem;
+    max-width: 48rem;
+  }
+
+  .metro-line li::before {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--m-ink);
+  }
+
+  .metro-line h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .metro-line p {
+    margin: 0.25rem 0 0;
+  }
+
+  .metro-period {
+    font-weight: 700;
+    color: var(--m-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metro-sub {
+    font-weight: 600;
+  }
+
+  .metro-tags {
+    color: var(--m-soft);
+    font-size: 0.9375rem;
+  }
+
+  .metro-projects {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem 2.5rem;
+  }
+
+  @media (min-width: 800px) {
+    .metro-projects {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .metro-projects li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .metro-roundel {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  .metro-projects h3 {
+    margin: 0.25rem 0 0;
+    font-size: 1.1875rem;
+  }
+
+  .metro-projects p {
+    margin: 0.25rem 0 0;
+  }
+
+  .metro-skills {
+    margin: 0;
+    display: grid;
+    gap: 0 2.5rem;
+  }
+
+  @media (min-width: 800px) {
+    .metro-skills {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .metro-skills div {
+    padding: 0.75rem 0;
+    border-top: 2px solid var(--m-ink);
+  }
+
+  .metro-skills dt {
+    font-weight: 700;
+  }
+
+  .metro-skills dd {
+    margin: 0.25rem 0 0;
+    color: #333;
+  }
+
+  .metro-terminus {
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border-radius: 1.5rem;
+    background: var(--m-ink);
+    color: #fff;
+  }
+
+  .metro-terminus-kind {
+    margin: 0 0 0.5rem;
+    color: #ffcd00;
+    font-weight: 700;
+  }
+
+  .metro-terminus p {
+    max-width: 52ch;
+    margin: 0 0 1.75rem;
+  }
+</style>

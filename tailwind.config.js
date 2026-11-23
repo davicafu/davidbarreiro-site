@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{astro,html,js}'],
+  // The /v3 redesign previews are self-styled and must not add utilities to the main stylesheet.
+  content: ['./src/**/*.{astro,html,js}', '!./src/components/v3/**', '!./src/pages/v3/**'],
   safelist: [
     'bg-slate-950/85',
     'bg-slate-950/78',

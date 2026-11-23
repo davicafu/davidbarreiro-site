@@ -1,0 +1,582 @@
+---
+/**
+ * Redesign preview C: a strip-chart recorder roll.
+ * The career is one continuous pen trace across the years, annotated where each
+ * role or degree starts; the platform method reads as the recorder's channels.
+ */
+import type { PreviewContent } from './previewContent';
+
+interface Props {
+  content: PreviewContent;
+}
+
+const { content: c } = Astro.props;
+
+const FIRST_YEAR = Math.min(...c.timeline.map((entry) => entry.start));
+const LAST_YEAR = new Date().getFullYear();
+const WIDTH = 1200;
+const HEIGHT = 220;
+const PAD = 24;
+const xFor = (year: number) => PAD + ((year - FIRST_YEAR) / (LAST_YEAR - FIRST_YEAR)) * (WIDTH - PAD * 2);
+
+// Deterministic pen trace: each new role or degree shifts the baseline and the rhythm of the signal.
+const starts = [...c.timeline].map((entry) => entry.start).sort((a, b) => a - b);
+const points: string[] = [];
+for (let x = PAD; x <= WIDTH - PAD; x += 3) {
+  const year = FIRST_YEAR + ((x - PAD) / (WIDTH - PAD * 2)) * (LAST_YEAR - FIRST_YEAR);
+  const level = starts.filter((start) => start <= year).length;
+  const base = HEIGHT - 40 - level * 14;
+  const y = base + Math.sin(x / (16 - level)) * (5 + level * 2.2) + Math.sin(x / 5.3) * 1.6;
+  points.push(`${x.toFixed(0)},${y.toFixed(1)}`);
+}
+const trace = points.join(' ');
+const years = Array.from({ length: LAST_YEAR - FIRST_YEAR + 1 }, (_, index) => FIRST_YEAR + index);
+const markers = [...c.timeline].sort((a, b) => a.start - b.start);
+// Short marker labels: an acronym in parentheses wins ("... (UNIR)" -> "UNIR").
+const shortName = (organisation: string) =>
+  organisation.match(/\(([^)]+)\)\s*$/)?.[1] ?? organisation.replace(/\s+S\.L\.$/, '');
+---
+
+<div class="roll">
+  <header class="roll-label">
+    <table>
+      <tbody>
+        <tr>
+          <th scope="row">Gráfico n.º</th>
+          <td>DBS-001</td>
+          <th scope="row">Rango</th>
+          <td>{FIRST_YEAR}–{LAST_YEAR}</td>
+        </tr>
+        <tr>
+          <th scope="row">Registro</th>
+          <td>Carrera y plataformas de datos</td>
+          <th scope="row">Operador</th>
+          <td>{c.name}</td>
+        </tr>
+      </tbody>
+    </table>
+    <nav class="roll-nav" aria-label="Secciones">
+      <a href="#experiencia">{c.copy.sections.experience}</a>
+      <a href="#canales">{c.copy.sections.method}</a>
+      <a href="#proyectos">{c.copy.sections.projects}</a>
+      <a href="#contacto">{c.copy.sections.contact}</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="roll-hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">{c.name}</h1>
+      <p class="roll-role">{c.copy.role} · {c.copy.positioning}</p>
+      <p class="roll-summary">{c.copy.summary}</p>
+      <div class="roll-actions">
+        <a class="roll-btn" href={`mailto:${c.email}`}>{c.copy.contactCta}</a>
+        <a class="roll-btn roll-btn-ghost" href={c.cvUrl} target="_blank" rel="noopener noreferrer"
+          >{c.copy.cvCta}</a
+        >
+        <a class="roll-link" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a class="roll-link" href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </section>
+
+    <figure class="roll-trace" aria-labelledby="trace-caption">
+      <div class="roll-trace-scroll">
+        <svg viewBox={`0 0 ${WIDTH} ${HEIGHT + 40}`} role="img" aria-labelledby="trace-caption">
+          {
+            years.map((year) => (
+              <g>
+                <line class="trace-year-line" x1={xFor(year)} x2={xFor(year)} y1="0" y2={HEIGHT} />
+                <text class="trace-year" x={xFor(year)} y={HEIGHT + 22} text-anchor="middle">
+                  {String(year).slice(2)}
+                </text>
+              </g>
+            ))
+          }
+          <polyline class="trace-pen" points={trace} pathLength="1"></polyline>
+          {
+            markers.map((entry, index) => (
+              <g>
+                <line class="trace-marker" x1={xFor(entry.start)} x2={xFor(entry.start)} y1="8" y2={HEIGHT} />
+                <text class="trace-note" x={xFor(entry.start) + 6} y={22 + (index % 3) * 22}>
+                  {shortName(entry.organisation)}
+                </text>
+              </g>
+            ))
+          }
+        </svg>
+      </div>
+      <figcaption id="trace-caption">
+        Registro {FIRST_YEAR}–{LAST_YEAR}: cada marca roja es el inicio de una etapa. La señal cambia de nivel
+        y de ritmo con cada una.
+      </figcaption>
+    </figure>
+
+    <section id="experiencia" class="roll-section" aria-labelledby="exp-title">
+      <h2 id="exp-title">{c.copy.sections.experience}</h2>
+      <ol class="roll-log">
+        {
+          c.timeline.map((entry) => (
+            <li class:list={{ 'is-education': entry.kind === 'education' }}>
+              <p class="roll-stamp">{entry.period}</p>
+              <div>
+                <h3>{entry.organisation}</h3>
+                <p class="roll-sub">{entry.role}</p>
+                {entry.summary && <p>{entry.summary}</p>}
+                {entry.tech.length > 0 && <p class="roll-tags">{entry.tech.join(' · ')}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="canales" class="roll-section" aria-labelledby="ch-title">
+      <h2 id="ch-title">{c.copy.sections.method}</h2>
+      <p class="roll-lede">
+        Siete canales, de las fuentes de datos a quien los consume. Así reparto una plataforma.
+      </p>
+      <ol class="roll-channels">
+        {
+          c.stages.map((stage, index) => (
+            <li>
+              <p class="roll-ch">CH{index + 1}</p>
+              <div>
+                <h3>{stage.name}</h3>
+                <p>{stage.detail}</p>
+                <p class="roll-tags">{stage.tech.join(' · ')}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="proyectos" class="roll-section" aria-labelledby="proj-title">
+      <h2 id="proj-title">{c.copy.sections.projects}</h2>
+      <ul class="roll-events">
+        {
+          c.projects.map((project) => (
+            <li>
+              <h3>
+                {project.url ? (
+                  <a href={project.url} target="_blank" rel="noopener noreferrer">
+                    {project.name}
+                  </a>
+                ) : (
+                  project.name
+                )}
+              </h3>
+              <p>{project.oneLiner}</p>
+              <p class="roll-tags">{project.tags.join(' · ')}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="roll-section" aria-labelledby="skills-title">
+      <h2 id="skills-title">{c.copy.sections.skills}</h2>
+      <dl class="roll-skills">
+        {
+          c.skills.map((group) => (
+            <div>
+              <dt>{group.name}</dt>
+              <dd>{group.keywords.join(' · ')}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section id="contacto" class="roll-tear" aria-labelledby="contact-title">
+      <h2 id="contact-title">{c.copy.contactTitle}</h2>
+      <p>{c.copy.contactText}</p>
+      <a class="roll-btn" href={`mailto:${c.email}`}>{c.email}</a>
+    </section>
+  </main>
+</div>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+    --paper: #f4f1e8;
+    --grid-minor: #e3e7da;
+    --grid-major: #c9d6c2;
+    --ink: #1d2a24;
+    --ink-soft: #4d5a53;
+    --pen-red: #c8372d;
+    --pen-blue: #1f4f9c;
+    --sans: 'Avenir Next', Avenir, 'Segoe UI', Roboto, system-ui, sans-serif;
+    --data: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 1rem/1.6 var(--sans);
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px),
+      linear-gradient(to right, var(--grid-minor) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px);
+    background-size:
+      40px 40px,
+      40px 40px,
+      8px 8px,
+      8px 8px;
+  }
+
+  ::selection {
+    background: var(--pen-red);
+    color: #fff;
+  }
+
+  .roll a {
+    color: inherit;
+    text-underline-offset: 0.2em;
+  }
+
+  .roll :focus-visible {
+    outline: 2px solid var(--pen-blue);
+    outline-offset: 3px;
+  }
+
+  .roll {
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: 0 1rem 5rem;
+  }
+
+  .roll-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .roll-label table {
+    border-collapse: collapse;
+    background: var(--paper);
+    font-size: 0.8125rem;
+  }
+
+  .roll-label th,
+  .roll-label td {
+    border: 1px solid var(--ink);
+    padding: 0.3rem 0.6rem;
+    text-align: left;
+  }
+
+  .roll-label th {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .roll-label td {
+    font-family: var(--data);
+  }
+
+  @media (max-width: 560px) {
+    .roll-label tr {
+      display: grid;
+      grid-template-columns: auto 1fr;
+    }
+  }
+
+  .roll-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    font-weight: 600;
+  }
+
+  .roll-hero {
+    padding-top: clamp(2.5rem, 7vw, 5rem);
+  }
+
+  .roll h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 7.5vw, 5.5rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .roll-role {
+    margin: 1rem 0 0;
+    font-size: clamp(1.0625rem, 2vw, 1.3125rem);
+    font-weight: 700;
+    color: var(--pen-red);
+  }
+
+  .roll-summary {
+    max-width: 60ch;
+    margin: 0.875rem 0 0;
+    font-size: clamp(1.0625rem, 1.8vw, 1.1875rem);
+  }
+
+  .roll-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.75rem;
+  }
+
+  .roll-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    border-radius: 0.25rem;
+    background: var(--ink);
+    color: var(--paper) !important;
+    font-weight: 700;
+    text-decoration: none;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .roll-btn:hover {
+    background: var(--pen-blue);
+  }
+
+  .roll-btn-ghost {
+    background: var(--paper);
+    color: var(--ink) !important;
+    border: 2px solid var(--ink);
+  }
+
+  .roll-btn-ghost:hover {
+    background: #ebe6d8;
+  }
+
+  .roll-link {
+    font-weight: 700;
+  }
+
+  .roll-trace {
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    padding: 1rem 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .roll-trace-scroll {
+    overflow-x: auto;
+  }
+
+  .roll-trace svg {
+    display: block;
+    width: 100%;
+    min-width: 720px;
+    height: auto;
+  }
+
+  .trace-year-line {
+    stroke: var(--grid-major);
+    stroke-width: 1;
+  }
+
+  .trace-year {
+    font: 13px var(--data);
+    fill: var(--ink-soft);
+  }
+
+  .trace-pen {
+    fill: none;
+    stroke: var(--pen-blue);
+    stroke-width: 2.25;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .trace-pen {
+      animation: pen-draw 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+  }
+
+  @keyframes pen-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  .trace-marker {
+    stroke: var(--pen-red);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+  }
+
+  .trace-note {
+    font: 600 14px var(--sans);
+    fill: var(--pen-red);
+  }
+
+  .roll-trace figcaption {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+  }
+
+  .roll-section {
+    padding-top: clamp(3.5rem, 7vw, 5rem);
+  }
+
+  .roll h2 {
+    display: inline-block;
+    margin: 0 0 1.25rem;
+    padding: 0.125rem 0.5rem;
+    background: var(--paper);
+    font-size: clamp(1.625rem, 3vw, 2.25rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .roll-lede {
+    max-width: 60ch;
+    margin: -0.25rem 0 1.5rem;
+    background: var(--paper);
+  }
+
+  .roll-log,
+  .roll-channels,
+  .roll-events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+  }
+
+  .roll-log li,
+  .roll-channels li {
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--grid-major);
+  }
+
+  @media (min-width: 640px) {
+    .roll-log li {
+      grid-template-columns: 9rem 1fr;
+    }
+
+    .roll-channels li {
+      grid-template-columns: 4rem 1fr;
+    }
+  }
+
+  .roll-stamp,
+  .roll-ch {
+    margin: 0;
+    font: 600 0.9375rem/1.6 var(--data);
+    color: var(--pen-red);
+  }
+
+  .roll-ch {
+    color: var(--pen-blue);
+  }
+
+  .roll h3 {
+    margin: 0;
+    font-size: 1.1875rem;
+    line-height: 1.3;
+  }
+
+  .roll-log p,
+  .roll-channels p,
+  .roll-events p {
+    margin: 0.25rem 0 0;
+  }
+
+  .roll-sub {
+    font-weight: 600;
+  }
+
+  .is-education h3 {
+    color: var(--ink-soft);
+  }
+
+  .roll-tags {
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+  }
+
+  .roll-events {
+    display: grid;
+  }
+
+  @media (min-width: 800px) {
+    .roll-events {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 2.5rem;
+    }
+  }
+
+  .roll-events li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--grid-major);
+  }
+
+  .roll-events h3::before {
+    content: '';
+    display: inline-block;
+    width: 0.625rem;
+    height: 0.625rem;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    background: var(--pen-red);
+    vertical-align: 0.1em;
+  }
+
+  .roll-skills {
+    margin: 0;
+    background: var(--paper);
+    border-top: 2px solid var(--ink);
+  }
+
+  .roll-skills div {
+    display: grid;
+    gap: 0.125rem 1.5rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--grid-major);
+  }
+
+  @media (min-width: 640px) {
+    .roll-skills div {
+      grid-template-columns: 13rem 1fr;
+    }
+  }
+
+  .roll-skills dt {
+    font-weight: 700;
+  }
+
+  .roll-skills dd {
+    margin: 0;
+  }
+
+  .roll-tear {
+    position: relative;
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding: clamp(2rem, 5vw, 3rem);
+    background: #fffdf6;
+    border: 2px dashed var(--ink);
+    text-align: center;
+  }
+
+  .roll-tear p {
+    max-width: 52ch;
+    margin: 0 auto 1.5rem;
+  }
+
+  .roll-tear h2 {
+    background: none;
+  }
+</style>

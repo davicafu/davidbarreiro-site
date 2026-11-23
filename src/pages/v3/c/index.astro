@@ -1,0 +1,9 @@
+---
+import OptionChart from '../../../components/v3/OptionChart.astro';
+import PreviewLayout from '../../../components/v3/PreviewLayout.astro';
+import { getPreviewContent } from '../../../components/v3/previewContent';
+---
+
+<PreviewLayout option="C" label="Registro continuo">
+  <OptionChart content={getPreviewContent('es')} />
+</PreviewLayout>
