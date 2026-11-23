@@ -242,3 +242,5 @@ setupTrains(stopTour);
 setupCvMenus();
 setupFilter(payload?.labels.showing ?? '{n} / {n}');
 setupTabs();
+
+export {};

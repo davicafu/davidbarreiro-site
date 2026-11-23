@@ -5,28 +5,31 @@ import { getAlternateLinks, getLocaleMetadata } from '../../lib/locale';
 const seo = getLocaleMetadata('es');
 const options = [
   {
-    id: 'A',
-    href: '/v3/a/',
-    name: 'Documento técnico',
-    idea: 'Tu portfolio como un design doc de ingeniería: resumen en lenguaje llano, ficha de estado con contacto y CV, secciones numeradas y tu método como «Figura 1».',
-    tone: 'Claro, sobrio, serio. Habla el idioma de un tech lead sin perder al recruiter.',
-    swatches: ['#f6f4ee', '#16181d', '#1b4fd8']
+    id: '1',
+    href: '/es/v4/',
+    en: '/v4/',
+    name: 'Red de metro',
+    idea: 'Tu perfil como una red de transporte: la línea de datos (cómo diseñas), la laboral y la de formación se cruzan en un mapa vivo con trenes. Cada estación se pulsa y la explica un panel de andén.',
+    tone: 'Claro, gráfico y señalético. Schibsted Grotesk.',
+    swatches: ['#f5f3ee', '#121212', '#e4002b', '#0a5ec2', '#00985f']
   },
   {
-    id: 'B',
-    href: '/v3/b/',
-    name: 'Plano de metro',
-    idea: 'Tu plataforma de datos y tu carrera dibujadas como líneas de metro: cada etapa y cada empresa es una estación.',
-    tone: 'Luminoso, gráfico, muy legible. El diagrama es la portada.',
-    swatches: ['#ffffff', '#1a1a1a', '#e2231a', '#0072ce', '#00a651']
+    id: '2',
+    href: '/es/v5/',
+    en: '/v5/',
+    name: 'Flujo de eventos',
+    idea: 'Tu trayectoria como un topic de Kafka: una consola reproduce en directo eventos reales de tu carrera (empleos, formación, certificaciones) y tu método es un pipeline con paquetes en movimiento.',
+    tone: 'Oscuro y cálido, serif editorial con acento ámbar. Instrument Serif + Geist + JetBrains Mono.',
+    swatches: ['#0f0d0b', '#f3ede4', '#ffb547', '#6fd6c2', '#b9a4ff']
   },
   {
-    id: 'C',
-    href: '/v3/c/',
-    name: 'Registro continuo',
-    idea: 'Papel milimetrado de registrador: tu trayectoria como una señal continua en el tiempo y tu método como canales de la plumilla.',
-    tone: 'Técnico y cálido, con carácter de laboratorio. El streaming hecho papel.',
-    swatches: ['#f4f1e8', '#c9d6c2', '#1d2a24', '#c8372d', '#1f4f9c']
+    id: '3',
+    href: '/es/v6/',
+    en: '/v6/',
+    name: 'Cartel suizo',
+    idea: 'Un cartel de estilo tipográfico internacional que se compone al cargar: bloques de color, cifras gigantes y una retícula estricta. El método son bloques numerados que se despliegan.',
+    tone: 'Claro, editorial y rotundo. Archivo con rojo, cobalto y ocre.',
+    swatches: ['#f2efe6', '#111111', '#e0251b', '#1e43c8', '#e9a61c']
   }
 ];
 ---
@@ -136,11 +139,11 @@ const options = [
   </head>
   <body>
     <main>
-      <h1>Tres opciones de rediseño</h1>
+      <h1>Tres rediseños para comparar</h1>
       <p class="intro">
-        Vistas previas con tus datos reales de <code>resume.json</code>: portada, experiencia, método,
-        proyectos y contacto. Elige una y la completo con todas las funcionalidades de la web actual (idiomas,
-        filtros, gráficos interactivos, descarga de CV).
+        Los tres tienen todas las funcionalidades de la web actual: inglés y español, CV en tres versiones,
+        filtro de proyectos, enlaces a repositorios, skills con certificaciones y contacto. Ábrelos en el
+        móvil también.
       </p>
       <ol>
         {
@@ -151,10 +154,11 @@ const options = [
                   {option.id}
                 </span>
                 <h2>
-                  Opción {option.id} · {option.name}
+                  {option.id} · {option.name}
                 </h2>
                 <p>{option.idea}</p>
                 <p class="tone">{option.tone}</p>
+                <p class="tone">También en inglés: {option.en}</p>
                 <span class="swatches" aria-hidden="true">
                   {option.swatches.map((color) => (
                     <span style={`background:${color}`} />
@@ -166,9 +170,8 @@ const options = [
         }
       </ol>
       <p class="also">
-        También: <a href="/es/v2/">la versión mejorada del diseño actual (/es/v2/)</a> · <a href="/es/"
-          >la web actual</a
-        >
+        Anteriores: <a href="/v3/a/">A</a> · <a href="/v3/b/">B</a> · <a href="/v3/c/">C</a> ·
+        <a href="/es/v2/">versión mejorada</a> · <a href="/es/">web actual</a>
       </p>
     </main>
   </body>

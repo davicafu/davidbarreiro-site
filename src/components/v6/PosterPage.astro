@@ -1,0 +1,548 @@
+---
+/**
+ * Redesign "Swiss poster" (routes /v6/ and /es/v6/).
+ * International Typographic Style: a strict grid, huge numerals, flat colour fields.
+ * The hero poster composes itself on load, the method is an interactive block composition,
+ * experience is a big-year index, projects are poster tiles. Standalone page: it does not
+ * load the main site's JS or Tailwind.
+ */
+import SeoHead from '../common/SeoHead.astro';
+import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
+import { getPreviewContent } from '../v3/previewContent';
+import '../../styles/v6.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const seo = getLocaleMetadata(locale);
+const c = getPreviewContent(locale);
+
+const t = {
+  en: {
+    home: '/v6/',
+    sections: 'Sections',
+    nav: { method: 'Method', work: 'Experience', projects: 'Projects', skills: 'Skills', contact: 'Contact' },
+    langLabel: 'Language',
+    skip: 'Skip to content',
+    role: 'Senior Software Engineer',
+    headline: 'Real-time data platforms and the Go backends that move them.',
+    lede: (years: number) =>
+      `${years} years shipping production systems with Kafka, Spark, ClickHouse, Go and Java, from the first event to the dashboard that uses it.`,
+    contact: 'Get in touch',
+    cv: 'Download CV',
+    cvOptions: {
+      onePage: ['One page', 'Compact summary'],
+      professional: ['Professional', 'Full detail, minimal layout'],
+      jsonresume: ['JSON Resume', 'Standard format']
+    },
+    yearsCaption: 'years in production',
+    certsCaption: 'certifications',
+    posterStack: 'Kafka · Spark · ClickHouse · Go · Java',
+    methodKicker: '01',
+    methodTitle: 'How I design data platforms',
+    methodIntro: 'Seven stages, from the systems that produce data to the people who use it. Select one.',
+    stage: (n: number, total: number) => `Stage ${n} / ${total}`,
+    tech: 'Technology',
+    workKicker: '02',
+    workTitle: 'Experience',
+    workIntro: 'Every role since 2014. Open one to read what I built.',
+    highlights: 'What I did',
+    educationTitle: 'Education',
+    projectsKicker: '03',
+    projectsTitle: 'Projects',
+    projectsIntro:
+      'Personal and technical work. Filter by topic; a project shows if it has any selected topic.',
+    filterLabel: 'Topics',
+    filterAll: 'All',
+    showing: (n: number, total: number) => `${n} of ${total} projects`,
+    clear: 'Clear',
+    empty: 'No project matches these topics.',
+    repo: 'Repository',
+    skillsKicker: '04',
+    skillsTitle: 'Skills',
+    skillsIntro: 'The stack by area. Pick an area to see its technologies and level.',
+    levels: { Advanced: 2, Intermediate: 1, Expert: 3 } as Record<string, number>,
+    certified: 'Certified',
+    certsTitle: 'Certifications',
+    contactKicker: '05',
+    contactTitle: "Let's build something with data.",
+    contactText:
+      'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    footerRole: 'Senior Software Engineer'
+  },
+  es: {
+    home: '/es/v6/',
+    sections: 'Secciones',
+    nav: {
+      method: 'Método',
+      work: 'Experiencia',
+      projects: 'Proyectos',
+      skills: 'Skills',
+      contact: 'Contacto'
+    },
+    langLabel: 'Idioma',
+    skip: 'Saltar al contenido',
+    role: 'Ingeniero de Software Senior',
+    headline: 'Plataformas de datos en tiempo real y los backends en Go que las mueven.',
+    lede: (years: number) =>
+      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java, desde el primer evento hasta el panel que lo usa.`,
+    contact: 'Contactar',
+    cv: 'Descargar CV',
+    cvOptions: {
+      onePage: ['Una página', 'Resumen compacto · en inglés'],
+      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
+      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+    },
+    yearsCaption: 'años en producción',
+    certsCaption: 'certificaciones',
+    posterStack: 'Kafka · Spark · ClickHouse · Go · Java',
+    methodKicker: '01',
+    methodTitle: 'Cómo diseño plataformas de datos',
+    methodIntro: 'Siete etapas, de los sistemas que producen datos a las personas que los usan. Elige una.',
+    stage: (n: number, total: number) => `Etapa ${n} / ${total}`,
+    tech: 'Tecnología',
+    workKicker: '02',
+    workTitle: 'Experiencia',
+    workIntro: 'Cada puesto desde 2014. Abre uno para leer qué construí.',
+    highlights: 'Qué hice',
+    educationTitle: 'Formación',
+    projectsKicker: '03',
+    projectsTitle: 'Proyectos',
+    projectsIntro:
+      'Trabajo personal y técnico. Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
+    filterLabel: 'Temas',
+    filterAll: 'Todos',
+    showing: (n: number, total: number) => `${n} de ${total} proyectos`,
+    clear: 'Limpiar',
+    empty: 'Ningún proyecto coincide con estos temas.',
+    repo: 'Repositorio',
+    skillsKicker: '04',
+    skillsTitle: 'Skills',
+    skillsIntro: 'El stack por áreas. Elige un área para ver sus tecnologías y nivel.',
+    levels: { Avanzado: 2, Intermedio: 1, Experto: 3 } as Record<string, number>,
+    certified: 'Certificado',
+    certsTitle: 'Certificaciones',
+    contactKicker: '05',
+    contactTitle: 'Construyamos algo con datos.',
+    contactText:
+      'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    footerRole: 'Ingeniero de Software Senior'
+  }
+}[locale];
+
+const nowYear = new Date().getFullYear();
+const years = nowYear - Math.min(...c.work.map((job) => job.start));
+const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
+const work = [...c.work].sort((a, b) => b.start - a.start);
+const education = [...c.education].sort((a, b) => b.start - a.start);
+
+// Flat poster colours, cycled across stages and project tiles.
+const FIELDS = ['red', 'cobalt', 'ochre', 'ink', 'cobalt', 'red', 'ochre'];
+
+const tagCounts = new Map<string, number>();
+c.projects.forEach((project) =>
+  project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1))
+);
+const allTags = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .map(([tag]) => tag);
+
+const levelDots = (level: string) => t.levels[level] ?? 0;
+const pad = (n: number) => String(n).padStart(2, '0');
+const firstStage = c.stages[0];
+---
+
+<html lang={locale}>
+  <head>
+    <SeoHead
+      title={seo.title}
+      description={seo.description}
+      canonical={seo.canonical}
+      ogLocale={seo.ogLocale}
+      ogLocaleAlternate={seo.ogLocaleAlternate}
+      ogTitle={seo.ogTitle}
+      ogDescription={seo.ogDescription}
+      alternates={getAlternateLinks()}
+      noindex
+    />
+    <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#f2efe6" />
+    <script is:inline>
+      document.documentElement.classList.add('sp-js');
+    </script>
+  </head>
+  <body class="sp">
+    <a class="sp-skip" href="#main">{t.skip}</a>
+
+    <header class="sp-bar">
+      <a class="sp-brand" href={t.home} aria-label="David Barreiro">
+        <span class="sp-brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <span class="sp-brand-text">David Barreiro</span>
+      </a>
+      <nav class="sp-nav" aria-label={t.sections}>
+        <a href="#metodo"><span aria-hidden="true">01</span>{t.nav.method}</a>
+        <a href="#experiencia"><span aria-hidden="true">02</span>{t.nav.work}</a>
+        <a href="#proyectos"><span aria-hidden="true">03</span>{t.nav.projects}</a>
+        <a href="#skills"><span aria-hidden="true">04</span>{t.nav.skills}</a>
+      </nav>
+      <div class="sp-bar-end">
+        <div class="sp-lang" role="group" aria-label={t.langLabel}>
+          <a href="/v6/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+          <a href="/es/v6/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+        </div>
+        <a class="sp-btn sp-btn-sm" href="#contacto">{t.nav.contact}</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ============ HERO POSTER ============ -->
+      <section class="sp-hero" aria-labelledby="sp-title">
+        <div class="sp-hero-copy">
+          <p class="sp-role">{t.role}</p>
+          <h1 id="sp-title" class="sp-name">
+            <span>David</span>
+            <span>Barreiro</span>
+          </h1>
+          <p class="sp-headline">{t.headline}</p>
+          <p class="sp-lede">{t.lede(years)}</p>
+          <div class="sp-actions">
+            <a class="sp-btn" href={`mailto:${c.email}`}>{t.contact}</a>
+            <details class="sp-cv" data-cv>
+              <summary class="sp-btn sp-btn-line">{t.cv}</summary>
+              <ul>
+                {
+                  c.cvOptions.map((option) => (
+                    <li>
+                      <a href={option.href} target="_blank" rel="noopener noreferrer">
+                        <strong>{t.cvOptions[option.key][0]}</strong>
+                        <span>{t.cvOptions[option.key][1]}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
+          </div>
+          <p class="sp-links">
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </p>
+        </div>
+
+        <figure class="sp-poster" aria-hidden="true">
+          <div class="sp-p sp-p-cobalt"></div>
+          <div class="sp-p sp-p-circle"></div>
+          <div class="sp-p sp-p-ochre"></div>
+          <div class="sp-p sp-p-bar"></div>
+          <div class="sp-p sp-p-years">
+            <span class="sp-p-num">{years}</span>
+            <span class="sp-p-cap">{t.yearsCaption}</span>
+          </div>
+          <div class="sp-p sp-p-certs">
+            <span class="sp-p-num sp-p-num-sm">{certificates.length}</span>
+            <span class="sp-p-cap">{t.certsCaption}</span>
+          </div>
+          <img
+            class="sp-p sp-p-photo"
+            src="/assets/profile/avatar-224.avif"
+            alt=""
+            width="224"
+            height="224"
+          />
+          <p class="sp-p sp-p-stack">{t.posterStack}</p>
+        </figure>
+      </section>
+
+      <!-- ============ METHOD ============ -->
+      <section class="sp-section" id="metodo" aria-labelledby="method-title" data-reveal>
+        <header class="sp-head">
+          <span class="sp-kicker" aria-hidden="true">{t.methodKicker}</span>
+          <h2 id="method-title">{t.methodTitle}</h2>
+          <p>{t.methodIntro}</p>
+        </header>
+        <div class="sp-method" data-method>
+          <div class="sp-blocks" role="group" aria-label={t.methodTitle}>
+            {
+              c.stages.map((stage, index) => (
+                <button
+                  type="button"
+                  class:list={['sp-block', `sp-f-${FIELDS[index % FIELDS.length]}`]}
+                  data-stage={index}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                  aria-controls="sp-stage-panel"
+                >
+                  <span class="sp-block-num">{pad(index + 1)}</span>
+                  <span class="sp-block-name">{stage.name}</span>
+                </button>
+              ))
+            }
+            {c.stages.length % 4 !== 0 && <span class="sp-block-deco" aria-hidden="true" />}
+          </div>
+          <div
+            class:list={['sp-stage', `sp-f-${FIELDS[0]}`]}
+            id="sp-stage-panel"
+            aria-live="polite"
+            data-stage-panel
+            data-fields={JSON.stringify(FIELDS)}
+          >
+            <p class="sp-stage-meta" data-stage-meta>{t.stage(1, c.stages.length)}</p>
+            <p class="sp-stage-num" data-stage-num aria-hidden="true">01</p>
+            <h3 class="sp-stage-name" data-stage-name>{firstStage.name}</h3>
+            <p class="sp-stage-detail" data-stage-detail>{firstStage.detail}</p>
+            <p class="sp-stage-tech">
+              <span>{t.tech}</span>
+              <span data-stage-tech>{firstStage.tech.join(' · ')}</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPERIENCE ============ -->
+      <section class="sp-section" id="experiencia" aria-labelledby="work-title" data-reveal>
+        <header class="sp-head">
+          <span class="sp-kicker" aria-hidden="true">{t.workKicker}</span>
+          <h2 id="work-title">{t.workTitle}</h2>
+          <p>{t.workIntro}</p>
+        </header>
+        <ol class="sp-index">
+          {
+            work.map((job, index) => (
+              <li>
+                <details open={index === 0}>
+                  <summary>
+                    <span class="sp-index-year">{job.start}</span>
+                    <span class="sp-index-main">
+                      <span class="sp-index-org">{job.organisation}</span>
+                      <span class="sp-index-role">
+                        {job.role} · {job.period}
+                      </span>
+                    </span>
+                    <span class="sp-index-toggle" aria-hidden="true" />
+                  </summary>
+                  <div class="sp-index-body">
+                    {job.summary && <p class="sp-index-summary">{job.summary}</p>}
+                    {job.highlights.length > 0 && (
+                      <div>
+                        <h3>{t.highlights}</h3>
+                        <ul>
+                          {job.highlights.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {job.tech.length > 0 && (
+                      <p class="sp-tags">
+                        {job.tech.map((tech) => (
+                          <span>{tech}</span>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                </details>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="sp-edu">
+          <h3>{t.educationTitle}</h3>
+          <ul>
+            {
+              education.map((item) => (
+                <li>
+                  <span class="sp-edu-years">{item.period}</span>
+                  <span class="sp-edu-role">{item.role}</span>
+                  <span class="sp-edu-org">{item.organisation}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ PROJECTS ============ -->
+      <section class="sp-section" id="proyectos" aria-labelledby="projects-title" data-projects data-reveal>
+        <header class="sp-head">
+          <span class="sp-kicker" aria-hidden="true">{t.projectsKicker}</span>
+          <h2 id="projects-title">{t.projectsTitle}</h2>
+          <p>{t.projectsIntro}</p>
+        </header>
+        <div class="sp-filter" role="group" aria-label={t.filterLabel}>
+          <button type="button" class="sp-chip" data-tag="" aria-pressed="true">{t.filterAll}</button>
+          {
+            allTags.map((tag) => (
+              <button type="button" class="sp-chip" data-tag={tag} aria-pressed="false">
+                {tag}
+              </button>
+            ))
+          }
+        </div>
+        <p class="sp-filter-status">
+          <span data-count>{t.showing(c.projects.length, c.projects.length)}</span>
+          <button type="button" class="sp-clear" data-clear hidden>{t.clear}</button>
+        </p>
+        <ol class="sp-tiles">
+          {
+            c.projects.map((project, index) => (
+              <li
+                class:list={['sp-tile', `sp-f-${FIELDS[(index + 1) % FIELDS.length]}`]}
+                data-tags={JSON.stringify(project.allTags)}
+              >
+                <span class="sp-tile-num" aria-hidden="true">
+                  {pad(index + 1)}
+                </span>
+                <div class="sp-tile-body">
+                  <h3>
+                    {project.url ? (
+                      <a href={project.url} target="_blank" rel="noopener noreferrer">
+                        {project.name}
+                        <span class="sp-arrow" aria-hidden="true">
+                          ↗
+                        </span>
+                        <span class="sp-sr">({t.repo})</span>
+                      </a>
+                    ) : (
+                      project.name
+                    )}
+                  </h3>
+                  <p>{project.oneLiner}</p>
+                  <p class="sp-tile-tags">{project.allTags.join(' · ')}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="sp-empty" data-empty hidden>{t.empty}</p>
+      </section>
+
+      <!-- ============ SKILLS ============ -->
+      <section class="sp-section" id="skills" aria-labelledby="skills-title" data-reveal>
+        <header class="sp-head">
+          <span class="sp-kicker" aria-hidden="true">{t.skillsKicker}</span>
+          <h2 id="skills-title">{t.skillsTitle}</h2>
+          <p>{t.skillsIntro}</p>
+        </header>
+        <div class="sp-skills">
+          <div class="sp-areas" role="tablist" aria-label={t.skillsTitle} aria-orientation="vertical">
+            {
+              c.skillGroups.map((group, index) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`sp-tab-${index}`}
+                  aria-controls={`sp-panel-${index}`}
+                  aria-selected={index === 0 ? 'true' : 'false'}
+                  tabindex={index === 0 ? 0 : -1}
+                >
+                  <span class="sp-area-num">{pad(index + 1)}</span>
+                  <span>{group.name}</span>
+                  <span class="sp-area-count">{group.keywords.length}</span>
+                </button>
+              ))
+            }
+          </div>
+          <div class="sp-panels">
+            {
+              c.skillGroups.map((group, index) => (
+                <div
+                  class="sp-panel"
+                  role="tabpanel"
+                  id={`sp-panel-${index}`}
+                  aria-labelledby={`sp-tab-${index}`}
+                  hidden={index !== 0}
+                >
+                  <ul class="sp-skill-grid">
+                    {group.keywords.map((skill) => (
+                      <li>
+                        {skill.logo ? (
+                          <img src={skill.logo} alt="" width="40" height="40" loading="lazy" />
+                        ) : (
+                          <span class="sp-skill-ph" aria-hidden="true" />
+                        )}
+                        <p class="sp-skill-name">{skill.name}</p>
+                        <p class="sp-skill-level">
+                          <span class="sp-meter" aria-hidden="true">
+                            {[1, 2, 3].map((n) => (
+                              <i class:list={{ on: n <= levelDots(skill.level) }} />
+                            ))}
+                          </span>
+                          {skill.level}
+                        </p>
+                        {skill.certifications.map((cert) => (
+                          <a class="sp-cert" href={cert.url} target="_blank" rel="noopener noreferrer">
+                            {t.certified} · {cert.issuer}
+                          </a>
+                        ))}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+        <h3 class="sp-certs-title">{t.certsTitle}</h3>
+        <ol class="sp-certs">
+          {
+            certificates.map((cert) => (
+              <li>
+                <span class="sp-certs-year">{cert.date.slice(0, 4)}</span>
+                {cert.url ? (
+                  <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                    {cert.name}
+                  </a>
+                ) : (
+                  <span>{cert.name}</span>
+                )}
+                <span class="sp-certs-issuer">{cert.issuer}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <!-- ============ CONTACT POSTER ============ -->
+      <section class="sp-contact" id="contacto" aria-labelledby="contact-title" data-reveal>
+        <div class="sp-contact-grid">
+          <span class="sp-contact-kicker" aria-hidden="true">{t.contactKicker}</span>
+          <h2 id="contact-title">{t.contactTitle}</h2>
+          <p class="sp-contact-text">{t.contactText}</p>
+          <div class="sp-contact-actions">
+            <a class="sp-btn sp-btn-invert" href={`mailto:${c.email}`}>{c.email}</a>
+            <a class="sp-btn sp-btn-ghost" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+          </div>
+          <p class="sp-links sp-links-invert">
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+          </p>
+          <div class="sp-contact-disc" aria-hidden="true"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="sp-footer">
+      <p>© {nowYear} {c.name}</p>
+      <p>{t.footerRole}</p>
+    </footer>
+
+    <script
+      is:inline
+      type="application/json"
+      id="sp-data"
+      set:html={JSON.stringify({
+        stages: c.stages,
+        fields: FIELDS,
+        labels: {
+          stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
+          showing: t.showing(0, 0).replace(/\d+/g, '{n}')
+        }
+      })}
+    />
+    <script>
+      import './poster.ts';
+    </script>
+  </body>
+</html>

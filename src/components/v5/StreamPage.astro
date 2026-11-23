@@ -1,0 +1,622 @@
+---
+/**
+ * Redesign "Event stream" (routes /v5/ and /es/v5/).
+ * The profile reads as a live data stream: dated resume facts replay as events,
+ * the method is a pipeline topology, the career is a consumer group with offsets,
+ * projects are topics and skills are partitions. Standalone page: no main-site JS or Tailwind.
+ */
+import SeoHead from '../common/SeoHead.astro';
+import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
+import { getResume } from '../../data/resume';
+import { getPreviewContent } from '../v3/previewContent';
+import '../../styles/v5.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const seo = getLocaleMetadata(locale);
+const c = getPreviewContent(locale);
+const resume = getResume(locale);
+
+const t = {
+  en: {
+    home: '/v5/',
+    skip: 'Skip to content',
+    sections: 'Sections',
+    nav: { stream: 'Stream', pipeline: 'Pipeline', career: 'Career', topics: 'Projects', skills: 'Skills' },
+    contact: 'Contact',
+    langLabel: 'Language',
+    role: 'Senior Software Engineer',
+    headline: 'Real-time data platforms, and the Go backends that keep them moving.',
+    lede: (years: number) =>
+      `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java, from the first event to the dashboard that reads it.`,
+    write: 'Write to me',
+    cv: 'Download CV',
+    cvOptions: {
+      onePage: ['One page', 'Compact summary'],
+      professional: ['Professional', 'Full detail, minimal layout'],
+      jsonresume: ['JSON Resume', 'Standard format']
+    },
+    streamTitle: 'Replaying my career as an event log',
+    streamTopic: 'topic',
+    pause: 'Pause',
+    resume: 'Resume',
+    replay: 'Replay',
+    columns: ['offset', 'time', 'part.', 'event'],
+    tail: 'waiting for the next event',
+    events: {
+      joined: 'career.joined',
+      enrolled: 'education.enrolled',
+      completed: 'education.completed',
+      cert: 'certification.earned',
+      open: 'status.open'
+    },
+    openValue: 'Open to roles and projects',
+    pipelineTitle: 'How I design data platforms',
+    pipelineIntro:
+      'Seven stages, from the systems that produce data to the people who use it. Select a stage.',
+    stage: (n: number, total: number) => `Stage ${n} / ${total}`,
+    stack: 'Stack',
+    careerTitle: 'Career',
+    careerIntro: 'One consumer group, read in order. Each offset is a job; open it to see what I built.',
+    partition: 'partition',
+    offset: 'offset',
+    now: 'now',
+    highlights: 'What I did',
+    educationTitle: 'Education',
+    topicsTitle: 'Projects',
+    topicsIntro:
+      'Personal and technical work, published as topics. Filter by subject: a project shows if it has any of them.',
+    filterLabel: 'Subjects',
+    all: 'All',
+    clear: 'Clear',
+    showing: (n: number, total: number) => `${n} of ${total} projects`,
+    empty: 'No project matches these subjects.',
+    repo: 'repository',
+    skillsTitle: 'Skills',
+    skillsIntro: 'The stack, split into partitions. Pick one to read its technologies and level.',
+    certified: 'Certified',
+    certsTitle: 'Certifications',
+    commitTitle: 'Send the next event.',
+    commitText: 'Open to data engineering, streaming platform and software architecture roles and projects.',
+    commitAck: 'ack · offset committed',
+    footerRole: 'Senior Software Engineer'
+  },
+  es: {
+    home: '/es/v5/',
+    skip: 'Saltar al contenido',
+    sections: 'Secciones',
+    nav: { stream: 'Stream', pipeline: 'Pipeline', career: 'Carrera', topics: 'Proyectos', skills: 'Skills' },
+    contact: 'Contacto',
+    langLabel: 'Idioma',
+    role: 'Ingeniero de Software Senior',
+    headline: 'Plataformas de datos en tiempo real, y los backends en Go que las mantienen en marcha.',
+    lede: (years: number) =>
+      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java, desde el primer evento hasta el panel que lo lee.`,
+    write: 'Escríbeme',
+    cv: 'Descargar CV',
+    cvOptions: {
+      onePage: ['Una página', 'Resumen compacto · en inglés'],
+      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
+      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+    },
+    streamTitle: 'Mi carrera reproducida como un log de eventos',
+    streamTopic: 'topic',
+    pause: 'Pausar',
+    resume: 'Reanudar',
+    replay: 'Repetir',
+    columns: ['offset', 'fecha', 'part.', 'evento'],
+    tail: 'esperando el siguiente evento',
+    events: {
+      joined: 'career.joined',
+      enrolled: 'education.enrolled',
+      completed: 'education.completed',
+      cert: 'certification.earned',
+      open: 'status.open'
+    },
+    openValue: 'Abierto a puestos y proyectos',
+    pipelineTitle: 'Cómo diseño plataformas de datos',
+    pipelineIntro:
+      'Siete etapas, de los sistemas que producen datos a las personas que los usan. Elige una etapa.',
+    stage: (n: number, total: number) => `Etapa ${n} / ${total}`,
+    stack: 'Stack',
+    careerTitle: 'Carrera',
+    careerIntro: 'Un consumer group leído en orden. Cada offset es un puesto; ábrelo para ver qué construí.',
+    partition: 'partición',
+    offset: 'offset',
+    now: 'ahora',
+    highlights: 'Qué hice',
+    educationTitle: 'Formación',
+    topicsTitle: 'Proyectos',
+    topicsIntro:
+      'Trabajo personal y técnico, publicado como topics. Filtra por tema: un proyecto aparece si tiene alguno.',
+    filterLabel: 'Temas',
+    all: 'Todos',
+    clear: 'Limpiar',
+    showing: (n: number, total: number) => `${n} de ${total} proyectos`,
+    empty: 'Ningún proyecto coincide con estos temas.',
+    repo: 'repositorio',
+    skillsTitle: 'Skills',
+    skillsIntro: 'El stack, repartido en particiones. Elige una para ver sus tecnologías y nivel.',
+    certified: 'Certificado',
+    certsTitle: 'Certificaciones',
+    commitTitle: 'Envía el siguiente evento.',
+    commitText:
+      'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    commitAck: 'ack · offset confirmado',
+    footerRole: 'Ingeniero de Software Senior'
+  }
+}[locale];
+
+const today = new Date();
+const nowYear = today.getFullYear();
+const years = nowYear - Math.min(...c.work.map((job) => job.start));
+const pad = (n: number, size = 4) => String(n).padStart(size, '0');
+
+// ---------- Event log: only dated facts from the resume, oldest first ----------
+interface StreamEvent {
+  ts: string;
+  partition: number;
+  key: string;
+  value: string;
+}
+const events: StreamEvent[] = [];
+resume.work.forEach((job) => {
+  events.push({
+    ts: job.startDate,
+    partition: 0,
+    key: t.events.joined,
+    value: `${job.name} · ${job.position}`
+  });
+});
+resume.education.forEach((item) => {
+  const label = `${item.institution} · ${item.studyType}`;
+  events.push({ ts: item.startDate, partition: 1, key: t.events.enrolled, value: label });
+  if (item.endDate) events.push({ ts: item.endDate, partition: 1, key: t.events.completed, value: label });
+});
+c.certificateDetails.forEach((cert) => {
+  if (cert.date)
+    events.push({ ts: cert.date.slice(0, 7), partition: 2, key: t.events.cert, value: cert.name });
+});
+events.sort((a, b) => a.ts.localeCompare(b.ts) || a.partition - b.partition);
+events.push({
+  ts: `${nowYear}-${String(today.getMonth() + 1).padStart(2, '0')}`,
+  partition: 0,
+  key: t.events.open,
+  value: t.openValue
+});
+
+// ---------- Projects ----------
+const tagCounts = new Map<string, number>();
+c.projects.forEach((project) =>
+  project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1))
+);
+const allTags = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .map(([tag]) => tag);
+const topicName = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\(.*?\)/g, '')
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+const levelMap: Record<string, number> = {
+  Advanced: 2,
+  Intermediate: 1,
+  Expert: 3,
+  Avanzado: 2,
+  Intermedio: 1,
+  Experto: 3
+};
+const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
+const work = [...c.work].sort((a, b) => b.start - a.start);
+const education = [...c.education].sort((a, b) => b.start - a.start);
+
+const payload = {
+  stages: c.stages,
+  labels: {
+    stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
+    showing: t.showing(0, 0).replace(/\d+/g, '{n}'),
+    pause: t.pause,
+    resume: t.resume,
+    replay: t.replay
+  }
+};
+---
+
+<html lang={locale}>
+  <head>
+    <SeoHead
+      title={seo.title}
+      description={seo.description}
+      canonical={seo.canonical}
+      ogLocale={seo.ogLocale}
+      ogLocaleAlternate={seo.ogLocaleAlternate}
+      ogTitle={seo.ogTitle}
+      ogDescription={seo.ogDescription}
+      alternates={getAlternateLinks()}
+      noindex
+    />
+    <link
+      rel="preload"
+      href="/assets/fonts/instrument-serif-400-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="/assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0d0c0a" />
+  </head>
+  <body class="es">
+    <a class="es-skip" href="#main">{t.skip}</a>
+
+    <header class="es-bar">
+      <a class="es-brand" href={t.home} aria-label="David Barreiro">
+        <span class="es-brand-dot" aria-hidden="true"></span>
+        <span class="es-brand-name">david<span>.</span>barreiro</span>
+      </a>
+      <nav class="es-nav" aria-label={t.sections}>
+        <a href="#stream">{t.nav.stream}</a>
+        <a href="#pipeline">{t.nav.pipeline}</a>
+        <a href="#carrera">{t.nav.career}</a>
+        <a href="#proyectos">{t.nav.topics}</a>
+        <a href="#skills">{t.nav.skills}</a>
+      </nav>
+      <div class="es-bar-end">
+        <div class="es-lang" role="group" aria-label={t.langLabel}>
+          <a href="/v5/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+          <a href="/es/v5/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+        </div>
+        <a class="es-btn es-btn-sm" href="#contacto">{t.contact}</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ============ HERO + STREAM ============ -->
+      <section class="es-hero" id="stream" aria-labelledby="es-title">
+        <div class="es-hero-copy">
+          <h1 id="es-title" class="es-name">David <em>Barreiro</em></h1>
+          <p class="es-role"><span class="es-live" aria-hidden="true"></span>{t.role}</p>
+          <p class="es-headline">{t.headline}</p>
+          <p class="es-lede">{t.lede(years)}</p>
+          <div class="es-actions">
+            <a class="es-btn" href={`mailto:${c.email}`}>{t.write}</a>
+            <details class="es-cv" data-cv>
+              <summary class="es-btn es-btn-line">{t.cv}</summary>
+              <ul>
+                {
+                  c.cvOptions.map((option) => (
+                    <li>
+                      <a href={option.href} target="_blank" rel="noopener noreferrer">
+                        <strong>{t.cvOptions[option.key][0]}</strong>
+                        <span>{t.cvOptions[option.key][1]}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
+          </div>
+          <p class="es-links">
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </p>
+        </div>
+
+        <figure class="es-console" data-stream>
+          <figcaption class="es-console-head">
+            <span class="es-console-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="es-console-title">
+              <span class="es-mono-dim">{t.streamTopic}</span> david-barreiro.career
+            </span>
+            <button type="button" class="es-console-btn" data-stream-toggle aria-pressed="false" hidden>
+              <span data-stream-label>{t.pause}</span>
+            </button>
+          </figcaption>
+          <p class="es-sr">{t.streamTitle}</p>
+          <div class="es-console-cols" aria-hidden="true">
+            {t.columns.map((col) => <span>{col}</span>)}
+          </div>
+          <div class="es-console-body">
+            <ol class="es-log" aria-label={t.streamTitle}>
+              {
+                events.map((event, index) => (
+                  <li class={`es-p${event.partition}`}>
+                    <span class="es-log-offset">{pad(index)}</span>
+                    <span class="es-log-ts">{event.ts}</span>
+                    <span class="es-log-part">p{event.partition}</span>
+                    <span class="es-log-event">
+                      <span class="es-log-key">{event.key}</span>
+                      <span class="es-log-value">{event.value}</span>
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+          <p class="es-console-tail" aria-hidden="true"><span class="es-caret"></span>{t.tail}</p>
+        </figure>
+      </section>
+
+      <!-- ============ PIPELINE ============ -->
+      <section class="es-section" id="pipeline" aria-labelledby="pipeline-title" data-pipeline>
+        <header class="es-head">
+          <p class="es-head-num" aria-hidden="true">01</p>
+          <h2 id="pipeline-title">{t.pipelineTitle}</h2>
+          <p class="es-head-intro">{t.pipelineIntro}</p>
+        </header>
+
+        <div class="es-topology">
+          <ol class="es-stages" role="list">
+            {
+              c.stages.map((stage, index) => (
+                <li>
+                  <button type="button" data-stage={index} aria-pressed={index === 0 ? 'true' : 'false'}>
+                    <span class="es-stage-node" aria-hidden="true">
+                      {pad(index + 1, 2)}
+                    </span>
+                    <span class="es-stage-name">{stage.name}</span>
+                  </button>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="es-wire" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+
+        <div class="es-stage-panel" aria-live="polite" data-stage-panel>
+          <p class="es-stage-meta" data-stage-meta>{t.stage(1, c.stages.length)}</p>
+          <p class="es-stage-title" data-stage-title>{c.stages[0].name}</p>
+          <p class="es-stage-detail" data-stage-detail>{c.stages[0].detail}</p>
+          <div class="es-stage-stack">
+            <span class="es-mono-dim">{t.stack}</span>
+            <ul data-stage-tech>
+              {c.stages[0].tech.map((tech) => <li>{tech}</li>)}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CAREER ============ -->
+      <section class="es-section" id="carrera" aria-labelledby="career-title">
+        <header class="es-head">
+          <p class="es-head-num" aria-hidden="true">02</p>
+          <h2 id="career-title">{t.careerTitle}</h2>
+          <p class="es-head-intro">{t.careerIntro}</p>
+        </header>
+
+        <ol class="es-offsets">
+          {
+            work.map((job, index) => (
+              <li>
+                <details open={index === 0}>
+                  <summary>
+                    <span class="es-off-meta">
+                      <span>
+                        {t.offset} {pad(work.length - 1 - index)}
+                      </span>
+                      <span>
+                        {job.start} → {job.end ?? t.now}
+                      </span>
+                    </span>
+                    <span class="es-off-org">{job.organisation}</span>
+                    <span class="es-off-role">{job.role}</span>
+                    <span class="es-off-toggle" aria-hidden="true" />
+                  </summary>
+                  <div class="es-off-body">
+                    {job.summary && <p class="es-off-summary">{job.summary}</p>}
+                    {job.highlights.length > 0 && (
+                      <>
+                        <h3>{t.highlights}</h3>
+                        <ul class="es-off-highlights">
+                          {job.highlights.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    {job.tech.length > 0 && (
+                      <ul class="es-tags">
+                        {job.tech.map((tech) => (
+                          <li>{tech}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </details>
+              </li>
+            ))
+          }
+        </ol>
+
+        <h3 class="es-sub">{t.educationTitle}</h3>
+        <ul class="es-edu">
+          {
+            education.map((item) => (
+              <li>
+                <span class="es-edu-years">
+                  {item.start} → {item.end ?? t.now}
+                </span>
+                <span class="es-edu-org">{item.organisation}</span>
+                <span class="es-edu-role">{item.role}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- ============ PROJECTS / TOPICS ============ -->
+      <section class="es-section" id="proyectos" aria-labelledby="topics-title" data-projects>
+        <header class="es-head">
+          <p class="es-head-num" aria-hidden="true">03</p>
+          <h2 id="topics-title">{t.topicsTitle}</h2>
+          <p class="es-head-intro">{t.topicsIntro}</p>
+        </header>
+
+        <div class="es-filter" role="group" aria-label={t.filterLabel}>
+          <button type="button" class="es-chip" data-tag="" aria-pressed="true">{t.all}</button>
+          {
+            allTags.map((tag) => (
+              <button type="button" class="es-chip" data-tag={tag} aria-pressed="false">
+                {tag}
+              </button>
+            ))
+          }
+        </div>
+        <p class="es-filter-status">
+          <span data-count>{t.showing(c.projects.length, c.projects.length)}</span>
+          <button type="button" class="es-clear" data-clear hidden>{t.clear}</button>
+        </p>
+
+        <ol class="es-topics">
+          {
+            c.projects.map((project) => (
+              <li data-tags={JSON.stringify(project.allTags)}>
+                <p class="es-topic-id">{topicName(project.name)}</p>
+                <h3>
+                  {project.url ? (
+                    <a href={project.url} target="_blank" rel="noopener noreferrer">
+                      {project.name}
+                      <span class="es-arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                      <span class="es-sr">({t.repo})</span>
+                    </a>
+                  ) : (
+                    project.name
+                  )}
+                </h3>
+                <p class="es-topic-desc">{project.oneLiner}</p>
+                <ul class="es-tags">
+                  {project.allTags.map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="es-empty" data-empty hidden>{t.empty}</p>
+      </section>
+
+      <!-- ============ SKILLS / PARTITIONS ============ -->
+      <section class="es-section" id="skills" aria-labelledby="skills-title">
+        <header class="es-head">
+          <p class="es-head-num" aria-hidden="true">04</p>
+          <h2 id="skills-title">{t.skillsTitle}</h2>
+          <p class="es-head-intro">{t.skillsIntro}</p>
+        </header>
+
+        <div class="es-partitions" role="tablist" aria-label={t.skillsTitle}>
+          {
+            c.skillGroups.map((group, index) => (
+              <button
+                type="button"
+                role="tab"
+                id={`part-tab-${index}`}
+                aria-controls={`part-panel-${index}`}
+                aria-selected={index === 0 ? 'true' : 'false'}
+                tabindex={index === 0 ? 0 : -1}
+              >
+                <span class="es-part-id">p{index}</span>
+                {group.name}
+              </button>
+            ))
+          }
+        </div>
+        {
+          c.skillGroups.map((group, index) => (
+            <div
+              class="es-part-panel"
+              role="tabpanel"
+              id={`part-panel-${index}`}
+              aria-labelledby={`part-tab-${index}`}
+              hidden={index !== 0}
+            >
+              <ul class="es-skill-grid">
+                {group.keywords.map((skill) => (
+                  <li>
+                    {skill.logo ? (
+                      <img src={skill.logo} alt="" width="32" height="32" loading="lazy" />
+                    ) : (
+                      <span class="es-skill-ph" aria-hidden="true" />
+                    )}
+                    <div>
+                      <p class="es-skill-name">{skill.name}</p>
+                      <p class="es-skill-level">
+                        <span class="es-meter" aria-hidden="true">
+                          {[1, 2, 3].map((n) => (
+                            <i class:list={{ on: n <= (levelMap[skill.level] ?? 0) }} />
+                          ))}
+                        </span>
+                        {skill.level}
+                      </p>
+                      {skill.certifications.map((cert) => (
+                        <a class="es-cert-badge" href={cert.url} target="_blank" rel="noopener noreferrer">
+                          {t.certified} · {cert.issuer}
+                        </a>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+
+        <h3 class="es-sub">{t.certsTitle}</h3>
+        <ul class="es-certs">
+          {
+            certificates.map((cert) => (
+              <li>
+                <span class="es-certs-date">{cert.date.slice(0, 7)}</span>
+                {cert.url ? (
+                  <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                    {cert.name}
+                  </a>
+                ) : (
+                  <span>{cert.name}</span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- ============ CONTACT: commit ============ -->
+      <section class="es-commit" id="contacto" aria-labelledby="contact-title">
+        <p class="es-commit-cmd" aria-hidden="true">
+          <span class="es-mono-dim">$</span> producer.send(<span class="es-commit-str">"{c.email}"</span>)
+        </p>
+        <h2 id="contact-title">{t.commitTitle}</h2>
+        <p class="es-commit-text">{t.commitText}</p>
+        <div class="es-actions">
+          <a class="es-btn es-btn-signal" href={`mailto:${c.email}`}>{c.email}</a>
+          <a class="es-btn es-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+        </div>
+        <p class="es-links">
+          <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+        <p class="es-commit-ack" aria-hidden="true"><span class="es-ack-dot"></span>{t.commitAck}</p>
+      </section>
+    </main>
+
+    <footer class="es-footer">
+      <p>© {nowYear} {c.name} · {t.footerRole}</p>
+    </footer>
+
+    <script is:inline type="application/json" id="es-data" set:html={JSON.stringify(payload)} />
+    <script>
+      import './stream.ts';
+    </script>
+  </body>
+</html>
