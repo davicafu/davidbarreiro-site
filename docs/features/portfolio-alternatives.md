@@ -18,6 +18,7 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T1  | S1, S4, S5 | inline | done                          | L4       |
 | T2  | S2, S4, S5 | inline | done                          | L5, L6   |
 | T3  | S3         | inline | blocked on the owner's choice |          |
+| T4  | S2, S4, S5 | inline | done                          | L7, L8   |
 
 ## Non-goals
 
@@ -33,4 +34,14 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L4 (T1): `/v2/` and `/es/v2/` built. Main pages diff against the pre-change build: identical except the CSS bundle filename (same content hash). Screenshots at 1440 and 390 show no JS errors and no horizontal overflow at 390px (scrollWidth 390). Lint passes. Tests 5/6: `flow-tip` marker failing before and after this change.
 - L5 (T2): Three previews built at `/v3/a/` (technical document), `/v3/b/` (metro map) and `/v3/c/` (strip-chart recorder), plus a comparison page at `/v3/`. They share `src/components/v3/previewContent.ts` and are written in Spanish. Captures at 1440 and 390 show no JS errors and no horizontal overflow. Route: inline, because parallel writers would share Astro's build cache and output directory, so their units were not independently verifiable.
 - L6 (T2): Adding non-layout pages split the CSS and exposed a duplicated Tailwind copy on `/`: the integration injected base styles on top of the `@tailwind` directives already in `global.css`, taking the CSS from 21 KB to 38 KB. Fix: `tailwind({ applyBaseStyles: false })`, and v3 is excluded from the Tailwind content scan. Evidence: a `main` build in a scratch worktree compared with this branch shows the `/` and `/es/` HTML identical, the CSS byte-identical (same `BaseLayout.BKhNz53n.css`) and no new JS chunks.
+- L7 (2026-11-23, owner feedback, verbatim): "pues no me gusta ninguna de las 3 opciones (la unica un poco original la del metro) ni la version mejorada, puedes hacerlo bastante mejor". Asked what is missing, the owner answered "tanto la 1 como la 2, le faltan ambas" (impact and interaction, plus a premium finish).
+- L8 (T4): A new redesign at `/v4/` and `/es/v4/` builds on the metro idea:
+  - a live network map with animated trains (paused off-screen, when the visitor pauses it, or under reduced motion) and keyboard-operable stations that feed a departure board, plus a vertical list on phones
+  - a career line with expandable stops, a multi-select project filter with a count, and skill zones as ARIA tabs (logo, level and certifications)
+  - a CV menu with the 3 PDFs, an EN/ES switch, and Schibsted Grotesk self-hosted in `assets/fonts/`
+  - standalone, like `/v3/`: no Tailwind and no main-site JS.
+  Evidence:
+  - a browser probe confirmed the station click and Enter, pause, filter and clear, tab arrow keys, and Escape closing the CV menu, with no page errors
+  - captures at 1440 and 390 show no overflow
+  - `/` and `/es/` HTML and CSS are identical to the `main` build
 

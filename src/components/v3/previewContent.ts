@@ -16,6 +16,21 @@ export interface PreviewEntry {
   period: string;
   summary: string;
   tech: string[];
+  highlights: string[];
+}
+
+export interface PreviewCertificate {
+  name: string;
+  issuer: string;
+  date: string;
+  url: string;
+}
+
+export interface PreviewSkill {
+  name: string;
+  level: string;
+  logo: string;
+  certifications: PreviewCertificate[];
 }
 
 export interface PreviewStage {
@@ -29,7 +44,23 @@ export interface PreviewProject {
   url: string;
   oneLiner: string;
   tags: string[];
+  allTags: string[];
 }
+
+const toCertificate = (cert: {
+  name?: string;
+  issuer?: string;
+  date?: string;
+  url?: string;
+}): PreviewCertificate => ({
+  name: cert.name || '',
+  issuer: cert.issuer || '',
+  date: cert.date || '',
+  url: cert.url || ''
+});
+
+// resume.json stores logos as "./assets/..."; pages live at nested routes, so make them root-relative.
+const toPublicPath = (value: unknown) => (typeof value === 'string' ? value.replace(/^\.\//, '/') : '');
 
 const PROJECT_ONE_LINERS: Record<Locale, Record<string, string>> = {
   en: {
@@ -125,7 +156,8 @@ export function getPreviewContent(locale: Locale) {
       end,
       period: `${start}–${end ?? copy.present}`,
       summary: job.summary,
-      tech: Array.isArray(job.tech) ? job.tech : []
+      tech: Array.isArray(job.tech) ? job.tech : [],
+      highlights: Array.isArray(job.highlights) ? job.highlights : []
     };
   });
 
@@ -140,7 +172,8 @@ export function getPreviewContent(locale: Locale) {
       end,
       period: `${start}–${end ?? copy.present}`,
       summary: '',
-      tech: Array.isArray(item.tech) ? item.tech : []
+      tech: Array.isArray(item.tech) ? item.tech : [],
+      highlights: []
     };
   });
 
@@ -154,7 +187,27 @@ export function getPreviewContent(locale: Locale) {
     name: project.name,
     url: 'url' in project && typeof project.url === 'string' ? project.url : '',
     oneLiner: PROJECT_ONE_LINERS[locale][project.name] ?? project.description,
-    tags: Array.isArray(project.highlights) ? project.highlights.slice(0, 4) : []
+    tags: Array.isArray(project.highlights) ? project.highlights.slice(0, 4) : [],
+    allTags: Array.isArray(project.highlights) ? project.highlights : []
+  }));
+
+  const skillGroups = resume.skills.map((group) => ({
+    name: group.name,
+    level: group.level || '',
+    keywords: (group.keywords || []).map(
+      (keyword): PreviewSkill =>
+        typeof keyword === 'string'
+          ? { name: keyword, level: '', logo: '', certifications: [] }
+          : {
+              name: keyword.name || '',
+              level: keyword.level || '',
+              logo: toPublicPath(keyword.logo),
+              certifications:
+                'certifications' in keyword && Array.isArray(keyword.certifications)
+                  ? keyword.certifications.map(toCertificate)
+                  : []
+            }
+    )
   }));
 
   const skills = resume.skills.map((group) => ({
@@ -179,7 +232,14 @@ export function getPreviewContent(locale: Locale) {
     stages,
     projects,
     skills,
-    certificates: (resume.certificates || []).map((cert) => cert.name)
+    skillGroups,
+    certificates: (resume.certificates || []).map((cert) => cert.name),
+    certificateDetails: (resume.certificates || []).map(toCertificate),
+    cvOptions: [
+      { href: '/cv-one-page.pdf', key: 'onePage' },
+      { href: '/cv-professional.pdf', key: 'professional' },
+      { href: '/cv-jsonresume.pdf', key: 'jsonresume' }
+    ] as const
   };
 }
 

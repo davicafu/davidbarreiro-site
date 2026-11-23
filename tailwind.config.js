@@ -1,7 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // The /v3 redesign previews are self-styled and must not add utilities to the main stylesheet.
-  content: ['./src/**/*.{astro,html,js}', '!./src/components/v3/**', '!./src/pages/v3/**'],
+  // The /v3 and /v4 redesigns are self-styled and must not add utilities to the main stylesheet.
+  content: [
+    './src/**/*.{astro,html,js}',
+    '!./src/components/v3/**',
+    '!./src/pages/v3/**',
+    '!./src/components/v4/**',
+    '!./src/pages/v4/**',
+    '!./src/pages/es/v4/**'
+  ],
   safelist: [
     'bg-slate-950/85',
     'bg-slate-950/78',
