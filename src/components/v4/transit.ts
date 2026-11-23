@@ -12,8 +12,9 @@ interface StopInfo {
 
 interface StopsPayload {
   data: StopInfo[];
-  career: StopInfo[];
-  labels: { station: string; careerStop: string; total: number; showing: string };
+  work: StopInfo[];
+  edu: StopInfo[];
+  labels: { station: string; workStop: string; eduStop: string; total: number; showing: string };
 }
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -36,16 +37,18 @@ function setupBoard(data: StopsPayload) {
   const show = (key: string) => {
     const [line, rawIndex] = key.split('-');
     const index = Number(rawIndex);
-    const info = line === 'career' ? data.career[index] : data.data[index];
+    const info = line === 'work' ? data.work[index] : line === 'edu' ? data.edu[index] : data.data[index];
     if (!info) return;
     board.classList.remove('is-flipping');
     void board.offsetWidth; // restart the flip animation
     board.classList.add('is-flipping');
     if (meta) {
       meta.textContent =
-        line === 'career'
-          ? data.labels.careerStop
-          : data.labels.station.replace('{n}', String(index + 1)).replace('{n}', String(data.labels.total));
+        line === 'work'
+          ? data.labels.workStop
+          : line === 'edu'
+            ? data.labels.eduStop
+            : data.labels.station.replace('{n}', String(index + 1)).replace('{n}', String(data.labels.total));
     }
     if (name) name.textContent = info.name;
     if (detail) detail.textContent = info.detail;
@@ -185,6 +188,13 @@ function setupFilter(showingTemplate: string) {
       render();
     })
   );
+  const more = section.querySelector<HTMLButtonElement>('[data-more]');
+  more?.addEventListener('click', () => {
+    const expanded = more.getAttribute('aria-expanded') !== 'true';
+    more.setAttribute('aria-expanded', String(expanded));
+    more.textContent = (expanded ? more.dataset.labelLess : more.dataset.labelMore) || '';
+    section.querySelector('.tn-filter')?.classList.toggle('is-expanded', expanded);
+  });
   clear?.addEventListener('click', () => {
     selected.clear();
     render();

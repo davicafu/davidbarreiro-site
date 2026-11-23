@@ -19,6 +19,8 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T2  | S2, S4, S5 | inline | done                          | L5, L6   |
 | T3  | S3         | inline | blocked on the owner's choice |          |
 | T4  | S2, S4, S5 | inline | done                          | L7, L8   |
+| T5  | S2, S4, S5 | inline | done                          | L9, L10  |
+| T6  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | in progress | L9 |
 
 ## Non-goals
 
@@ -44,4 +46,6 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - a browser probe confirmed the station click and Enter, pause, filter and clear, tab arrow keys, and Escape closing the CV menu, with no page errors
   - captures at 1440 and 390 show no overflow
   - `/` and `/es/` HTML and CSS are identical to the `main` build
+- L9 (2026-11-23, owner feedback, verbatim): "esta versión esta mucho mejor, quizas cambiaria alguna cosa pero esta si ya esta mejor, aunque en las lineas de metro meteria una a la educiacion y otra a como diseño como ahora, y meteria otra como la linea laboral y despues que estne debajo como la experiencia laboral, pero esta si que tiene buena pinta, hazme dos más asi diferentes con estilo y las comprarmos, esta siguela mejorando tambien". T6: two more redesigns, `/v5/` (event stream) and `/v6/` (Swiss poster), built by parallel writers with disjoint edit surfaces.
+- L10 (T5): `/v4/` now has three map lines: data method (red), work (blue, meets data at the current job) and education (green, crosses work at the first job). The section below holds work experience only, with education as a compact block. The project filter shows the 10 most frequent topics plus a toggle. The probe verifies the education and work stop boards, the topic toggle (11→32 chips) and all previous interactions; it reports no errors and no overflow at 390.
 

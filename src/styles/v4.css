@@ -31,6 +31,7 @@
   --rule: #d9d5cb;
   --data: #e4002b;
   --career: #0a5ec2;
+  --edu: #00985f;
   --board: #141414;
   --board-ink: #ffcc00;
   --focus: #0a5ec2;
@@ -440,6 +441,10 @@
   stroke: var(--career);
   animation: tn-draw 1.2s 0.7s var(--ease-out) both;
 }
+.tn-line-edu {
+  stroke: var(--edu);
+  animation: tn-draw 1s 1s var(--ease-out) both;
+}
 .tn-train rect {
   fill: #fff;
   stroke: var(--ink);
@@ -474,13 +479,11 @@
   transform-box: fill-box;
   transform-origin: center;
 }
-.tn-stop-career .tn-dot {
+.tn-stop-career .tn-dot,
+.tn-stop-edu .tn-dot {
   stroke-width: 4;
   transform-box: fill-box;
   transform-origin: center;
-}
-.tn-stop.is-education .tn-dot {
-  fill: var(--paper-2);
 }
 .tn-stop:hover .tn-dot,
 .tn-stop:focus-visible .tn-dot,
@@ -492,6 +495,12 @@
 }
 .tn-stop-career.is-active .tn-dot {
   fill: var(--career);
+}
+.tn-stop-edu.is-active .tn-dot {
+  fill: var(--edu);
+}
+.tn-stop-edu .tn-year {
+  fill: var(--edu);
 }
 .tn-stop:focus-visible .tn-ring {
   stroke: var(--focus);
@@ -621,6 +630,9 @@
 .tn-swatch-career {
   background: var(--career);
 }
+.tn-swatch-edu {
+  background: var(--edu);
+}
 
 /* Phone version of the line */
 .tn-line-list {
@@ -703,9 +715,6 @@
   position: relative;
   z-index: 1;
   transition: background-color 0.2s;
-}
-.tn-stops li.is-education summary::before {
-  background: var(--paper-2);
 }
 .tn-stops details[open] summary::before {
   background: var(--career);
@@ -790,6 +799,39 @@
   font-weight: 600;
 }
 
+/* Education (compact, below work experience) */
+.tn-edu-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 3rem 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+.tn-edu > li {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 0 calc(30px + 2.5rem);
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.tn-edu .tn-stops-period {
+  color: var(--edu);
+}
+.tn-edu-org {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.tn-edu-role {
+  color: var(--ink-2);
+}
+.tn-edu-tech {
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+  color: var(--ink-3);
+}
+
 /* Projects */
 .tn-filter {
   display: flex;
@@ -811,6 +853,19 @@
 }
 .tn-chip:hover {
   border-color: var(--ink);
+}
+.tn-filter:not(.is-expanded) .tn-chip.is-extra:not([aria-pressed='true']) {
+  display: none;
+}
+.tn-more {
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  background: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
 }
 .tn-chip[aria-pressed='true'] {
   background: var(--ink);
@@ -1303,6 +1358,10 @@
   .tn-certs li {
     flex-direction: column;
     gap: 0.15rem;
+  }
+  .tn-edu > li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem;
   }
 }
 

@@ -21,7 +21,13 @@ const c = getPreviewContent(locale);
 const t = {
   en: {
     home: '/v4/',
-    nav: { network: 'Network', career: 'Career', projects: 'Projects', skills: 'Skills', contact: 'Contact' },
+    nav: {
+      network: 'Network',
+      career: 'Experience',
+      projects: 'Projects',
+      skills: 'Skills',
+      contact: 'Contact'
+    },
     langLabel: 'Language',
     eyebrowless: 'Senior Software Engineer',
     headline: 'I design real-time data platforms and the Go backends that move them.',
@@ -38,15 +44,17 @@ const t = {
     mapTitle: 'How I design data platforms',
     mapHint: 'Select a station to see what it solves.',
     legendData: 'Data line: the seven stages of a platform',
-    legendCareer: 'Career line: from university to today',
+    legendWork: 'Work line: every job, up to today',
+    legendEdu: 'Education line: university and further study',
     pause: 'Pause trains',
     resume: 'Resume trains',
     stationOf: (n: number, total: number) => `Station ${n} of ${total}`,
     connections: 'Connections',
-    careerStop: 'Career stop',
+    workStop: 'Work line',
+    eduStop: 'Education line',
     today: 'today',
-    careerTitle: 'Career line',
-    careerIntro: 'Every stop since university. Open one to see what I built there.',
+    careerTitle: 'Work experience',
+    careerIntro: 'Every stop on the work line. Open one to see what I built there.',
     education: 'Education',
     highlights: 'What I did',
     projectsTitle: 'Project lines',
@@ -56,6 +64,8 @@ const t = {
     filterLabel: 'Topics',
     showing: (n: number, total: number) => `${n} of ${total} projects`,
     clear: 'Clear',
+    moreTopics: (n: number) => `${n} more topics`,
+    lessTopics: 'Fewer topics',
     empty: 'No project matches these topics.',
     repo: 'Repository',
     skillsTitle: 'Skill zones',
@@ -72,7 +82,13 @@ const t = {
   },
   es: {
     home: '/es/v4/',
-    nav: { network: 'Red', career: 'Carrera', projects: 'Proyectos', skills: 'Skills', contact: 'Contacto' },
+    nav: {
+      network: 'Red',
+      career: 'Experiencia',
+      projects: 'Proyectos',
+      skills: 'Skills',
+      contact: 'Contacto'
+    },
     langLabel: 'Idioma',
     eyebrowless: 'Ingeniero de Software Senior',
     headline: 'Diseño plataformas de datos en tiempo real y los backends en Go que las mueven.',
@@ -89,15 +105,17 @@ const t = {
     mapTitle: 'Cómo diseño plataformas de datos',
     mapHint: 'Elige una estación para ver qué resuelve.',
     legendData: 'Línea de datos: las siete etapas de una plataforma',
-    legendCareer: 'Línea de carrera: de la universidad a hoy',
+    legendWork: 'Línea laboral: cada empresa, hasta hoy',
+    legendEdu: 'Línea de formación: universidad y estudios',
     pause: 'Pausar trenes',
     resume: 'Reanudar trenes',
     stationOf: (n: number, total: number) => `Estación ${n} de ${total}`,
     connections: 'Correspondencias',
-    careerStop: 'Parada de carrera',
+    workStop: 'Línea laboral',
+    eduStop: 'Línea de formación',
     today: 'hoy',
-    careerTitle: 'Línea de carrera',
-    careerIntro: 'Cada parada desde la universidad. Abre una para ver qué construí allí.',
+    careerTitle: 'Experiencia laboral',
+    careerIntro: 'Cada parada de la línea laboral. Abre una para ver qué construí allí.',
     education: 'Formación',
     highlights: 'Qué hice',
     projectsTitle: 'Líneas de proyecto',
@@ -107,6 +125,8 @@ const t = {
     filterLabel: 'Temas',
     showing: (n: number, total: number) => `${n} de ${total} proyectos`,
     clear: 'Limpiar',
+    moreTopics: (n: number) => `${n} temas más`,
+    lessTopics: 'Menos temas',
     empty: 'Ningún proyecto coincide con estos temas.',
     repo: 'Repositorio',
     skillsTitle: 'Zonas de skills',
@@ -127,9 +147,12 @@ const nowYear = new Date().getFullYear();
 const firstWorkYear = Math.min(...c.work.map((job) => job.start));
 const years = nowYear - firstWorkYear;
 
-// ---------- Map geometry (viewBox 0 -50 1000 620; top margin holds the rotated labels) ----------
+// ---------- Map geometry (viewBox 0 -50 1000 720; top margin holds the rotated labels) ----------
+// Three lines: the data-platform method (red), work (blue) and education (green).
+// Work meets the data line at the current job; education crosses work at the first job.
 const DATA_PATH = 'M 40 120 H 330 L 470 260 H 790 L 910 380 H 965';
-const CAREER_PATH = 'M 70 500 H 380 L 520 360 V 260';
+const WORK_PATH = 'M 260 560 H 420 L 520 460 V 260';
+const EDU_PATH = 'M 60 440 H 200 L 260 500 V 640';
 const dataStops = [
   [70, 120],
   [190, 120],
@@ -140,31 +163,52 @@ const dataStops = [
   [945, 380]
 ].map(([x, y], index) => ({ x, y, ...c.stages[index], index }));
 
-const careerAscending = [...c.timeline].reverse(); // oldest first
-const careerSlots = [
-  [100, 500, 'below'],
-  [200, 500, 'below'],
-  [300, 500, 'below'],
-  [450, 430, 'left'],
-  [520, 320, 'left'],
-  [520, 260, 'interchange']
-] as const;
-// The latest stop always sits on the interchange; earlier ones fill the line from the left.
-const careerStops = careerAscending.map((entry, index) => {
-  const slot =
-    index === careerAscending.length - 1 ? careerSlots.length - 1 : Math.min(index, careerSlots.length - 2);
-  const [x, y, label] = careerSlots[slot];
-  return { ...entry, x, y, label, index };
-});
+type LabelSide = 'below' | 'left' | 'right' | 'aboveLeft' | 'none';
+const placeStops = <T,>(
+  entries: T[],
+  first: [number, number, LabelSide],
+  middle: [number, number, LabelSide][],
+  last: [number, number, LabelSide]
+) =>
+  entries.map((entry, index) => {
+    const [x, y, label] =
+      index === 0
+        ? first
+        : index === entries.length - 1
+          ? last
+          : middle[Math.min(index - 1, middle.length - 1)];
+    return { ...entry, x, y, label, index };
+  });
+
+const byStart = <T extends { start: number }>(list: T[]) => [...list].sort((a, b) => a.start - b.start);
+// First job sits on the education interchange; the current job sits on the data-line interchange (drawn there).
+const workStops = placeStops(
+  byStart(c.work),
+  [260, 560, 'aboveLeft'],
+  [
+    [370, 560, 'below'],
+    [520, 380, 'left'],
+    [470, 510, 'left']
+  ],
+  [520, 260, 'none']
+);
+const eduStops = placeStops(
+  byStart(c.education),
+  [100, 440, 'below'],
+  [[160, 440, 'below']],
+  [260, 630, 'right']
+);
 const shortOrg = (name: string) => name.match(/\(([^)]+)\)\s*$/)?.[1] ?? name.replace(/\s+S\.L\.$/, '');
+const toBoard = (stop: (typeof workStops)[number]) => ({
+  name: stop.organisation,
+  detail: `${stop.period} · ${stop.role}${stop.summary ? ` — ${stop.summary}` : ''}`,
+  tech: stop.tech
+});
 
 const stopsData = {
   data: dataStops.map((stop) => ({ name: stop.name, detail: stop.detail, tech: stop.tech })),
-  career: careerStops.map((stop) => ({
-    name: stop.organisation,
-    detail: `${stop.period} · ${stop.role}${stop.summary ? ` — ${stop.summary}` : ''}`,
-    tech: stop.tech
-  }))
+  work: workStops.map(toBoard),
+  edu: eduStops.map(toBoard)
 };
 
 // ---------- Projects ----------
@@ -173,6 +217,8 @@ const tagCounts = new Map<string, number>();
 c.projects.forEach((project) =>
   project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1))
 );
+// Most frequent topics first; the long tail stays behind a toggle so the filter stays scannable.
+const PRIMARY_TAGS = 10;
 const allTags = [...tagCounts.entries()]
   .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
   .map(([tag]) => tag);
@@ -288,13 +334,15 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
           </div>
 
           <!-- Desktop / tablet: the drawn map -->
-          <svg class="tn-map" viewBox="0 -50 1000 620" role="group" aria-label={t.mapTitle} data-map>
+          <svg class="tn-map" viewBox="0 -50 1000 720" role="group" aria-label={t.mapTitle} data-map>
             <defs>
               <path id="tn-data-path" d={DATA_PATH}></path>
-              <path id="tn-career-path" d={CAREER_PATH}></path>
+              <path id="tn-work-path" d={WORK_PATH}></path>
+              <path id="tn-edu-path" d={EDU_PATH}></path>
             </defs>
+            <path class="tn-line tn-line-edu" d={EDU_PATH}></path>
+            <path class="tn-line tn-line-career" d={WORK_PATH}></path>
             <path class="tn-line tn-line-data" d={DATA_PATH}></path>
-            <path class="tn-line tn-line-career" d={CAREER_PATH}></path>
 
             <!-- trains -->
             {
@@ -311,45 +359,81 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               [0, 1].map((n) => (
                 <g class="tn-train tn-train-career">
                   <rect x="-11" y="-4.5" width="22" height="9" rx="4.5" />
-                  <animateMotion dur="9s" begin={`${n * -4.5}s`} repeatCount="indefinite" rotate="auto">
-                    <mpath href="#tn-career-path" />
+                  <animateMotion dur="8s" begin={`${n * -4}s`} repeatCount="indefinite" rotate="auto">
+                    <mpath href="#tn-work-path" />
                   </animateMotion>
                 </g>
               ))
             }
+            <g class="tn-train tn-train-edu">
+              <rect x="-11" y="-4.5" width="22" height="9" rx="4.5"></rect>
+              <animateMotion dur="7s" repeatCount="indefinite" rotate="auto">
+                <mpath href="#tn-edu-path"></mpath>
+              </animateMotion>
+            </g>
 
-            <!-- career stops -->
+            <!-- work and education stops (the current job is drawn as the data-line interchange) -->
             {
-              careerStops
-                .filter((stop) => stop.label !== 'interchange')
-                .map((stop) => (
-                  <g
-                    class:list={['tn-stop', 'tn-stop-career', { 'is-education': stop.kind === 'education' }]}
-                    data-stop={`career-${stop.index}`}
-                    tabindex="0"
-                    role="button"
-                    aria-label={`${stop.organisation}, ${stop.period}`}
-                    transform={`translate(${stop.x} ${stop.y})`}
-                  >
-                    <circle class="tn-hit" r="22" />
-                    <circle class="tn-ring" r="17" />
-                    <circle class="tn-dot" r="9" />
-                    {stop.label === 'below' ? (
-                      <text class="tn-label tn-label-sm" y="34" text-anchor="middle">
-                        <tspan x="0" class="tn-year">
-                          {stop.start}
-                        </tspan>
-                        <tspan x="0" dy="17">
-                          {shortOrg(stop.organisation)}
-                        </tspan>
-                      </text>
-                    ) : (
-                      <text class="tn-label tn-label-sm" x="-20" y="5" text-anchor="end">
-                        <tspan class="tn-year">{stop.start}</tspan> {shortOrg(stop.organisation)}
-                      </text>
-                    )}
-                  </g>
-                ))
+              [
+                ...eduStops.map((stop) => ({ ...stop, line: 'edu' })),
+                ...workStops.map((stop) => ({ ...stop, line: 'work' }))
+              ]
+                .filter((stop) => stop.label !== 'none')
+                .map((stop) => {
+                  const crossing = stop.line === 'work' && stop.index === 0;
+                  return (
+                    <g
+                      class:list={[
+                        'tn-stop',
+                        stop.line === 'work' ? 'tn-stop-career' : 'tn-stop-edu',
+                        { 'is-interchange': crossing }
+                      ]}
+                      data-stop={`${stop.line}-${stop.index}`}
+                      tabindex="0"
+                      role="button"
+                      aria-label={`${stop.organisation}, ${stop.period}`}
+                      transform={`translate(${stop.x} ${stop.y})`}
+                    >
+                      <circle class="tn-hit" r="22" />
+                      {crossing ? (
+                        <>
+                          <rect class="tn-ring" x="-22" y="-22" width="44" height="44" rx="22" />
+                          <rect class="tn-dot" x="-13" y="-13" width="26" height="26" rx="13" />
+                        </>
+                      ) : (
+                        <>
+                          <circle class="tn-ring" r="17" />
+                          <circle class="tn-dot" r="9" />
+                        </>
+                      )}
+                      {stop.label === 'below' && (
+                        <text class="tn-label tn-label-sm" y="34" text-anchor="middle">
+                          <tspan x="0" class="tn-year">
+                            {stop.start}
+                          </tspan>
+                          <tspan x="0" dy="17">
+                            {shortOrg(stop.organisation)}
+                          </tspan>
+                        </text>
+                      )}
+                      {stop.label === 'left' && (
+                        <text class="tn-label tn-label-sm" x="-20" y="5" text-anchor="end">
+                          <tspan class="tn-year">{stop.start}</tspan> {shortOrg(stop.organisation)}
+                        </text>
+                      )}
+                      {stop.label === 'right' && (
+                        <text class="tn-label tn-label-sm" x="22" y="5">
+                          <tspan class="tn-year">{stop.start}</tspan> {shortOrg(stop.organisation)}
+                        </text>
+                      )}
+                      {stop.label === 'aboveLeft' && (
+                        <text class="tn-label tn-label-sm" x="-24" y="-22" text-anchor="end">
+                          <tspan class="tn-year">{stop.start}</tspan> {shortOrg(stop.organisation)}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })
             }
 
             <!-- data stops (index 3 is the interchange with the career line) -->
@@ -388,7 +472,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               ))
             }
             <text class="tn-label tn-label-sm tn-interchange-note" x="548" y="300">
-              {careerStops.at(-1)?.organisation} · {t.today}
+              {workStops.at(-1)?.organisation} · {t.today}
             </text>
           </svg>
 
@@ -418,12 +502,13 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
 
           <ul class="tn-legend">
             <li><span class="tn-swatch tn-swatch-data"></span>{t.legendData}</li>
-            <li><span class="tn-swatch tn-swatch-career"></span>{t.legendCareer}</li>
+            <li><span class="tn-swatch tn-swatch-career"></span>{t.legendWork}</li>
+            <li><span class="tn-swatch tn-swatch-edu"></span>{t.legendEdu}</li>
           </ul>
         </div>
       </section>
 
-      <!-- ============ CAREER ============ -->
+      <!-- ============ WORK EXPERIENCE ============ -->
       <section class="tn-section tn-career" id="carrera" aria-labelledby="career-title">
         <div class="tn-section-head">
           <h2 id="career-title">{t.careerTitle}</h2>
@@ -431,15 +516,13 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
         <ol class="tn-stops">
           {
-            c.timeline.map((entry, index) => (
-              <li class:list={{ 'is-education': entry.kind === 'education' }}>
+            c.work.map((entry, index) => (
+              <li>
                 <details open={index === 0}>
                   <summary>
                     <span class="tn-stops-period">{entry.period}</span>
                     <span class="tn-stops-org">{entry.organisation}</span>
-                    <span class="tn-stops-role">
-                      {entry.kind === 'education' ? `${t.education} · ${entry.role}` : entry.role}
-                    </span>
+                    <span class="tn-stops-role">{entry.role}</span>
                   </summary>
                   <div class="tn-stops-body">
                     {entry.summary && <p>{entry.summary}</p>}
@@ -466,6 +549,26 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
             ))
           }
         </ol>
+
+        <h3 class="tn-edu-title">
+          <span class="tn-swatch tn-swatch-edu" aria-hidden="true"></span>{t.education}
+        </h3>
+        <ol class="tn-edu">
+          {
+            byStart(c.education)
+              .reverse()
+              .map((entry) => (
+                <li>
+                  <span class="tn-stops-period">{entry.period}</span>
+                  <div>
+                    <p class="tn-edu-org">{entry.organisation}</p>
+                    <p class="tn-edu-role">{entry.role}</p>
+                    {entry.tech.length > 0 && <p class="tn-edu-tech">{entry.tech.join(' · ')}</p>}
+                  </div>
+                </li>
+              ))
+          }
+        </ol>
       </section>
 
       <!-- ============ PROJECTS ============ -->
@@ -478,11 +581,30 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         <div class="tn-filter" role="group" aria-label={t.filterLabel}>
           <button type="button" class="tn-chip" data-tag="" aria-pressed="true">{t.filterAll}</button>
           {
-            allTags.map((tag) => (
-              <button type="button" class="tn-chip" data-tag={tag} aria-pressed="false">
+            allTags.map((tag, index) => (
+              <button
+                type="button"
+                class:list={['tn-chip', { 'is-extra': index >= PRIMARY_TAGS }]}
+                data-tag={tag}
+                aria-pressed="false"
+              >
                 {tag}
               </button>
             ))
+          }
+          {
+            allTags.length > PRIMARY_TAGS && (
+              <button
+                type="button"
+                class="tn-more"
+                data-more
+                aria-expanded="false"
+                data-label-more={t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                data-label-less={t.lessTopics}
+              >
+                {t.moreTopics(allTags.length - PRIMARY_TAGS)}
+              </button>
+            )
           }
         </div>
         <p class="tn-filter-status">
@@ -646,7 +768,8 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         ...stopsData,
         labels: {
           station: t.stationOf(0, 0).replace(/\d+/g, '{n}'),
-          careerStop: t.careerStop,
+          workStop: t.workStop,
+          eduStop: t.eduStop,
           total: dataStops.length,
           showing: t.showing(0, 0).replace(/\d+/g, '{n}')
         }
