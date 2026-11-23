@@ -13,10 +13,21 @@ interface Props {
   ogTitle: string;
   ogDescription: string;
   alternates: AlternateLink[];
+  /** Alternative design routes are previews and must not compete with the main pages in search. */
+  noindex?: boolean;
 }
 
-const { title, description, canonical, ogLocale, ogLocaleAlternate, ogTitle, ogDescription, alternates } =
-  Astro.props;
+const {
+  title,
+  description,
+  canonical,
+  ogLocale,
+  ogLocaleAlternate,
+  ogTitle,
+  ogDescription,
+  alternates,
+  noindex = false
+} = Astro.props;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -40,7 +51,7 @@ const structuredData = {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title}</title>
 <meta name="description" content={description} />
-<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
 <link rel="canonical" href={canonical} />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content={ogLocale} />

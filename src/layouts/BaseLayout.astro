@@ -16,6 +16,7 @@ interface Props {
   ogDescription: string;
   alternates: { href: string; hreflang: string }[];
   resumeData?: unknown;
+  noindex?: boolean;
 }
 
 const {
@@ -28,7 +29,8 @@ const {
   ogTitle,
   ogDescription,
   alternates,
-  resumeData
+  resumeData,
+  noindex = false
 } = Astro.props;
 ---
 
@@ -43,6 +45,7 @@ const {
       ogTitle={ogTitle}
       ogDescription={ogDescription}
       alternates={alternates}
+      noindex={noindex}
     />
   </head>
   <body class="bg-slate-950 text-slate-100 font-sans overflow-x-hidden page-fade-init" data-locale={lang}>
