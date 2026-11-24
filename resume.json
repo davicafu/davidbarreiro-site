@@ -105,9 +105,25 @@
   ],
   "work": [
     {
+      "name": "Factorial",
+      "position": "Senior Software Engineer",
+      "startDate": "2026-10",
+      "summary": "I keep the data platform behind Factorial's reporting and analytics reliable and fast: the event pipeline (Kafka → ClickHouse), the data quality checks, and the analytics query engine.",
+      "tech": ["Kafka", "ClickHouse", "CubeQL", "MySQL", "Datadog"],
+      "highlights": [
+        "Data quality: I trace discrepancies between MySQL, the data lake and ClickHouse to their root cause and fix them at the source. I also extended the automated repair process so it fixes more cases without manual work.",
+        "Analytics performance: I optimized our query engine's SQL generation (CubeQL) and the ClickHouse views behind it, with narrow views that read only the columns needed, one query per dashboard instead of one per widget, and fewer redundant reads. Some views now read about 6x fewer rows.",
+        "Reliability: I diagnosed and fixed production issues in multi-region Kafka consumers and materialized views, and I maintain Datadog monitors and observability dashboards.",
+        "Approach: I validate every change by replaying real production queries before shipping, then check the result once it is live.",
+        "Data visualization: I design and build internal dashboards (data quality, ClickHouse lineage and performance) that show teams the health and cost of the platform, and I work on the engine behind the analytics dashboards our customers use.",
+        "Customer-facing: I work with Account Managers to understand what customers need from their reports and turn it into concrete data and performance improvements."
+      ]
+    },
+    {
       "name": "SDG Group",
       "position": "Senior Software Engineer",
       "startDate": "2022-04",
+      "endDate": "2026-10",
       "summary": "Designed and developed scalable real-time data platforms using Kafka, Spark and containerized environments.",
       "tech": ["Spark", "Kafka", "Go", "Grafana"],
       "highlights": [
