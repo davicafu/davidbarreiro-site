@@ -108,7 +108,7 @@ const FLOW_COPY = {
       }
     },
     storage: {
-      name: 'Almacenamiento y Servcio',
+      name: 'Almacenamiento y Servicio',
       detail: 'Modelos de almacenamiento operacionales, analíticos y orientados a búsqueda.',
       impact:
         'Capas de servicio pensadas para APIs, dashboards, analítica y lecturas concurrentes de alto volumen.',
