@@ -1,0 +1,810 @@
+---
+/**
+ * Redesign "Instrument panel" (routes /v8/ and /es/v8/).
+ * The portfolio as a piece of precision hardware: a machined front panel with an LCD
+ * driven by a rotary selector, the design method as a chain of patched modules, the
+ * career as a two-track step sequencer, projects as cartridges filtered by channel keys
+ * and skills as banks of level knobs. Standalone page: it does not load the main site's
+ * JS or Tailwind.
+ */
+import SeoHead from '../common/SeoHead.astro';
+import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
+import { getPreviewContent } from '../v3/previewContent';
+import '../../styles/v8.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const seo = getLocaleMetadata(locale);
+const c = getPreviewContent(locale);
+
+const t = {
+  en: {
+    home: '/v8/',
+    sections: 'Sections',
+    menu: 'Menu',
+    nav: { method: 'Method', work: 'Experience', projects: 'Projects', skills: 'Skills', contact: 'Contact' },
+    langLabel: 'Language',
+    skip: 'Skip to content',
+    model: 'Model DB-14 · Data platform instrument',
+    role: 'Senior Software Engineer',
+    headline: 'I build real-time data platforms and the Go backends that keep them running.',
+    lede: (years: number) =>
+      `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java, from the first event to the dashboard that uses it.`,
+    contact: 'Get in touch',
+    cv: 'Download CV',
+    cvOptions: {
+      onePage: ['One page', 'Compact summary'],
+      professional: ['Professional', 'Full detail, minimal layout'],
+      jsonresume: ['JSON Resume', 'Standard format']
+    },
+    selector: 'Display mode',
+    selectorHint: 'Turn the selector to change the readout.',
+    modes: ['Role', 'Years', 'Stack', 'Certs'],
+    display: {
+      role: ['Senior software engineer', 'Data platforms & Go backend'],
+      years: (first: number) => [`In production since ${first}`, 'years'],
+      stack: ['Core stack', 'Kafka Spark ClickHouse Go Java'],
+      certs: (latest: string) => [`Latest: ${latest}`, 'certifications']
+    },
+    signal: 'Signal',
+    operator: 'Operator',
+    power: 'Power',
+    methodKicker: '01',
+    methodLabel: 'Signal chain',
+    methodTitle: 'How I design data platforms',
+    methodIntro: 'Seven modules patched in series, from the systems that produce data to the people who use it. Select a module to read it.',
+    stage: (n: number, total: number) => `Module ${n} / ${total}`,
+    tech: 'Technology',
+    input: 'In',
+    output: 'Out',
+    workKicker: '02',
+    workLabel: 'Sequencer',
+    workTitle: 'Experience',
+    workIntro: 'Every role and degree on two tracks, one step per year. Select a step to open its patch sheet.',
+    trackWork: 'Work',
+    trackEdu: 'Education',
+    highlights: 'What I did',
+    educationTitle: 'Education',
+    projectsKicker: '03',
+    projectsLabel: 'Cartridges',
+    projectsTitle: 'Projects',
+    projectsIntro: 'Personal and technical work. Switch channels to filter; a cartridge shows if it carries any active channel.',
+    filterLabel: 'Channels',
+    filterAll: 'All',
+    showing: (n: number, total: number) => `${n} of ${total} projects`,
+    clear: 'Clear',
+    moreTopics: (n: number) => `+${n} channels`,
+    lessTopics: 'Fewer channels',
+    empty: 'No project matches these channels.',
+    repo: 'Repository',
+    slot: 'Slot',
+    skillsKicker: '04',
+    skillsLabel: 'Banks',
+    skillsTitle: 'Skills',
+    skillsIntro: 'The stack in banks. Pick a bank; each knob shows the level I work at.',
+    levelNames: ['', 'Intermediate', 'Advanced', 'Expert'],
+    certified: 'Certified',
+    certsTitle: 'Certifications',
+    contactKicker: '05',
+    contactLabel: 'Output',
+    contactTitle: "Let's build something with data.",
+    contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    ready: 'Ready',
+    footerRole: 'Senior Software Engineer',
+    serial: 'Serial'
+  },
+  es: {
+    home: '/es/v8/',
+    sections: 'Secciones',
+    menu: 'Menú',
+    nav: { method: 'Método', work: 'Experiencia', projects: 'Proyectos', skills: 'Skills', contact: 'Contacto' },
+    langLabel: 'Idioma',
+    skip: 'Saltar al contenido',
+    model: 'Modelo DB-14 · Instrumento de plataformas de datos',
+    role: 'Ingeniero de Software Senior',
+    headline: 'Construyo plataformas de datos en tiempo real y los backends en Go que las mantienen en marcha.',
+    lede: (years: number) =>
+      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java, desde el primer evento hasta el panel que lo usa.`,
+    contact: 'Contactar',
+    cv: 'Descargar CV',
+    cvOptions: {
+      onePage: ['Una página', 'Resumen compacto · en inglés'],
+      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
+      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+    },
+    selector: 'Modo de pantalla',
+    selectorHint: 'Gira el selector para cambiar la lectura.',
+    modes: ['Rol', 'Años', 'Stack', 'Cert.'],
+    display: {
+      role: ['Ingeniero de software senior', 'Plataformas de datos y backend Go'],
+      years: (first: number) => [`En producción desde ${first}`, 'años'],
+      stack: ['Stack principal', 'Kafka Spark ClickHouse Go Java'],
+      certs: (latest: string) => [`Última: ${latest}`, 'certificaciones']
+    },
+    signal: 'Señal',
+    operator: 'Operador',
+    power: 'Encendido',
+    methodKicker: '01',
+    methodLabel: 'Cadena de señal',
+    methodTitle: 'Cómo diseño plataformas de datos',
+    methodIntro: 'Siete módulos conectados en serie, de los sistemas que producen datos a las personas que los usan. Elige un módulo para leerlo.',
+    stage: (n: number, total: number) => `Módulo ${n} / ${total}`,
+    tech: 'Tecnología',
+    input: 'Ent.',
+    output: 'Sal.',
+    workKicker: '02',
+    workLabel: 'Secuenciador',
+    workTitle: 'Experiencia',
+    workIntro: 'Cada puesto y titulación en dos pistas, un paso por año. Elige un paso para abrir su ficha.',
+    trackWork: 'Trabajo',
+    trackEdu: 'Formación',
+    highlights: 'Qué hice',
+    educationTitle: 'Formación',
+    projectsKicker: '03',
+    projectsLabel: 'Cartuchos',
+    projectsTitle: 'Proyectos',
+    projectsIntro: 'Trabajo personal y técnico. Activa canales para filtrar; un cartucho aparece si lleva alguno de los canales activos.',
+    filterLabel: 'Canales',
+    filterAll: 'Todos',
+    showing: (n: number, total: number) => `${n} de ${total} proyectos`,
+    clear: 'Limpiar',
+    moreTopics: (n: number) => `+${n} canales`,
+    lessTopics: 'Menos canales',
+    empty: 'Ningún proyecto coincide con estos canales.',
+    repo: 'Repositorio',
+    slot: 'Ranura',
+    skillsKicker: '04',
+    skillsLabel: 'Bancos',
+    skillsTitle: 'Skills',
+    skillsIntro: 'El stack en bancos. Elige un banco; cada mando marca el nivel al que trabajo.',
+    levelNames: ['', 'Intermedio', 'Avanzado', 'Experto'],
+    certified: 'Certificado',
+    certsTitle: 'Certificaciones',
+    contactKicker: '05',
+    contactLabel: 'Salida',
+    contactTitle: 'Construyamos algo con datos.',
+    contactText: 'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    ready: 'Listo',
+    footerRole: 'Ingeniero de Software Senior',
+    serial: 'Serie'
+  }
+}[locale];
+
+const nowYear = new Date().getFullYear();
+const firstWorkYear = Math.min(...c.work.map((job) => job.start));
+const years = nowYear - firstWorkYear;
+const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
+const work = [...c.work].sort((a, b) => b.start - a.start);
+const education = [...c.education].sort((a, b) => b.start - a.start);
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// resume.json mixes case and has a typo ("Intemediate"); read levels by prefix.
+const levelValue = (level: string) => {
+  const value = level.trim().toLowerCase();
+  if (value.startsWith('exp')) return 3;
+  if (value.startsWith('adv') || value.startsWith('avan')) return 2;
+  if (value.startsWith('int')) return 1;
+  return 0;
+};
+
+/* ---- Hero display modes ---- */
+const latestCert = certificates[0];
+const latestIssuer = latestCert ? `${latestCert.issuer} ${latestCert.date.slice(0, 4)}` : '';
+const modes = [
+  { top: t.display.role[0], big: t.display.role[1], unit: '' },
+  { top: t.display.years(firstWorkYear)[0], big: String(years), unit: t.display.years(firstWorkYear)[1] },
+  { top: t.display.stack[0], big: t.display.stack[1], unit: '' },
+  { top: t.display.certs(latestIssuer)[0], big: String(certificates.length), unit: t.display.certs(latestIssuer)[1] }
+];
+
+/* ---- Sequencer: one column per year, from the first degree to now ---- */
+const firstYear = Math.min(...c.work.map((job) => job.start), ...c.education.map((item) => item.start));
+const steps = Array.from({ length: nowYear - firstYear + 1 }, (_, index) => firstYear + index);
+// End is exclusive so back-to-back roles do not share a step; the current role runs through this year.
+const span = (start: number, end: number | null) => {
+  const from = start - firstYear + 1;
+  const to = Math.max(from + 1, (end ?? nowYear + 1) - firstYear + 1);
+  return `${from} / ${to}`;
+};
+
+/* ---- Project channels ---- */
+const PRIMARY_TAGS = 10;
+const tagCounts = new Map<string, number>();
+c.projects.forEach((project) =>
+  project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1))
+);
+const allTags = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .map(([tag]) => tag);
+
+/* ---- Scope trace for the selected module (also drawn by the client script) ---- */
+const trace = (index: number) => {
+  const points: string[] = [];
+  const cycles = 1.5 + index * 0.75;
+  for (let x = 0; x <= 400; x += 4) {
+    const phase = (x / 400) * cycles * Math.PI * 2;
+    const y = 40 - Math.sin(phase) * (18 + (index % 3) * 4) * (index % 2 ? 1 : Math.cos(phase / 3));
+    points.push(`${x === 0 ? 'M' : 'L'}${x} ${y.toFixed(1)}`);
+  }
+  return points.join(' ');
+};
+const firstStage = c.stages[0];
+
+// Knob arcs: a 270° sweep; level n of 3 fills n thirds of it.
+const KNOB_R = 22;
+const KNOB_SWEEP = 2 * Math.PI * KNOB_R * 0.75;
+---
+
+<html lang={locale}>
+  <head>
+    <SeoHead
+      title={seo.title}
+      description={seo.description}
+      canonical={seo.canonical}
+      ogLocale={seo.ogLocale}
+      ogLocaleAlternate={seo.ogLocaleAlternate}
+      ogTitle={seo.ogTitle}
+      ogDescription={seo.ogDescription}
+      alternates={getAlternateLinks()}
+      noindex
+    />
+    <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/doto-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#e4e2dc" />
+    <script is:inline>
+      document.documentElement.classList.add('ip-js');
+    </script>
+  </head>
+  <body class="ip">
+    <a class="ip-skip" href="#main">{t.skip}</a>
+
+    <header class="ip-rail">
+      <div class="ip-rail-inner">
+        <a class="ip-brand" href={t.home} aria-label="David Barreiro">
+          <span class="ip-brand-plate" aria-hidden="true">DB</span>
+          <span class="ip-brand-text">David Barreiro</span>
+        </a>
+        <nav class="ip-nav" aria-label={t.sections}>
+          <a href="#method"><span aria-hidden="true">01</span>{t.nav.method}</a>
+          <a href="#experience"><span aria-hidden="true">02</span>{t.nav.work}</a>
+          <a href="#projects"><span aria-hidden="true">03</span>{t.nav.projects}</a>
+          <a href="#skills"><span aria-hidden="true">04</span>{t.nav.skills}</a>
+        </nav>
+        <div class="ip-rail-end">
+          <details class="ip-menu" data-menu>
+            <summary class="ip-key ip-key-sm">{t.menu}</summary>
+            <nav aria-label={t.sections}>
+              <a href="#method"><span aria-hidden="true">01</span>{t.nav.method}</a>
+              <a href="#experience"><span aria-hidden="true">02</span>{t.nav.work}</a>
+              <a href="#projects"><span aria-hidden="true">03</span>{t.nav.projects}</a>
+              <a href="#skills"><span aria-hidden="true">04</span>{t.nav.skills}</a>
+            </nav>
+          </details>
+          <div class="ip-lang" role="group" aria-label={t.langLabel}>
+            <a href="/v8/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+            <a href="/es/v8/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+          </div>
+          <a class="ip-key ip-key-hot ip-key-sm" href="#contact">{t.nav.contact}</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ============ HERO: FRONT PANEL ============ -->
+      <section class="ip-hero" aria-labelledby="ip-title">
+        <div class="ip-hero-copy">
+          <p class="ip-model">{t.model}</p>
+          <h1 id="ip-title" class="ip-name">
+            <span>David</span>
+            <span>Barreiro</span>
+          </h1>
+          <p class="ip-role">{t.role}</p>
+          <p class="ip-headline">{t.headline}</p>
+          <p class="ip-lede">{t.lede(years)}</p>
+          <div class="ip-actions">
+            <a class="ip-key ip-key-hot" href={`mailto:${c.email}`}>{t.contact}</a>
+            <details class="ip-cv" data-cv>
+              <summary class="ip-key">{t.cv}</summary>
+              <ul>
+                {
+                  c.cvOptions.map((option) => (
+                    <li>
+                      <a href={option.href} target="_blank" rel="noopener noreferrer">
+                        <strong>{t.cvOptions[option.key][0]}</strong>
+                        <span>{t.cvOptions[option.key][1]}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
+          </div>
+          <p class="ip-links">
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer"><span class="ip-jack" aria-hidden="true"></span>GitHub</a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer"><span class="ip-jack" aria-hidden="true"></span>LinkedIn</a>
+          </p>
+        </div>
+
+        <div class="ip-device" data-device>
+          <div class="ip-device-head">
+            <span class="ip-engrave">DB-14</span>
+            <span class="ip-power"><span class="ip-led is-on" aria-hidden="true"></span>{t.power}</span>
+          </div>
+          <div class="ip-lcd" data-lcd>
+            <p class="ip-lcd-top" data-lcd-top aria-hidden="true">{modes[0].top}</p>
+            <p class="ip-lcd-big" aria-hidden="true">
+              <span data-lcd-big>{modes[0].big}</span><span class="ip-caret"></span>
+              <span class="ip-lcd-unit" data-lcd-unit>{modes[0].unit}</span>
+            </p>
+            <p class="ip-sr" data-lcd-live aria-live="off">{`${modes[0].top}: ${modes[0].big}`}</p>
+            <div class="ip-lcd-foot" aria-hidden="true">
+              <span>{t.signal}</span>
+              <span class="ip-vu">{Array.from({ length: 16 }, (_, i) => <i style={`--i:${i}`} />)}</span>
+            </div>
+          </div>
+          <div class="ip-controls">
+            <div class="ip-selector">
+              <div
+                class="ip-knob"
+                role="slider"
+                tabindex="0"
+                aria-label={t.selector}
+                aria-describedby="ip-selector-hint"
+                aria-valuemin="0"
+                aria-valuemax={modes.length - 1}
+                aria-valuenow="0"
+                aria-valuetext={t.modes[0]}
+                data-knob
+              >
+                <span class="ip-knob-cap" aria-hidden="true"><span class="ip-knob-mark"></span></span>
+              </div>
+              {
+                t.modes.map((mode, index) => (
+                  <button
+                    type="button"
+                    class:list={['ip-detent', `ip-detent-${index}`]}
+                    data-mode={index}
+                    aria-pressed={index === 0 ? 'true' : 'false'}
+                  >
+                    {mode}
+                  </button>
+                ))
+              }
+              <p class="ip-sr" id="ip-selector-hint">{t.selectorHint}</p>
+            </div>
+            <figure class="ip-operator">
+              <img src="/assets/profile/avatar-224.avif" alt="" width="224" height="224" />
+              <figcaption class="ip-engrave">{t.operator}</figcaption>
+            </figure>
+          </div>
+          <span class="ip-screw ip-screw-tl" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-tr" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-bl" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-br" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <!-- ============ METHOD: SIGNAL CHAIN ============ -->
+      <section class="ip-section" id="method" aria-labelledby="method-title" data-reveal>
+        <header class="ip-head">
+          <p class="ip-plate"><span>{t.methodKicker}</span>{t.methodLabel}</p>
+          <h2 id="method-title">{t.methodTitle}</h2>
+          <p>{t.methodIntro}</p>
+        </header>
+        <div class="ip-chain" role="group" aria-label={t.methodTitle} data-chain>
+          {
+            c.stages.map((stage, index) => (
+              <>
+                {index > 0 && (
+                  <svg class="ip-cable ip-cable-v" viewBox="0 0 64 40" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="ip-cable-line" pathLength="100" d="M22 0 C 22 12 52 10 52 20 C 52 30 22 28 22 40" />
+                    <path
+                      class="ip-cable-pulse"
+                      pathLength="100"
+                      d="M22 0 C 22 12 52 10 52 20 C 52 30 22 28 22 40"
+                      style={`--d:${index}`}
+                    />
+                  </svg>
+                )}
+                {index > 0 && (
+                  <svg class="ip-cable ip-cable-h" viewBox="0 0 40 64" preserveAspectRatio="none" aria-hidden="true">
+                    <path class="ip-cable-line" pathLength="100" d="M0 22 C 12 22 12 56 20 56 C 28 56 28 22 40 22" />
+                    <path
+                      class="ip-cable-pulse"
+                      pathLength="100"
+                      d="M0 22 C 12 22 12 56 20 56 C 28 56 28 22 40 22"
+                      style={`--d:${index}`}
+                    />
+                  </svg>
+                )}
+                <button
+                  type="button"
+                  class="ip-module"
+                  data-stage={index}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                  aria-controls="ip-scope"
+                >
+                  <span class="ip-module-top">
+                    <span class="ip-led" aria-hidden="true" />
+                    <span class="ip-module-num">{pad(index + 1)}</span>
+                  </span>
+                  <span class="ip-module-name">{stage.name}</span>
+                  <span class="ip-module-jacks" aria-hidden="true">
+                    <span>
+                      <i />
+                      {t.input}
+                    </span>
+                    <span>
+                      {t.output}
+                      <i />
+                    </span>
+                  </span>
+                </button>
+              </>
+            ))
+          }
+        </div>
+        <div class="ip-scope" id="ip-scope" aria-live="polite" data-scope>
+          <div class="ip-scope-screen" aria-hidden="true">
+            <svg viewBox="0 0 400 80" preserveAspectRatio="none">
+              <path class="ip-scope-grid" d="M0 20 H400 M0 40 H400 M0 60 H400 M100 0 V80 M200 0 V80 M300 0 V80" />
+              <path class="ip-scope-trace" d={trace(0)} data-trace />
+            </svg>
+          </div>
+          <div class="ip-scope-text">
+            <p class="ip-scope-meta" data-stage-meta>{t.stage(1, c.stages.length)}</p>
+            <h3 data-stage-name>{firstStage.name}</h3>
+            <p data-stage-detail>{firstStage.detail}</p>
+            <p class="ip-scope-tech">
+              <span>{t.tech}</span>
+              <span data-stage-tech>{firstStage.tech.join(' · ')}</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPERIENCE: SEQUENCER ============ -->
+      <section class="ip-section" id="experience" aria-labelledby="work-title" data-reveal>
+        <header class="ip-head">
+          <p class="ip-plate"><span>{t.workKicker}</span>{t.workLabel}</p>
+          <h2 id="work-title">{t.workTitle}</h2>
+          <p>{t.workIntro}</p>
+        </header>
+        <div class="ip-seq" style={`--steps:${steps.length}`} data-seq>
+          <div class="ip-seq-track">
+            <p class="ip-seq-label">{t.trackWork}</p>
+            <div class="ip-seq-lane">
+              {steps.map((_, i) => <span class="ip-seq-pad" style={`grid-column:${i + 1}`} aria-hidden="true" />)}
+              {
+                work.map((job, index) => (
+                  <button
+                    type="button"
+                    class="ip-seq-step ip-seq-work"
+                    style={`grid-column:${span(job.start, job.end)}`}
+                    data-job={`job-${index}`}
+                    aria-controls={`job-${index}`}
+                    aria-label={`${job.organisation}, ${job.period}`}
+                    title={`${job.organisation} · ${job.period}`}
+                  >
+                    <span aria-hidden="true">{job.organisation}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+          <div class="ip-seq-track">
+            <p class="ip-seq-label">{t.trackEdu}</p>
+            <div class="ip-seq-lane">
+              {steps.map((_, i) => <span class="ip-seq-pad" style={`grid-column:${i + 1}`} aria-hidden="true" />)}
+              {
+                education.map((item, index) => (
+                  <button
+                    type="button"
+                    class="ip-seq-step ip-seq-edu"
+                    style={`grid-column:${span(item.start, item.end)}`}
+                    data-job={`edu-${index}`}
+                    aria-controls={`edu-${index}`}
+                    aria-label={`${item.organisation}, ${item.period}`}
+                    title={`${item.role} · ${item.period}`}
+                  >
+                    <span aria-hidden="true">{item.role.split(' · ')[0]}</span>
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+          <div class="ip-seq-years" aria-hidden="true">
+            <span class="ip-seq-label"></span>
+            <div class="ip-seq-lane">
+              {steps.map((year) => <span class:list={{ 'is-even': year % 2 === 0 }}>{String(year).slice(2)}</span>)}
+            </div>
+          </div>
+          <span class="ip-playhead" aria-hidden="true"></span>
+        </div>
+
+        <ol class="ip-sheets">
+          {
+            work.map((job, index) => (
+              <li>
+                <details id={`job-${index}`} open={index === 0} data-sheet>
+                  <summary>
+                    <span class="ip-sheet-step">{pad(index + 1)}</span>
+                    <span class="ip-sheet-main">
+                      <span class="ip-sheet-org">{job.organisation}</span>
+                      <span class="ip-sheet-role">{job.role}</span>
+                    </span>
+                    <span class="ip-sheet-period">{job.period}</span>
+                    <span class="ip-sheet-toggle" aria-hidden="true" />
+                  </summary>
+                  <div class="ip-sheet-body">
+                    {job.summary && <p class="ip-sheet-summary">{job.summary}</p>}
+                    {job.highlights.length > 0 && (
+                      <div>
+                        <h3>{t.highlights}</h3>
+                        <ul>
+                          {job.highlights.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {job.tech.length > 0 && (
+                      <p class="ip-tags">
+                        {job.tech.map((tech) => (
+                          <span>{tech}</span>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                </details>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="ip-edu">
+          <h3>{t.educationTitle}</h3>
+          <ul>
+            {
+              education.map((item, index) => (
+                <li id={`edu-${index}`} tabindex="-1">
+                  <span class="ip-edu-years">{item.period}</span>
+                  <span class="ip-edu-role">{item.role}</span>
+                  <span class="ip-edu-org">{item.organisation}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ PROJECTS: CARTRIDGES ============ -->
+      <section class="ip-section" id="projects" aria-labelledby="projects-title" data-projects data-reveal>
+        <header class="ip-head">
+          <p class="ip-plate"><span>{t.projectsKicker}</span>{t.projectsLabel}</p>
+          <h2 id="projects-title">{t.projectsTitle}</h2>
+          <p>{t.projectsIntro}</p>
+        </header>
+        <div class="ip-console">
+          <div class="ip-channels" role="group" aria-label={t.filterLabel}>
+            <button type="button" class="ip-ch" data-tag="" aria-pressed="true">
+              <span class="ip-led" aria-hidden="true"></span>{t.filterAll}
+            </button>
+            {
+              allTags.map((tag, index) => (
+                <button
+                  type="button"
+                  class:list={['ip-ch', { 'is-extra': index >= PRIMARY_TAGS }]}
+                  data-tag={tag}
+                  aria-pressed="false"
+                >
+                  <span class="ip-led" aria-hidden="true" />
+                  {tag}
+                </button>
+              ))
+            }
+            {
+              allTags.length > PRIMARY_TAGS && (
+                <button
+                  type="button"
+                  class="ip-more"
+                  data-more
+                  aria-expanded="false"
+                  data-label-more={t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                  data-label-less={t.lessTopics}
+                >
+                  {t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                </button>
+              )
+            }
+          </div>
+          <div class="ip-readout">
+            <p class="ip-readout-lcd" aria-hidden="true">
+              <span data-count-num>{pad(c.projects.length)}</span>/<span>{pad(c.projects.length)}</span>
+            </p>
+            <p class="ip-readout-text" data-count aria-live="polite">{t.showing(c.projects.length, c.projects.length)}</p>
+            <button type="button" class="ip-key ip-key-sm" data-clear hidden>{t.clear}</button>
+          </div>
+        </div>
+        <ol class="ip-carts">
+          {
+            c.projects.map((project, index) => (
+              <li class="ip-cart" data-tags={JSON.stringify(project.allTags)}>
+                <div class="ip-cart-grip" aria-hidden="true">
+                  <span>
+                    {t.slot} {pad(index + 1)}
+                  </span>
+                </div>
+                <div class="ip-cart-label">
+                  <h3>
+                    {project.url ? (
+                      <a href={project.url} target="_blank" rel="noopener noreferrer">
+                        {project.name}
+                        <span class="ip-arrow" aria-hidden="true">
+                          ↗
+                        </span>
+                        <span class="ip-sr">({t.repo})</span>
+                      </a>
+                    ) : (
+                      project.name
+                    )}
+                  </h3>
+                  <p>{project.oneLiner}</p>
+                  <p class="ip-cart-tags">
+                    {project.allTags.map((tag) => (
+                      <span>{tag}</span>
+                    ))}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="ip-empty" data-empty hidden>{t.empty}</p>
+      </section>
+
+      <!-- ============ SKILLS: BANKS OF KNOBS ============ -->
+      <section class="ip-section" id="skills" aria-labelledby="skills-title" data-reveal>
+        <header class="ip-head">
+          <p class="ip-plate"><span>{t.skillsKicker}</span>{t.skillsLabel}</p>
+          <h2 id="skills-title">{t.skillsTitle}</h2>
+          <p>{t.skillsIntro}</p>
+        </header>
+        <div class="ip-banks" role="tablist" aria-label={t.skillsTitle}>
+          {
+            c.skillGroups.map((group, index) => (
+              <button
+                type="button"
+                role="tab"
+                class="ip-bank"
+                id={`ip-tab-${index}`}
+                aria-controls={`ip-panel-${index}`}
+                aria-selected={index === 0 ? 'true' : 'false'}
+                tabindex={index === 0 ? 0 : -1}
+              >
+                <span class="ip-led" aria-hidden="true" />
+                <span class="ip-bank-num" aria-hidden="true">
+                  {String.fromCharCode(65 + index)}
+                </span>
+                <span class="ip-bank-name">{group.name}</span>
+              </button>
+            ))
+          }
+        </div>
+        {
+          c.skillGroups.map((group, index) => (
+            <div
+              class="ip-bank-panel"
+              role="tabpanel"
+              id={`ip-panel-${index}`}
+              aria-labelledby={`ip-tab-${index}`}
+              hidden={index !== 0}
+            >
+              <ul class="ip-knobs">
+                {group.keywords.map((skill) => {
+                  const level = levelValue(skill.level);
+                  return (
+                    <li class="ip-skill" style={`--lv:${level}`}>
+                      <svg class="ip-dial" viewBox="0 0 60 60" aria-hidden="true">
+                        <circle class="ip-dial-track" cx="30" cy="30" r={KNOB_R} style={`stroke-dasharray:${KNOB_SWEEP} 999`} />
+                        <circle
+                          class="ip-dial-arc"
+                          cx="30"
+                          cy="30"
+                          r={KNOB_R}
+                          style={`stroke-dasharray:${(KNOB_SWEEP * level) / 3} 999`}
+                        />
+                      </svg>
+                      <span class="ip-dial-cap" aria-hidden="true">
+                        {skill.logo ? <img src={skill.logo} alt="" width="26" height="26" loading="lazy" /> : <span class="ip-dial-mark" />}
+                      </span>
+                      <p class="ip-skill-name">{skill.name}</p>
+                      <p class="ip-skill-level">{t.levelNames[level] || skill.level}</p>
+                      {skill.certifications.map((cert) => (
+                        <a class="ip-skill-cert" href={cert.url} target="_blank" rel="noopener noreferrer">
+                          {t.certified} · {cert.issuer}
+                        </a>
+                      ))}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))
+        }
+
+        <h3 class="ip-certs-title">{t.certsTitle}</h3>
+        <ol class="ip-stamps">
+          {
+            certificates.map((cert, index) => (
+              <li class="ip-stamp" style={`--tilt:${[-2, 1.5, -1, 2, -1.5][index % 5]}deg`}>
+                <span class="ip-stamp-year">{cert.date.slice(0, 4)}</span>
+                {cert.url ? (
+                  <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                    {cert.name}
+                  </a>
+                ) : (
+                  <span class="ip-stamp-name">{cert.name}</span>
+                )}
+                <span class="ip-stamp-issuer">{cert.issuer}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <!-- ============ CONTACT: OUTPUT ============ -->
+      <section class="ip-section ip-out" id="contact" aria-labelledby="contact-title" data-reveal>
+        <div class="ip-out-panel">
+          <div class="ip-out-copy">
+            <p class="ip-plate"><span>{t.contactKicker}</span>{t.contactLabel}</p>
+            <h2 id="contact-title">{t.contactTitle}</h2>
+            <p>{t.contactText}</p>
+            <div class="ip-actions">
+              <a class="ip-key ip-key-hot" href={`mailto:${c.email}`}>{c.email}</a>
+              <a class="ip-key" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+            </div>
+            <p class="ip-links">
+              <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer"><span class="ip-jack" aria-hidden="true"></span>LinkedIn</a>
+              <a href={c.githubUrl} target="_blank" rel="noopener noreferrer"><span class="ip-jack" aria-hidden="true"></span>GitHub</a>
+            </p>
+          </div>
+          <div class="ip-out-lcd" aria-hidden="true">
+            <span class="ip-led is-on"></span>
+            <span>{t.ready}</span>
+          </div>
+          <span class="ip-screw ip-screw-tl" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-tr" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-bl" aria-hidden="true"></span>
+          <span class="ip-screw ip-screw-br" aria-hidden="true"></span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ip-footer">
+      <p>© {nowYear} {c.name} · {t.footerRole}</p>
+      <p class="ip-engrave">{t.serial} DB-{firstWorkYear}-{nowYear}</p>
+    </footer>
+
+    <script
+      is:inline
+      type="application/json"
+      id="ip-data"
+      set:html={JSON.stringify({
+        stages: c.stages,
+        modes,
+        modeNames: t.modes,
+        labels: {
+          stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
+          showing: t.showing(0, 0).replace(/\d+/g, '{n}')
+        }
+      })}
+    />
+    <script>
+      import './panel.ts';
+    </script>
+  </body>
+</html>

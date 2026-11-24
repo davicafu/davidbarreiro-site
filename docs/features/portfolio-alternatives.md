@@ -22,7 +22,7 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T5  | S2, S4, S5 | inline | done                          | L9, L10  |
 | T6  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L9, L11 |
 | T7  | S2         | inline | done                          | L12, L13 |
-| T8  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | in progress | L12 |
+| T8  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L12, L14 |
 
 ## Non-goals
 
@@ -53,3 +53,4 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L11 (T6): `/v5/` (event stream) and `/v6/` (Swiss poster) were delivered by two parallel writers, each with an EN/ES pair and full parity. Each writer's probe passed all interactions with no page errors, and the writers' captures showed no overflow at 1440 or 390. `/v3/` became the comparison page for v4, v5 and v6. `transit.ts` gained `export {}` so `astro check` stops treating the client scripts as clashing globals. Main build (14 pages): `/` and `/es/` HTML and CSS are identical to `main`; lint is clean; tests are 5 pass and 1 fail (the `flow-tip` failure predates this work).
 - L12 (2026-11-23, owner feedback, verbatim): "vale estas, estas 3 versiones si que ya son muy buenas, la a, b y c las puedes olvidar ya, y las web mejorada tambien, quedate son lo con la actual y estas 3 y ofreceme otras dos del mismo nivel de calidad. despues ya nos centraremos en cual elegir o si ofertar todas con cambio de theme entre ellas". T7 removes `/v2/`, `/es/v2/` and `/v3/a|b|c/` (S1 is withdrawn). T8 adds two more redesigns, `/v7/` and `/v8/`.
 - L13 (T7): the old variants and their components were deleted; `previewContent.ts` stays because v4–v6 use it. The build produced 9 pages.
+- L14 (T8): two parallel writers delivered `/v7/` (isometric city: Bricolage Grotesque + IBM Plex Mono) and `/v8/` (instrument panel: Instrument Sans + Doto + Martian Mono), each with an EN/ES pair and full parity. Each writer's probe passed every interaction with no page errors, and the parent reran the v7 probe. `/v3/` now compares five designs. Build: 13 pages; lint clean. vshots at 1440 and 390 showed no errors, with widths of 1440 and 390. `/` and `/es/` HTML and the BaseLayout CSS are identical to `main`. Open data issues: EN lists 4 certifications and ES lists 5 (no Databricks entry in `resume.json`); the "Servcio" typo is unchanged.
