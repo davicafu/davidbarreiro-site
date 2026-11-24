@@ -1,0 +1,125 @@
+---
+/**
+ * One command palette instance. The page renders it twice: inline in the hero and inside
+ * the ⌘K dialog. Every option is a real link, so without JS each one still works.
+ */
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+export interface Command {
+  id: string;
+  label: string;
+  meta: string;
+  keywords: string;
+  icon: IconName;
+  href: string;
+  action: 'go' | 'copy' | 'skill' | 'job';
+  value?: string;
+  external?: boolean;
+  download?: boolean;
+}
+
+export interface CommandGroup {
+  key: string;
+  label: string;
+  items: Command[];
+}
+
+interface Props {
+  id: string;
+  variant: 'inline' | 'modal';
+  groups: CommandGroup[];
+  labels: {
+    placeholder: string;
+    input: string;
+    list: string;
+    empty: string;
+    navigate: string;
+    open: string;
+    close: string;
+    clear: string;
+    results: string;
+    shortcut: string;
+  };
+}
+
+const { id, variant, groups, labels } = Astro.props;
+const total = groups.reduce((sum, group) => sum + group.items.length, 0);
+---
+
+<div class:list={['cp-palette', `cp-palette-${variant}`]} data-palette={variant}>
+  <div class="cp-search">
+    <Icon name="search" class="cp-search-icon" />
+    <input
+      id={`${id}-input`}
+      class="cp-input"
+      type="text"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls={`${id}-list`}
+      aria-autocomplete="list"
+      aria-label={labels.input}
+      aria-describedby={`${id}-count`}
+      placeholder={labels.placeholder}
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      data-input
+    />
+    {
+      variant === 'modal' ? (
+        <kbd class="cp-kbd">esc</kbd>
+      ) : (
+        <kbd class="cp-kbd" data-shortcut>
+          {labels.shortcut}
+        </kbd>
+      )
+    }
+  </div>
+  <div class="cp-list" id={`${id}-list`} role="listbox" aria-label={labels.list} data-list>
+    {
+      groups.map((group) => (
+        <div class="cp-group" role="group" aria-labelledby={`${id}-g-${group.key}`} data-group>
+          <div class="cp-group-label" id={`${id}-g-${group.key}`} role="presentation">
+            {group.label}
+          </div>
+          {group.items.map((cmd) => (
+            <a
+              class="cp-option"
+              id={`${id}-o-${cmd.id}`}
+              role="option"
+              aria-selected="false"
+              tabindex="-1"
+              href={cmd.href}
+              target={cmd.external ? '_blank' : undefined}
+              rel={cmd.external ? 'noopener noreferrer' : undefined}
+              data-option
+              data-action={cmd.action}
+              data-value={cmd.value}
+              data-search={`${cmd.label} ${cmd.meta} ${cmd.keywords} ${group.label}`.toLowerCase()}
+            >
+              <span class="cp-option-icon">
+                <Icon name={cmd.icon} />
+              </span>
+              <span class="cp-option-label">{cmd.label}</span>
+              <span class="cp-option-meta">{cmd.meta}</span>
+              <span class="cp-option-go" aria-hidden="true">
+                <Icon name={cmd.external ? 'external' : 'enter'} />
+              </span>
+            </a>
+          ))}
+        </div>
+      ))
+    }
+    <p class="cp-empty" hidden data-empty>{labels.empty} <q data-empty-query></q></p>
+  </div>
+  <div class="cp-foot">
+    <span class="cp-count" id={`${id}-count`} data-count>{labels.results.replace('{n}', String(total))}</span>
+    <span class="cp-keys" aria-hidden="true">
+      <span><kbd class="cp-kbd">↑</kbd><kbd class="cp-kbd">↓</kbd>{labels.navigate}</span>
+      <span><kbd class="cp-kbd">↵</kbd>{labels.open}</span>
+      <span><kbd class="cp-kbd">esc</kbd>{variant === 'modal' ? labels.close : labels.clear}</span>
+    </span>
+  </div>
+  <p class="cp-sr" aria-live="off" data-live></p>
+</div>

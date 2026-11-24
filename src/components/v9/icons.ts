@@ -1,0 +1,20 @@
+/** 16px stroke icons for the command palette redesign (/v9/). Paths only; the markup sets the stroke. */
+export const ICONS = {
+  search: 'M7 12.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11ZM11 11l3.5 3.5',
+  hash: 'M6 2 4.5 14M11.5 2 10 14M2.5 5.5h11M2 10.5h11',
+  download: 'M8 2v8.5M4.5 7 8 10.5 11.5 7M2.5 13.5h11',
+  copy: 'M5.5 5.5h8v8h-8zM10.5 5.5v-3h-8v8h3',
+  mail: 'M2 3.5h12v9H2zM2 4l6 5 6-5',
+  globe: 'M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13ZM1.5 8h13M8 1.5c-2.2 2.4-2.2 10.6 0 13M8 1.5c2.2 2.4 2.2 10.6 0 13',
+  repo: 'M3.5 13V3a1.5 1.5 0 0 1 1.5-1.5h7.5v10H5a1.5 1.5 0 0 0 0 3h7.5M6 4.5h4',
+  briefcase: 'M2 5h12v8.5H2zM5.5 5V2.5h5V5M2 8.5h12',
+  layers: 'M8 1.5 14.5 5 8 8.5 1.5 5 8 1.5ZM1.5 8 8 11.5 14.5 8M1.5 11 8 14.5 14.5 11',
+  badge: 'M8 1.5 9.8 3l2.3-.2.5 2.3 2 1.2-1 2.1 1 2.1-2 1.2-.5 2.3-2.3-.2L8 15l-1.8-1.5-2.3.2-.5-2.3-2-1.2 1-2.1-1-2.1 2-1.2.5-2.3 2.3.2L8 1.5ZM5.8 8.2 7.3 9.7 10.4 6.6',
+  link: 'M6.5 9.5 9.5 6.5M7 4.5l1-1a3 3 0 0 1 4.5 4.5l-1 1M9 11.5l-1 1A3 3 0 0 1 3.5 8l1-1',
+  arrow: 'M3 8h10M9 4l4 4-4 4',
+  external: 'M9.5 2.5h4v4M13.5 2.5 7.5 8.5M12 9.5v4H2.5V4h4',
+  enter: 'M13 3v5.5H3.5M6.5 5.5l-3 3 3 3',
+  cap: 'M1 6 8 2.5 15 6 8 9.5 1 6ZM4 7.5v3.5c1.2 1.3 6.8 1.3 8 0V7.5'
+} as const;
+
+export type IconName = keyof typeof ICONS;
