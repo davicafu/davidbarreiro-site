@@ -23,10 +23,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T6  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L9, L11 |
 | T7  | S2         | inline | done                          | L12, L13 |
 | T8  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L12, L14 |
-| T9  | S2         | delegated (parallel writers) | in progress | L15 |
-| T10 | S2         | delegated (parallel writers) | in progress | L15 |
-| T11 | S2, S4, S5 | delegated (parallel writers) | in progress | L15 |
-| T12 | S2, S4, S5 | delegated (parallel writers) | in progress | L15 |
+| T9  | S2         | delegated (parallel writers) | done | L15, L16 |
+| T10 | S2         | delegated (parallel writers) | done | L15, L16 |
+| T11 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
+| T12 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
 
 ## Non-goals
 
@@ -65,3 +65,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - T11: `/v9/` command palette.
   - T12: `/v10/` data notebook.
   - Tailwind content now also excludes v10–v19.
+- L16 (T9–T12): four parallel writers delivered, each verifying in an isolated `git archive HEAD` copy so the others' unfinished files could not break its build.
+  - Designs: v7 is now a dark isometric infrastructure topology (Mona Sans + IBM Plex Mono); v8 was modernised flat, without skeuomorphism (Host Grotesk + Geist Mono + Doto); v9 is a ⌘K command palette (Funnel Display + Onest + Fragment Mono); v10 is a data notebook (Newsreader + Onest + Fragment Mono).
+  - Parent integration: 17 pages built; lint clean. `/` and `/es/` HTML and the BaseLayout CSS are identical to `main`. The v7–v10 probes pass against port 4329, and vshots at 1440 and 390 show no errors, with widths of 1440 and 390.
+  - Open items:
+    - v7 and v9 say "Abierto a nuevos puestos", which needs the owner to confirm.
+    - The "Servcio" typo is unchanged.
+    - EN lists 4 certifications and ES lists 5.

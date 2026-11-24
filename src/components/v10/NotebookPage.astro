@@ -1,0 +1,908 @@
+---
+/**
+ * Redesign "Data notebook" (routes /v10/ and /es/v10/).
+ * The portfolio as an interactive data notebook: every section is a cell with an
+ * input (a short query or call) and its output (DAG, result sets, charts). Cells
+ * "run" as they scroll into view and can be re-run. Standalone page: it does not
+ * load the main site's JS or Tailwind, and every output is readable without JS.
+ */
+import SeoHead from '../common/SeoHead.astro';
+import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
+import { getPreviewContent } from '../v3/previewContent';
+import '../../styles/v10.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const seo = getLocaleMetadata(locale);
+const c = getPreviewContent(locale);
+
+const t = {
+  en: {
+    home: '/v10/',
+    file: 'portfolio.nb',
+    sections: 'Sections',
+    outline: 'Outline',
+    nav: { method: 'Method', work: 'Experience', projects: 'Projects', skills: 'Skills', contact: 'Contact' },
+    langLabel: 'Language',
+    skip: 'Skip to content',
+    kernelIdle: 'Kernel ready',
+    kernelBusy: 'Running…',
+    ran: 'ran in {ms} ms',
+    running: 'running…',
+    rerun: 'Run cell again',
+    role: 'Senior Software Engineer',
+    positioning: 'Data platforms & Go backend',
+    headline: 'I design real-time data platforms and build the Go backends that hold them up.',
+    lede: (years: number) =>
+      `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java: from the first event to the dashboard that reads it.`,
+    contact: 'Get in touch',
+    cv: 'Download CV',
+    cvOptions: {
+      onePage: ['One page', 'Compact summary'],
+      professional: ['Professional', 'Full detail, minimal layout'],
+      jsonresume: ['JSON Resume', 'Standard format']
+    },
+    describe: {
+      years: 'years in production',
+      since: (y: number) => `since ${y}`,
+      roles: 'roles',
+      projects: 'projects',
+      certs: 'certifications',
+      stages: 'platform stages'
+    },
+    methodTitle: 'How I design data platforms',
+    methodIntro:
+      'Seven stages, from the systems that produce data to the people who use it. Every platform I build is planned as this graph. Select a node to read it.',
+    stage: (n: number, total: number) => `Node ${n} of ${total}`,
+    builtWith: 'Built with',
+    workTitle: 'Experience',
+    workIntro: 'The career as a dataset. Open a row to see what I did there.',
+    timeline: 'Timeline',
+    work: 'Work',
+    edu: 'Education',
+    cols: { company: 'Company', role: 'Role', period: 'Period', years: 'Yrs', stack: 'Stack' },
+    eduCols: { institution: 'Institution', degree: 'Degree', period: 'Period' },
+    rows: (n: number) => `${n} rows`,
+    expand: 'Show details',
+    did: 'What I did',
+    techTitle: 'Years per technology in production',
+    techNote: 'Whole years, summed across roles.',
+    yearsUnit: 'y',
+    projectsTitle: 'Projects',
+    projectsIntro: 'Personal and technical work. Toggle topics to change the WHERE clause; a project matches if it has any of them.',
+    topics: 'topics',
+    filterAll: 'All',
+    showing: '{n} of {n} rows',
+    clear: 'Clear',
+    moreTopics: (n: number) => `+${n} topics`,
+    lessTopics: 'Fewer topics',
+    empty: 'No project matches these topics.',
+    repo: 'Repository',
+    skillsTitle: 'Skills',
+    skillsIntro: 'The stack pivoted by area. Pick an area; the meter shows the level I work at.',
+    levelNames: ['', 'Intermediate', 'Advanced', 'Expert'],
+    skillCols: { skill: 'Skill', level: 'Level', cert: 'Certified' },
+    certified: 'Certified',
+    certsTitle: 'Certifications',
+    certsIntro: 'Newest first.',
+    verify: 'Verify',
+    contactTitle: "Let's build something with data.",
+    contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    footerRole: 'Senior Software Engineer'
+  },
+  es: {
+    home: '/es/v10/',
+    file: 'portfolio.nb',
+    sections: 'Secciones',
+    outline: 'Índice',
+    nav: { method: 'Método', work: 'Experiencia', projects: 'Proyectos', skills: 'Skills', contact: 'Contacto' },
+    langLabel: 'Idioma',
+    skip: 'Saltar al contenido',
+    kernelIdle: 'Kernel listo',
+    kernelBusy: 'Ejecutando…',
+    ran: '{ms} ms',
+    running: 'ejecutando…',
+    rerun: 'Volver a ejecutar la celda',
+    role: 'Ingeniero de Software Senior',
+    positioning: 'Plataformas de datos y backend en Go',
+    headline: 'Diseño plataformas de datos en tiempo real y construyo los backends en Go que las sostienen.',
+    lede: (years: number) =>
+      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java: desde el primer evento hasta el panel que lo lee.`,
+    contact: 'Contactar',
+    cv: 'Descargar CV',
+    cvOptions: {
+      onePage: ['Una página', 'Resumen compacto · en inglés'],
+      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
+      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+    },
+    describe: {
+      years: 'años en producción',
+      since: (y: number) => `desde ${y}`,
+      roles: 'puestos',
+      projects: 'proyectos',
+      certs: 'certificaciones',
+      stages: 'etapas por plataforma'
+    },
+    methodTitle: 'Cómo diseño plataformas de datos',
+    methodIntro:
+      'Siete etapas, de los sistemas que producen datos a las personas que los usan. Cada plataforma que construyo se planifica como este grafo. Elige un nodo para leerlo.',
+    stage: (n: number, total: number) => `Nodo ${n} de ${total}`,
+    builtWith: 'Construido con',
+    workTitle: 'Experiencia',
+    workIntro: 'La trayectoria como un dataset. Abre una fila para ver qué hice allí.',
+    timeline: 'Línea temporal',
+    work: 'Trabajo',
+    edu: 'Formación',
+    cols: { company: 'Empresa', role: 'Puesto', period: 'Periodo', years: 'Años', stack: 'Stack' },
+    eduCols: { institution: 'Centro', degree: 'Titulación', period: 'Periodo' },
+    rows: (n: number) => `${n} filas`,
+    expand: 'Ver detalle',
+    did: 'Qué hice',
+    techTitle: 'Años por tecnología en producción',
+    techNote: 'Años completos, sumados entre puestos.',
+    yearsUnit: 'a',
+    projectsTitle: 'Proyectos',
+    projectsIntro: 'Trabajo personal y técnico. Activa temas para cambiar la cláusula WHERE; un proyecto aparece si tiene alguno de ellos.',
+    topics: 'temas',
+    filterAll: 'Todos',
+    showing: '{n} de {n} filas',
+    clear: 'Limpiar',
+    moreTopics: (n: number) => `+${n} temas`,
+    lessTopics: 'Menos temas',
+    empty: 'Ningún proyecto coincide con estos temas.',
+    repo: 'Repositorio',
+    skillsTitle: 'Skills',
+    skillsIntro: 'El stack agrupado por área. Elige un área; el medidor marca el nivel al que trabajo.',
+    levelNames: ['', 'Intermedio', 'Avanzado', 'Experto'],
+    skillCols: { skill: 'Skill', level: 'Nivel', cert: 'Certificado' },
+    certified: 'Certificado',
+    certsTitle: 'Certificaciones',
+    certsIntro: 'De la más reciente a la más antigua.',
+    verify: 'Verificar',
+    contactTitle: 'Construyamos algo con datos.',
+    contactText: 'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    footerRole: 'Ingeniero de Software Senior'
+  }
+}[locale];
+
+const nowYear = new Date().getFullYear();
+const firstWorkYear = Math.min(...c.work.map((job) => job.start));
+const years = nowYear - firstWorkYear;
+const work = [...c.work].sort((a, b) => b.start - a.start);
+const education = [...c.education].sort((a, b) => b.start - a.start);
+const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
+const spanYears = (start: number, end: number | null) => Math.max(1, (end ?? nowYear) - start);
+
+// resume.json mixes case and has a typo ("Intemediate"); read levels by prefix.
+const levelValue = (level: string) => {
+  const value = level.trim().toLowerCase();
+  if (value.startsWith('exp')) return 3;
+  if (value.startsWith('adv') || value.startsWith('avan')) return 2;
+  if (value.startsWith('int')) return 1;
+  return 0;
+};
+
+/* ---- Timeline (Gantt) scale: first degree to the end of this year ---- */
+const axisStart = Math.min(...c.work.map((job) => job.start), ...c.education.map((item) => item.start));
+const axisEnd = nowYear + 1;
+const pct = (value: number) => ((value - axisStart) / (axisEnd - axisStart)) * 100;
+const ticks = Array.from({ length: axisEnd - axisStart + 1 }, (_, index) => axisStart + index).filter(
+  (year) => year % 2 === 0
+);
+const ganttRows = [
+  ...work.map((job) => ({ kind: 'work', label: job.organisation, start: job.start, end: job.end ?? axisEnd })),
+  ...education.map((item) => ({
+    kind: 'edu',
+    // "Santiago de Compostela University (USC)" → "USC · Degree" keeps the label short.
+    label: `${item.organisation.match(/\(([^)]+)\)$/)?.[1] ?? item.organisation} · ${item.role.split(' · ')[0]}`,
+    start: item.start,
+    end: item.end ?? axisEnd
+  }))
+].map((row) => ({ ...row, left: pct(row.start), width: Math.max(pct(row.end) - pct(row.start), 1.5) }));
+
+/* ---- Years per technology across work entries ---- */
+const techYears = new Map<string, number>();
+c.work.forEach((job) =>
+  job.tech.forEach((tech) => techYears.set(tech, (techYears.get(tech) ?? 0) + spanYears(job.start, job.end)))
+);
+const techRows = [...techYears.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 8);
+const techMax = Math.max(...techRows.map(([, value]) => value));
+
+/* ---- Project topics ---- */
+const PRIMARY_TAGS = 10;
+const tagCounts = new Map<string, number>();
+c.projects.forEach((project) => project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)));
+const allTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => tag);
+const showing = (n: number) => t.showing.replace('{n}', String(n)).replace('{n}', String(c.projects.length));
+
+/* ---- Certifications strip: one dot per certificate on a year axis ---- */
+const certYear = (date: string) => {
+  const [y, m] = date.split('-').map(Number);
+  return y + ((m || 6) - 1) / 12;
+};
+const certAxisStart = Math.floor(Math.min(...certificates.map((cert) => certYear(cert.date)))) - 1;
+const certAxisEnd = nowYear + 1;
+const certPct = (value: number) => ((value - certAxisStart) / (certAxisEnd - certAxisStart)) * 100;
+const certTicks = Array.from({ length: certAxisEnd - certAxisStart + 1 }, (_, i) => certAxisStart + i).filter(
+  (year) => year % 2 === 0
+);
+const shortCert = (name: string) => name.split(/[:(]/)[0].replace(/Certified|Database|Administrator/g, '').trim();
+
+/* ---- Cells: fixed run times keep the notebook deterministic ---- */
+const RUN_MS = [9, 23, 31, 14, 18, 12, 7];
+const ran = (index: number) => t.ran.replace('{ms}', String(RUN_MS[index]));
+const firstStage = c.stages[0];
+const pad = (n: number) => String(n).padStart(2, '0');
+const sqlString = (value: string) => `'${value.replace(/'/g, "''")}'`;
+---
+
+<html lang={locale}>
+  <head>
+    <SeoHead
+      title={seo.title}
+      description={seo.description}
+      canonical={seo.canonical}
+      ogLocale={seo.ogLocale}
+      ogLocaleAlternate={seo.ogLocaleAlternate}
+      ogTitle={seo.ogTitle}
+      ogDescription={seo.ogDescription}
+      alternates={getAlternateLinks()}
+      noindex
+    />
+    <link rel="preload" href="/assets/fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/fragment-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#f6f5f1" />
+    <script is:inline>
+      document.documentElement.classList.add('nb-js');
+    </script>
+  </head>
+  <body class="nb">
+    <a class="nb-skip" href="#main">{t.skip}</a>
+
+    <header class="nb-bar">
+      <div class="nb-bar-inner">
+        <a class="nb-brand" href={t.home} aria-label="David Barreiro">
+          <span class="nb-brand-mark" aria-hidden="true">db</span>
+          <span class="nb-brand-name">David Barreiro</span>
+          <span class="nb-brand-file" aria-hidden="true">/ {t.file}</span>
+        </a>
+        <nav class="nb-nav" aria-label={t.sections}>
+          <a href="#method">{t.nav.method}</a>
+          <a href="#experience">{t.nav.work}</a>
+          <a href="#projects">{t.nav.projects}</a>
+          <a href="#skills">{t.nav.skills}</a>
+        </nav>
+        <div class="nb-bar-end">
+          <span class="nb-kernel" data-kernel data-idle={t.kernelIdle} data-busy={t.kernelBusy}>
+            <i aria-hidden="true"></i><span data-kernel-text>{t.kernelIdle}</span>
+          </span>
+          <details class="nb-outline" data-menu>
+            <summary class="nb-btn nb-btn-ghost nb-btn-sm">{t.outline}</summary>
+            <nav aria-label={t.sections}>
+              <a href="#method"><span aria-hidden="true">[2]</span>{t.nav.method}</a>
+              <a href="#experience"><span aria-hidden="true">[3]</span>{t.nav.work}</a>
+              <a href="#projects"><span aria-hidden="true">[5]</span>{t.nav.projects}</a>
+              <a href="#skills"><span aria-hidden="true">[6]</span>{t.nav.skills}</a>
+            </nav>
+          </details>
+          <div class="nb-lang" role="group" aria-label={t.langLabel}>
+            <a href="/v10/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+            <a href="/es/v10/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+          </div>
+          <a class="nb-btn nb-btn-ink nb-btn-sm" href="#contact">{t.nav.contact}</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" class="nb-sheet">
+      <!-- ============ [1] HERO: markdown cell + describe() ============ -->
+      <section class="nb-cell nb-hero" data-cell data-ran={ran(0)} aria-labelledby="nb-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="1">[1]</span></div>
+        <div class="nb-hero-md">
+          <p class="nb-kicker"><span aria-hidden="true">#</span> {t.role} · {t.positioning}</p>
+          <h1 id="nb-title" class="nb-name">David <em>Barreiro</em></h1>
+          <p class="nb-headline">{t.headline}</p>
+          <p class="nb-lede">{t.lede(years)}</p>
+          <div class="nb-actions">
+            <a class="nb-btn nb-btn-ink" href={`mailto:${c.email}`}>{t.contact}</a>
+            <details class="nb-cv" data-cv>
+              <summary class="nb-btn nb-btn-ghost">{t.cv}<span class="nb-caret" aria-hidden="true"></span></summary>
+              <ul>
+                {
+                  c.cvOptions.map((option) => (
+                    <li>
+                      <a href={option.href} target="_blank" rel="noopener noreferrer">
+                        <strong>{t.cvOptions[option.key][0]}</strong>
+                        <span>{t.cvOptions[option.key][1]}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </details>
+          </div>
+          <p class="nb-links">
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          </p>
+        </div>
+
+        <div class="nb-hero-run">
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [1]</span>
+              <span class="nb-meta" data-meta>{ran(0)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code><span class="k">from</span> career <span class="k">import</span> david
+david.<span class="f">describe</span>()</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[1]</span>
+            <dl class="nb-describe">
+              <div class="is-lead">
+                <dt>{t.describe.years}</dt>
+                <dd><span data-count-to={years}>{years}</span><small>{t.describe.since(firstWorkYear)}</small></dd>
+              </div>
+              <div><dt>{t.describe.roles}</dt><dd><span data-count-to={c.work.length}>{c.work.length}</span></dd></div>
+              <div><dt>{t.describe.projects}</dt><dd><span data-count-to={c.projects.length}>{c.projects.length}</span></dd></div>
+              <div><dt>{t.describe.certs}</dt><dd><span data-count-to={certificates.length}>{certificates.length}</span></dd></div>
+              <div><dt>{t.describe.stages}</dt><dd><span data-count-to={c.stages.length}>{c.stages.length}</span></dd></div>
+            </dl>
+            <div class="nb-spark" aria-hidden="true">
+              {
+                ganttRows.map((row, index) => (
+                  <span
+                    class:list={['nb-spark-bar', `is-${row.kind}`]}
+                    style={`--l:${row.left}%;--w:${row.width}%;--i:${index}`}
+                  />
+                ))
+              }
+              <span class="nb-spark-axis"><span>{axisStart}</span><span>{nowYear}</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [2] METHOD: DAG ============ -->
+      <section id="method" class="nb-cell" data-cell data-ran={ran(1)} aria-labelledby="nb-method-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="2">[2]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-md">
+            <h2 id="nb-method-title">{t.methodTitle}</h2>
+            <p>{t.methodIntro}</p>
+          </div>
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [2]</span>
+              <span class="nb-meta" data-meta>{ran(1)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code>plan = platform.<span class="f">design</span>(source=<span class="s">"domain"</span>, sink=<span class="s">"consumers"</span>)
+plan.<span class="f">dag</span>()</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[2]</span>
+            <ol class="nb-dag" data-dag>
+              {
+                c.stages.map((stage, index) => (
+                  <li style={`--i:${index}`}>
+                    <button
+                      type="button"
+                      class:list={['nb-node', { 'is-active': index === 0 }]}
+                      data-node={index}
+                      aria-pressed={index === 0 ? 'true' : 'false'}
+                      aria-controls="nb-node-detail"
+                    >
+                      <span class="nb-node-id">{pad(index + 1)}</span>
+                      <span class="nb-node-name">{stage.name}</span>
+                    </button>
+                  </li>
+                ))
+              }
+            </ol>
+            <div id="nb-node-detail" class="nb-node-detail" data-node-detail aria-live="off">
+              <p class="nb-node-meta" data-node-meta>{t.stage(1, c.stages.length)}</p>
+              <h3 data-node-name>{firstStage.name}</h3>
+              <p data-node-text>{firstStage.detail}</p>
+              <p class="nb-node-tech">
+                <span>{t.builtWith}</span>
+                <span class="nb-node-chips" data-node-tech>
+                  {firstStage.tech.map((tech) => <code>{tech}</code>)}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [3] EXPERIENCE: query + timeline ============ -->
+      <section id="experience" class="nb-cell" data-cell data-ran={ran(2)} aria-labelledby="nb-work-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="3">[3]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-md">
+            <h2 id="nb-work-title">{t.workTitle}</h2>
+            <p>{t.workIntro}</p>
+          </div>
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [3]</span>
+              <span class="nb-meta" data-meta>{ran(2)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code><span class="k">SELECT</span> company, role, period, stack
+<span class="k">FROM</span> career
+<span class="k">WHERE</span> kind = <span class="s">'work'</span>
+<span class="k">ORDER BY</span> start <span class="k">DESC</span>;</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[3]</span>
+
+            <figure class="nb-gantt" style={`--years:${axisEnd - axisStart}`}>
+              <figcaption>
+                <span>{t.timeline}</span>
+                <span class="nb-legend">
+                  <span class="is-work">{t.work}</span>
+                  <span class="is-edu">{t.edu}</span>
+                </span>
+              </figcaption>
+              <ul class="nb-gantt-rows">
+                {
+                  ganttRows.map((row, index) => (
+                    <li class={`is-${row.kind}`}>
+                      <span class="nb-gantt-label">{row.label}</span>
+                      <span class="nb-gantt-track">
+                        <span
+                          class="nb-gantt-bar"
+                          style={`--l:${row.left}%;--w:${row.width}%;--i:${index}`}
+                          title={`${row.start}–${row.end > nowYear ? nowYear : row.end}`}
+                        />
+                      </span>
+                    </li>
+                  ))
+                }
+              </ul>
+              <div class="nb-gantt-axis" aria-hidden="true">
+                <span class="nb-gantt-label"></span>
+                <span class="nb-gantt-track">
+                  {ticks.map((year) => <span style={`--l:${pct(year)}%`}>{year}</span>)}
+                </span>
+              </div>
+            </figure>
+
+            <p class="nb-rowcount">{t.rows(work.length)}</p>
+            <table class="nb-table nb-career">
+              <thead>
+                <tr>
+                  <th scope="col"><span class="nb-sr">{t.expand}</span></th>
+                  <th scope="col">{t.cols.company}</th>
+                  <th scope="col">{t.cols.role}</th>
+                  <th scope="col">{t.cols.period}</th>
+                  <th scope="col" class="is-num">{t.cols.years}</th>
+                  <th scope="col">{t.cols.stack}</th>
+                </tr>
+              </thead>
+              {
+                work.map((job, index) => (
+                  <tbody class="nb-row-group">
+                    <tr class="nb-row">
+                      <td class="nb-toggle-cell">
+                        <button
+                          type="button"
+                          class="nb-toggle"
+                          data-row-toggle
+                          aria-expanded={index === 0 ? 'true' : 'false'}
+                          aria-controls={`nb-job-${index}`}
+                        >
+                          <span class="nb-sr">
+                            {t.expand}: {job.organisation}
+                          </span>
+                        </button>
+                      </td>
+                      <th scope="row" data-label={t.cols.company}>
+                        {job.organisation}
+                      </th>
+                      <td data-label={t.cols.role}>{job.role}</td>
+                      <td data-label={t.cols.period} class="is-mono">
+                        {job.period}
+                      </td>
+                      <td data-label={t.cols.years} class="is-num is-mono">
+                        {spanYears(job.start, job.end)}
+                      </td>
+                      <td data-label={t.cols.stack} class="nb-stack">
+                        {job.tech.map((tech) => <code>{tech}</code>)}
+                      </td>
+                    </tr>
+                    <tr class="nb-row-detail" id={`nb-job-${index}`} hidden={index !== 0}>
+                      <td colspan="6">
+                        <div class="nb-detail-inner">
+                          <p class="nb-detail-summary">{job.summary}</p>
+                          <p class="nb-detail-label">{t.did}</p>
+                          <ul>
+                            {job.highlights.map((item) => (
+                              <li>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                ))
+              }
+            </table>
+
+            <p class="nb-rowcount nb-rowcount-edu">
+              <code><span class="k">WHERE</span> kind = <span class="s">'education'</span></code>
+              <span>{t.rows(education.length)}</span>
+            </p>
+            <table class="nb-table nb-edu">
+              <thead>
+                <tr>
+                  <th scope="col">{t.eduCols.institution}</th>
+                  <th scope="col">{t.eduCols.degree}</th>
+                  <th scope="col">{t.eduCols.period}</th>
+                  <th scope="col">{t.cols.stack}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  education.map((item) => (
+                    <tr>
+                      <th scope="row" data-label={t.eduCols.institution}>
+                        {item.organisation}
+                      </th>
+                      <td data-label={t.eduCols.degree}>{item.role}</td>
+                      <td data-label={t.eduCols.period} class="is-mono">
+                        {item.period}
+                      </td>
+                      <td data-label={t.cols.stack} class="nb-stack">
+                        {item.tech.map((tech) => <code>{tech}</code>)}
+                      </td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [4] TECH YEARS: bar chart ============ -->
+      <section class="nb-cell nb-cell-tight" data-cell data-ran={ran(3)} aria-labelledby="nb-tech-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="4">[4]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [4]</span>
+              <span class="nb-meta" data-meta>{ran(3)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code>career.<span class="f">groupby</span>(<span class="s">"tech"</span>).<span class="f">years</span>().<span class="f">top</span>(<span class="n">{techRows.length}</span>).<span class="f">plot</span>.<span class="f">barh</span>()</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[4]</span>
+            <figure class="nb-bars">
+              <figcaption>
+                <h3 id="nb-tech-title">{t.techTitle}</h3>
+                <span>{t.techNote}</span>
+              </figcaption>
+              <ul>
+                {
+                  techRows.map(([tech, value], index) => (
+                    <li style={`--v:${value / techMax};--i:${index}`}>
+                      <span class="nb-bars-label">{tech}</span>
+                      <span class="nb-bars-track">
+                        <span class="nb-bars-fill" />
+                      </span>
+                      <span class="nb-bars-value">
+                        {value}
+                        <small>{t.yearsUnit}</small>
+                      </span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [5] PROJECTS: live WHERE clause ============ -->
+      <section id="projects" class="nb-cell" data-cell data-ran={ran(4)} data-projects aria-labelledby="nb-projects-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="5">[5]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-md">
+            <h2 id="nb-projects-title">{t.projectsTitle}</h2>
+            <p>{t.projectsIntro}</p>
+          </div>
+          <div class="nb-src nb-src-live">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [5]</span>
+              <span class="nb-meta" data-meta>{ran(4)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre aria-hidden="true"><code><span class="k">SELECT</span> name, summary, repo
+<span class="k">FROM</span> projects
+<span data-where><span class="c">-- WHERE topics: {t.filterAll.toLowerCase()}</span></span>
+<span class="k">ORDER BY</span> name;</code></pre>
+            <div class="nb-params" role="group" aria-label={t.topics}>
+              <span class="nb-params-label" aria-hidden="true">{t.topics} =</span>
+              <div class="nb-chips" data-chips>
+                <button type="button" class="nb-chip nb-chip-all" data-tag="" aria-pressed="true">{t.filterAll}</button>
+                {
+                  allTags.map((tag, index) => (
+                    <button
+                      type="button"
+                      class:list={['nb-chip', { 'is-extra': index >= PRIMARY_TAGS }]}
+                      data-tag={tag}
+                      data-sql={sqlString(tag)}
+                      aria-pressed="false"
+                    >
+                      {tag}
+                    </button>
+                  ))
+                }
+                {
+                  allTags.length > PRIMARY_TAGS && (
+                    <button
+                      type="button"
+                      class="nb-chip nb-chip-more"
+                      data-more
+                      aria-expanded="false"
+                      data-label-more={t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                      data-label-less={t.lessTopics}
+                    >
+                      {t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                    </button>
+                  )
+                }
+              </div>
+            </div>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[5]</span>
+            <div class="nb-result-bar">
+              <p class="nb-rowcount" data-count aria-live="polite">{showing(c.projects.length)}</p>
+              <button type="button" class="nb-btn nb-btn-ghost nb-btn-sm" data-clear hidden>{t.clear}</button>
+            </div>
+            <ul class="nb-projects">
+              {
+                c.projects.map((project, index) => (
+                  <li data-tags={JSON.stringify(project.allTags)}>
+                    <article class="nb-project">
+                      <p class="nb-project-idx" aria-hidden="true">
+                        {pad(index + 1)}
+                      </p>
+                      <h3>{project.name}</h3>
+                      <p class="nb-project-text">{project.oneLiner}</p>
+                      <p class="nb-project-tags">
+                        {project.tags.map((tag) => (
+                          <code>{tag}</code>
+                        ))}
+                      </p>
+                      {project.url && (
+                        <a class="nb-project-link" href={project.url} target="_blank" rel="noopener noreferrer">
+                          {t.repo} <span aria-hidden="true">↗</span>
+                        </a>
+                      )}
+                    </article>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="nb-empty" data-empty hidden>{t.empty}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [6] SKILLS: pivot tabs ============ -->
+      <section id="skills" class="nb-cell" data-cell data-ran={ran(5)} aria-labelledby="nb-skills-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="6">[6]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-md">
+            <h2 id="nb-skills-title">{t.skillsTitle}</h2>
+            <p>{t.skillsIntro}</p>
+          </div>
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [6]</span>
+              <span class="nb-meta" data-meta>{ran(5)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code>skills.<span class="f">pivot</span>(index=<span class="s">"skill"</span>, columns=<span class="s">"area"</span>, values=<span class="s">"level"</span>)</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[6]</span>
+            <div class="nb-tabs" role="tablist" aria-label={t.skillsTitle} data-tabs>
+              {
+                c.skillGroups.map((group, index) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    id={`nb-tab-${index}`}
+                    aria-controls={`nb-panel-${index}`}
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    tabindex={index === 0 ? 0 : -1}
+                  >
+                    {group.name}
+                    <span class="nb-tab-count">{group.keywords.length}</span>
+                  </button>
+                ))
+              }
+            </div>
+            {
+              c.skillGroups.map((group, index) => (
+                <div
+                  class="nb-panel"
+                  role="tabpanel"
+                  id={`nb-panel-${index}`}
+                  aria-labelledby={`nb-tab-${index}`}
+                  hidden={index !== 0}
+                  tabindex="0"
+                >
+                  <table class="nb-table nb-skills">
+                    <thead>
+                      <tr>
+                        <th scope="col">{t.skillCols.skill}</th>
+                        <th scope="col">{t.skillCols.level}</th>
+                        <th scope="col">{t.skillCols.cert}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.keywords.map((skill) => {
+                        const value = levelValue(skill.level);
+                        return (
+                          <tr>
+                            <th scope="row">
+                              <span class="nb-skill-name">
+                                {skill.logo && <img src={skill.logo} alt="" width="20" height="20" loading="lazy" />}
+                                {skill.name}
+                              </span>
+                            </th>
+                            <td>
+                              <span class="nb-meter" style={`--v:${value}`} aria-hidden="true">
+                                <i />
+                                <i />
+                                <i />
+                              </span>
+                              <span class="nb-meter-text">{t.levelNames[value] || skill.level}</span>
+                            </td>
+                            <td>
+                              {skill.certifications.length > 0 ? (
+                                skill.certifications.map((cert) =>
+                                  cert.url ? (
+                                    <a class="nb-badge" href={cert.url} target="_blank" rel="noopener noreferrer">
+                                      ✓ {cert.issuer || t.certified} {cert.date.slice(0, 4)}
+                                    </a>
+                                  ) : (
+                                    <span class="nb-badge">✓ {cert.issuer || t.certified}</span>
+                                  )
+                                )
+                              ) : (
+                                <span class="nb-null">null</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [7] CERTIFICATIONS: strip plot ============ -->
+      <section class="nb-cell nb-cell-tight" data-cell data-ran={ran(6)} aria-labelledby="nb-certs-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in" data-in="7">[7]</span></div>
+        <div class="nb-cell-body">
+          <div class="nb-src">
+            <div class="nb-src-head">
+              <span class="nb-in-inline" aria-hidden="true">In [7]</span>
+              <span class="nb-meta" data-meta>{ran(6)}</span>
+              <button class="nb-rerun" type="button" data-rerun aria-label={t.rerun}>▶</button>
+            </div>
+            <pre><code>certifications.<span class="f">sort_values</span>(<span class="s">"date"</span>, ascending=<span class="k">False</span>).<span class="f">plot</span>.<span class="f">strip</span>()</code></pre>
+          </div>
+          <div class="nb-out" data-out>
+            <span class="nb-out-label" aria-hidden="true">Out[7]</span>
+            <figure class="nb-strip">
+              <figcaption>
+                <h3 id="nb-certs-title">{t.certsTitle}</h3>
+                <span>{t.certsIntro}</span>
+              </figcaption>
+              <div class="nb-strip-plot" aria-hidden="true">
+                <span class="nb-strip-line"></span>
+                {
+                  certificates.map((cert, index) => (
+                    <span
+                      class:list={[
+                        'nb-strip-dot',
+                        {
+                          'is-low': index % 2 === 1,
+                          'is-end': certPct(certYear(cert.date)) > 82,
+                          'is-start': certPct(certYear(cert.date)) < 14
+                        }
+                      ]}
+                      style={`--l:${certPct(certYear(cert.date))}%;--i:${index}`}
+                    >
+                      <span>{shortCert(cert.name)}</span>
+                    </span>
+                  ))
+                }
+                <span class="nb-strip-axis">
+                  {certTicks.map((year) => <span style={`--l:${certPct(year)}%`}>{year}</span>)}
+                </span>
+              </div>
+              <ol class="nb-certs">
+                {
+                  certificates.map((cert) => (
+                    <li>
+                      <span class="nb-cert-date">{cert.date.slice(0, 7)}</span>
+                      <span class="nb-cert-name">
+                        {cert.name}
+                        {cert.issuer && <small>{cert.issuer}</small>}
+                      </span>
+                      {cert.url ? (
+                        <a href={cert.url} target="_blank" rel="noopener noreferrer">
+                          {t.verify} <span aria-hidden="true">↗</span>
+                        </a>
+                      ) : (
+                        <span class="nb-null">—</span>
+                      )}
+                    </li>
+                  ))
+                }
+              </ol>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ [8] CONTACT: markdown cell ============ -->
+      <section id="contact" class="nb-cell nb-contact" aria-labelledby="nb-contact-title">
+        <div class="nb-gutter" aria-hidden="true"><span class="nb-in">[ ]</span></div>
+        <div class="nb-cell-body">
+          <p class="nb-kicker"><span aria-hidden="true">##</span> {t.nav.contact}</p>
+          <h2 id="nb-contact-title">{t.contactTitle}</h2>
+          <p class="nb-contact-text">{t.contactText}</p>
+          <div class="nb-actions">
+            <a class="nb-btn nb-btn-paper" href={`mailto:${c.email}`}>{c.email}</a>
+            <a class="nb-btn nb-btn-line" href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+            <a class="nb-btn nb-btn-line" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          </div>
+          <p class="nb-prompt" aria-hidden="true"><span>&gt;&gt;&gt;</span><i></i></p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="nb-footer">
+      <p>David Barreiro · {t.footerRole}</p>
+      <p class="is-mono">{t.file} · {nowYear}</p>
+    </footer>
+
+    <script
+      type="application/json"
+      id="nb-data"
+      set:html={JSON.stringify({
+        stages: c.stages,
+        labels: {
+          stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
+          showing: t.showing,
+          running: t.running,
+          all: t.filterAll.toLowerCase()
+        }
+      }).replace(/</g, '\\u003c')}
+    />
+
+    <script>
+      import './notebook.ts';
+    </script>
+  </body>
+</html>
