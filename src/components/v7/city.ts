@@ -1,13 +1,14 @@
 /**
- * Client behaviour for the isometric-city redesign (/v7/): building detail card with a guided
- * tour, packet flow pause, CV menu, project filter and skill tabs. No dependencies; every
- * feature degrades to readable static content when this script does not run.
+ * Client behaviour for the isometric-infrastructure redesign (/v7/): layer detail card with a
+ * guided tour, traffic pause with simulated telemetry, CV menu, project filter and skill tabs.
+ * No dependencies; every feature degrades to readable static content when this script does not run.
  */
 
 interface StageInfo {
   name: string;
   detail: string;
   tech: string[];
+  service: string;
 }
 
 interface CityPayload {
@@ -20,7 +21,7 @@ const payloadNode = document.getElementById('cy-data');
 const payload: CityPayload | null = payloadNode ? JSON.parse(payloadNode.textContent || 'null') : null;
 const pad = (n: number) => String(n).padStart(2, '0');
 
-/* ---------------- Building card ---------------- */
+/* ---------------- Layer card ---------------- */
 function setupCard(data: CityPayload) {
   const card = document.querySelector<HTMLElement>('[data-card]');
   if (!card) return undefined;
@@ -28,6 +29,7 @@ function setupCard(data: CityPayload) {
   const meta = card.querySelector<HTMLElement>('[data-card-meta]');
   const name = card.querySelector<HTMLElement>('[data-card-name]');
   const detail = card.querySelector<HTMLElement>('[data-card-detail]');
+  const service = card.querySelector<HTMLElement>('[data-card-service]');
   const tech = card.querySelector<HTMLElement>('[data-card-tech]');
   const triggers = [...document.querySelectorAll<HTMLElement | SVGElement>('[data-stage]')];
   const total = data.stages.length;
@@ -45,6 +47,7 @@ function setupCard(data: CityPayload) {
     if (meta) meta.textContent = data.labels.stage.replace('{n}', String(index + 1)).replace('{n}', String(total));
     if (name) name.textContent = info.name;
     if (detail) detail.textContent = info.detail;
+    if (service) service.textContent = info.service;
     if (tech) {
       tech.replaceChildren(
         ...info.tech.map((item) => {
@@ -101,8 +104,52 @@ function setupCard(data: CityPayload) {
   return stopTour;
 }
 
+/* ---------------- Simulated telemetry ---------------- */
+// Illustrative numbers only (the panel says so): a bounded random walk that ticks while traffic runs.
+function setupTelemetry() {
+  const root = document.querySelector<HTMLElement>('[data-telemetry]');
+  if (!root) return (_running: boolean) => {};
+  const eps = root.querySelector<HTMLElement>('[data-metric="eps"]');
+  const p99 = root.querySelector<HTMLElement>('[data-metric="p99"]');
+  const lag = root.querySelector<HTMLElement>('[data-metric="lag"]');
+  const chart = root.querySelector<SVGPolylineElement>('[data-chart]');
+  const SAMPLES = 32;
+  const history: number[] = [];
+  let rate = 48.2;
+  let timer: number | undefined;
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
+  const tick = () => {
+    rate = clamp(rate + (Math.random() - 0.5) * 3.2, 38, 61);
+    history.push(rate);
+    if (history.length > SAMPLES) history.shift();
+    if (eps) eps.textContent = `${rate.toFixed(1)}k`;
+    if (p99) p99.textContent = `${Math.round(9 + (rate - 38) * 0.28 + Math.random() * 3)} ms`;
+    if (lag) lag.textContent = String(Math.random() < 0.8 ? 0 : Math.ceil(Math.random() * 4));
+    if (chart) {
+      const step = 240 / (SAMPLES - 1);
+      const offset = SAMPLES - history.length;
+      chart.setAttribute(
+        'points',
+        history.map((v, i) => `${((i + offset) * step).toFixed(1)},${(44 - ((v - 36) / 27) * 40).toFixed(1)}`).join(' ')
+      );
+    }
+  };
+
+  // Seed the chart so it is never empty, even when motion is reduced.
+  for (let i = 0; i < SAMPLES; i += 1) tick();
+
+  return (running: boolean) => {
+    if (running && timer === undefined) timer = window.setInterval(tick, 1100);
+    if (!running && timer !== undefined) {
+      window.clearInterval(timer);
+      timer = undefined;
+    }
+  };
+}
+
 /* ---------------- Packet flow (SMIL + CSS) ---------------- */
-function setupFlow(stopTour: (() => void) | undefined) {
+function setupFlow(stopTour: (() => void) | undefined, setTelemetry: (running: boolean) => void) {
   const scene = document.querySelector<SVGSVGElement>('[data-scene]');
   const button = document.querySelector<HTMLButtonElement>('[data-pause]');
   if (!scene || !button) return;
@@ -115,6 +162,7 @@ function setupFlow(stopTour: (() => void) | undefined) {
     if (running) scene.unpauseAnimations();
     else scene.pauseAnimations();
     scene.classList.toggle('is-paused', !running);
+    setTelemetry(running);
     button.setAttribute('aria-pressed', String(userPaused));
     if (text) text.textContent = (userPaused ? button.dataset.labelResume : button.dataset.labelPause) || '';
   };
@@ -155,7 +203,7 @@ function setupFilter(showingTemplate: string) {
   const section = document.querySelector<HTMLElement>('[data-projects]');
   if (!section) return;
   const chips = [...section.querySelectorAll<HTMLButtonElement>('[data-tag]')];
-  const items = [...section.querySelectorAll<HTMLElement>('.cy-lots > li')];
+  const items = [...section.querySelectorAll<HTMLElement>('.cy-services > li')];
   const count = section.querySelector<HTMLElement>('[data-count]');
   const clear = section.querySelector<HTMLButtonElement>('[data-clear]');
   const empty = section.querySelector<HTMLElement>('[data-empty]');
@@ -237,7 +285,7 @@ function setupTabs() {
 }
 
 const stopTour = payload ? setupCard(payload) : undefined;
-setupFlow(stopTour);
+setupFlow(stopTour, setupTelemetry());
 setupCvMenus();
 setupFilter(payload?.labels.showing ?? '{n} / {n}');
 setupTabs();

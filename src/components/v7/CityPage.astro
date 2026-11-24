@@ -1,9 +1,10 @@
 ---
 /**
- * Redesign "Isometric city" (routes /v7/ and /es/v7/).
- * The data-platform method is an architectural model: each stage is a building on a plinth,
- * joined by lit conduits with packets moving through them. Work experience reads as the floors
- * of a building, education as its foundations, projects as lots and skills as materials.
+ * Redesign "Isometric infrastructure" (routes /v7/ and /es/v7/).
+ * The data-platform method is an isometric topology: each layer is a piece of infrastructure
+ * (app servers, connector pods, broker racks, a node pool, storage volumes, a monitoring tower,
+ * Go service pods) joined by a live data link. Work experience reads as release history,
+ * education as the base image, projects as a service catalog and skills as stack layers.
  * Standalone page: it does not load the main site's JS or Tailwind.
  */
 import SeoHead from '../common/SeoHead.astro';
@@ -22,10 +23,11 @@ const c = getPreviewContent(locale);
 const t = {
   en: {
     home: '/v7/',
-    nav: { model: 'Model', floors: 'Experience', lots: 'Projects', materials: 'Skills', contact: 'Contact' },
+    nav: { topology: 'Topology', deploys: 'Experience', services: 'Projects', stack: 'Skills', contact: 'Contact' },
     sections: 'Sections',
     langLabel: 'Language',
     role: 'Senior Software Engineer',
+    available: 'Open to new roles',
     headline: 'I design real-time data platforms and build the Go backends that hold them up.',
     lede: (years: number) =>
       `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java: from the first event to the dashboard that reads it.`,
@@ -38,35 +40,28 @@ const t = {
     },
     statYears: 'years in production',
     statCerts: 'certifications',
-    statStages: 'stages per platform',
+    statStages: 'platform layers',
     modelTitle: 'How I design data platforms',
-    modelHint: 'Every building is one stage. Select one to see what it solves.',
-    pause: 'Pause flow',
-    resume: 'Resume flow',
-    stageOf: (n: number, total: number) => `Building ${n} of ${total}`,
-    builtWith: 'Built with',
-    key: 'Key',
-    titleBlock: {
-      project: 'Project',
-      projectValue: 'Real-time data platform',
-      drawn: 'Drawn by',
-      scale: 'Scale',
-      scaleValue: '1 : 1 in production',
-      sheet: 'Sheet',
-      rev: 'Rev.'
-    },
-    floorsEyebrow: 'Section A–A',
-    floorsTitle: 'Work experience',
-    floorsIntro: 'One floor per job, the newest on top. Open a floor to see what I built there.',
-    floor: 'Floor',
-    highlights: 'What I did',
-    ground: 'Ground level',
-    foundations: 'Foundations · education',
-    basement: 'B',
-    lotsEyebrow: 'Site plan',
-    lotsTitle: 'Projects',
-    lotsIntro: 'Personal and technical work. Filter by topic; a project shows if it has any selected topic.',
-    lot: 'Lot',
+    modelHint: 'Each node is one layer of the platform. Select one to inspect it.',
+    pause: 'Pause traffic',
+    resume: 'Resume traffic',
+    stageOf: (n: number, total: number) => `Layer ${n} of ${total}`,
+    healthy: 'healthy',
+    builtWith: 'Runs on',
+    key: 'Layers',
+    telemetry: 'Simulated telemetry',
+    metrics: { eps: 'events / s', p99: 'p99 latency', lag: 'consumer lag', up: 'healthy layers' },
+    deploysEyebrow: 'Release history',
+    deploysTitle: 'Work experience',
+    deploysIntro: 'One release per role, the newest first. Expand one to see what shipped.',
+    running: 'running',
+    done: 'completed',
+    highlights: 'What shipped',
+    baseTitle: 'Base image · education',
+    layer: 'layer',
+    servicesEyebrow: 'Service catalog',
+    servicesTitle: 'Projects',
+    servicesIntro: 'Personal and technical work. Filter by topic; a project shows if it has any selected topic.',
     filterAll: 'All',
     filterLabel: 'Topics',
     showing: (n: number, total: number) => `${n} of ${total} projects`,
@@ -75,25 +70,27 @@ const t = {
     lessTopics: 'Fewer topics',
     empty: 'No project matches these topics.',
     repo: 'Repository',
-    materialsEyebrow: 'Specification',
-    materialsTitle: 'Skills',
-    materialsIntro: 'The materials the platform is built from, grouped by trade. Pick a group to see level and certificates.',
+    stackEyebrow: 'Stack layers',
+    stackTitle: 'Skills',
+    stackIntro: 'The stack the platform runs on, layer by layer. Pick one to see level and certificates.',
     levels: { Advanced: 2, Intermediate: 1, Expert: 3 } as Record<string, number>,
     certified: 'Certified',
     certsTitle: 'Certifications',
     certsNote: 'Most recent first',
-    officeEyebrow: 'Site office',
+    contactEyebrow: 'Open a connection',
     contactTitle: "Let's build something with data",
     contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    terminalOk: 'listening on email, LinkedIn and GitHub',
     footerRole: 'Senior Software Engineer',
     skip: 'Skip to content'
   },
   es: {
     home: '/es/v7/',
-    nav: { model: 'Maqueta', floors: 'Experiencia', lots: 'Proyectos', materials: 'Skills', contact: 'Contacto' },
+    nav: { topology: 'Topología', deploys: 'Experiencia', services: 'Proyectos', stack: 'Skills', contact: 'Contacto' },
     sections: 'Secciones',
     langLabel: 'Idioma',
     role: 'Ingeniero de Software Senior',
+    available: 'Abierto a nuevos puestos',
     headline: 'Diseño plataformas de datos en tiempo real y construyo los backends en Go que las sostienen.',
     lede: (years: number) =>
       `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java: desde el primer evento hasta el panel que lo lee.`,
@@ -106,35 +103,28 @@ const t = {
     },
     statYears: 'años en producción',
     statCerts: 'certificaciones',
-    statStages: 'etapas por plataforma',
+    statStages: 'capas por plataforma',
     modelTitle: 'Cómo diseño plataformas de datos',
-    modelHint: 'Cada edificio es una etapa. Elige uno para ver qué resuelve.',
-    pause: 'Pausar flujo',
-    resume: 'Reanudar flujo',
-    stageOf: (n: number, total: number) => `Edificio ${n} de ${total}`,
-    builtWith: 'Construido con',
-    key: 'Leyenda',
-    titleBlock: {
-      project: 'Proyecto',
-      projectValue: 'Plataforma de datos en tiempo real',
-      drawn: 'Dibujado por',
-      scale: 'Escala',
-      scaleValue: '1 : 1 en producción',
-      sheet: 'Hoja',
-      rev: 'Rev.'
-    },
-    floorsEyebrow: 'Sección A–A',
-    floorsTitle: 'Experiencia laboral',
-    floorsIntro: 'Una planta por empresa, la más reciente arriba. Abre una planta para ver qué construí allí.',
-    floor: 'Planta',
-    highlights: 'Qué hice',
-    ground: 'Cota cero',
-    foundations: 'Cimientos · formación',
-    basement: 'S',
-    lotsEyebrow: 'Plano de situación',
-    lotsTitle: 'Proyectos',
-    lotsIntro: 'Trabajo personal y técnico. Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
-    lot: 'Parcela',
+    modelHint: 'Cada nodo es una capa de la plataforma. Elige uno para inspeccionarlo.',
+    pause: 'Pausar tráfico',
+    resume: 'Reanudar tráfico',
+    stageOf: (n: number, total: number) => `Capa ${n} de ${total}`,
+    healthy: 'operativo',
+    builtWith: 'Corre sobre',
+    key: 'Capas',
+    telemetry: 'Telemetría simulada',
+    metrics: { eps: 'eventos / s', p99: 'latencia p99', lag: 'lag de consumo', up: 'capas operativas' },
+    deploysEyebrow: 'Historial de versiones',
+    deploysTitle: 'Experiencia laboral',
+    deploysIntro: 'Una versión por puesto, la más reciente primero. Ábrela para ver qué se entregó.',
+    running: 'en curso',
+    done: 'completado',
+    highlights: 'Qué se entregó',
+    baseTitle: 'Imagen base · formación',
+    layer: 'capa',
+    servicesEyebrow: 'Catálogo de servicios',
+    servicesTitle: 'Proyectos',
+    servicesIntro: 'Trabajo personal y técnico. Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
     filterAll: 'Todos',
     filterLabel: 'Temas',
     showing: (n: number, total: number) => `${n} de ${total} proyectos`,
@@ -143,17 +133,18 @@ const t = {
     lessTopics: 'Menos temas',
     empty: 'Ningún proyecto coincide con estos temas.',
     repo: 'Repositorio',
-    materialsEyebrow: 'Memoria de calidades',
-    materialsTitle: 'Skills',
-    materialsIntro: 'Los materiales con los que se construye la plataforma, agrupados por oficio. Elige un grupo para ver nivel y certificados.',
+    stackEyebrow: 'Capas del stack',
+    stackTitle: 'Skills',
+    stackIntro: 'El stack sobre el que corre la plataforma, capa a capa. Elige una para ver nivel y certificados.',
     levels: { Avanzado: 2, Intermedio: 1, Experto: 3 } as Record<string, number>,
     certified: 'Certificado',
     certsTitle: 'Certificaciones',
     certsNote: 'Las más recientes primero',
-    officeEyebrow: 'Oficina de obra',
+    contactEyebrow: 'Abre una conexión',
     contactTitle: 'Construyamos algo con datos',
     contactText:
       'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    terminalOk: 'escuchando en email, LinkedIn y GitHub',
     footerRole: 'Ingeniero de Software Senior',
     skip: 'Saltar al contenido'
   }
@@ -164,6 +155,13 @@ const firstWorkYear = Math.min(...c.work.map((job) => job.start));
 const years = nowYear - firstWorkYear;
 const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
 const pad = (n: number) => String(n).padStart(2, '0');
+const slug = (text: string) =>
+  text
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 
 // ---------- Isometric geometry ----------
 // Grid units (gx, gy, gz) project to screen with the classic 2:1 isometric ratio.
@@ -171,257 +169,272 @@ type Pt = [number, number];
 const U = 30;
 const COS = Math.cos(Math.PI / 6);
 const iso = (gx: number, gy: number, gz = 0): Pt => [(gx - gy) * COS * U, (gx + gy) * 0.5 * U - gz * U];
-const fmt = (list: Pt[]) => list.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+const f1 = (n: number) => n.toFixed(1);
+const fmt = (list: Pt[]) => list.map(([x, y]) => `${f1(x)},${f1(y)}`).join(' ');
 
 interface Box {
   top: string;
   left: string;
   right: string;
-  depth: number;
 }
 /** A box with its origin corner at (gx, gy, gz), footprint w × d and height h. */
 const box = (gx: number, gy: number, gz: number, w: number, d: number, h: number): Box => ({
   top: fmt([iso(gx, gy, gz + h), iso(gx + w, gy, gz + h), iso(gx + w, gy + d, gz + h), iso(gx, gy + d, gz + h)]),
   left: fmt([iso(gx, gy + d, gz + h), iso(gx + w, gy + d, gz + h), iso(gx + w, gy + d, gz), iso(gx, gy + d, gz)]),
-  right: fmt([iso(gx + w, gy, gz + h), iso(gx + w, gy + d, gz + h), iso(gx + w, gy + d, gz), iso(gx + w, gy, gz)]),
-  depth: gx + w + gy + d
+  right: fmt([iso(gx + w, gy, gz + h), iso(gx + w, gy + d, gz + h), iso(gx + w, gy + d, gz), iso(gx + w, gy, gz)])
 });
 
-interface Silo {
-  body: string;
-  cx: number;
-  ty: number;
-  rx: number;
-  ry: number;
-}
-const silo = (cx: number, cy: number, r: number, h: number): Silo => {
-  const [bx, by] = iso(cx, cy, 0);
-  const [, ty] = iso(cx, cy, h);
+/** A storage disc: a short cylinder standing at (cx, cy, gz). */
+const disc = (cx: number, cy: number, r: number, h: number, gz: number) => {
+  const [bx, by] = iso(cx, cy, gz);
+  const [, ty] = iso(cx, cy, gz + h);
   const rx = Math.SQRT2 * COS * r * U;
   const ry = Math.SQRT2 * 0.5 * r * U;
   return {
-    body: `M ${(bx - rx).toFixed(1)} ${ty.toFixed(1)} L ${(bx - rx).toFixed(1)} ${by.toFixed(1)} A ${rx.toFixed(1)} ${ry.toFixed(1)} 0 0 0 ${(bx + rx).toFixed(1)} ${by.toFixed(1)} L ${(bx + rx).toFixed(1)} ${ty.toFixed(1)} Z`,
+    body: `M ${f1(bx - rx)} ${f1(ty)} L ${f1(bx - rx)} ${f1(by)} A ${f1(rx)} ${f1(ry)} 0 0 0 ${f1(bx + rx)} ${f1(by)} L ${f1(bx + rx)} ${f1(ty)} Z`,
+    band: `M ${f1(bx - rx)} ${f1((by + ty) / 2)} A ${f1(rx)} ${f1(ry)} 0 0 0 ${f1(bx + rx)} ${f1((by + ty) / 2)}`,
     cx: bx,
     ty,
     rx,
-    ry
+    ry,
+    led: [bx - rx * 0.45, (by + ty) / 2 + ry * 0.75] as Pt
   };
 };
 
-// Convex hull (monotone chain) for the soft shadows.
-const hull = (points: Pt[]): Pt[] => {
-  const p = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const cross = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const lower: Pt[] = [];
-  for (const q of p) {
-    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], q) <= 0) lower.pop();
-    lower.push(q);
-  }
-  const upper: Pt[] = [];
-  for (const q of [...p].reverse()) {
-    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], q) <= 0) upper.pop();
-    upper.push(q);
-  }
-  return [...lower.slice(0, -1), ...upper.slice(0, -1)];
-};
-// Light comes from the back left, so shadows fall towards the viewer's right.
-const SHADOW: [number, number] = [0.95, -0.55];
-const shadowOf = (gx: number, gy: number, w: number, d: number, h: number) => {
-  const [sx, sy] = [SHADOW[0] * h, SHADOW[1] * h];
-  const corners: [number, number][] = [
-    [gx, gy],
-    [gx + w, gy],
-    [gx + w, gy + d],
-    [gx, gy + d]
-  ];
-  return fmt(hull([...corners, ...corners.map(([x, y]) => [x + sx, y + sy] as [number, number])].map(([x, y]) => iso(x, y, 0))));
-};
-
-// Each stage of the method is one building. Footprints: [gx, gy, w, d, h, gz?].
-type Part = { type: 'box'; g: [number, number, number, number, number, number?] } | { type: 'silo'; g: [number, number, number, number] };
+// Each layer of the method is one piece of infrastructure.
+// Boxes: [gx, gy, w, d, h, gz?] plus rack units and status LEDs; discs: [cx, cy, r, h, gz].
+type BoxPart = { type: 'box'; g: [number, number, number, number, number, number?]; units?: number; leds?: boolean };
+type DiscPart = { type: 'disc'; g: [number, number, number, number, number] };
+type Part = BoxPart | DiscPart;
+const slab = (gx: number, gy: number, w: number, d: number, gz: number): BoxPart => ({
+  type: 'box',
+  g: [gx, gy, w, d, 0.42, gz],
+  leds: true
+});
 const STAGE_PARTS: Part[][] = [
-  // 1 · sources: a cluster of small producers
+  // 1 · domain sources: stacks of application servers
   [
-    { type: 'box', g: [1, 9.3, 1.5, 1.5, 1.3] },
-    { type: 'box', g: [3, 9.7, 1.1, 1.1, 0.8] },
-    { type: 'box', g: [1.3, 11.3, 1.2, 1.1, 1.9] }
+    slab(1, 9.4, 1.5, 1.5, 0),
+    slab(1, 9.4, 1.5, 1.5, 0.52),
+    slab(3.1, 9.8, 1.2, 1.2, 0),
+    slab(1.3, 11.4, 1.3, 1.2, 0),
+    slab(1.3, 11.4, 1.3, 1.2, 0.52),
+    slab(1.3, 11.4, 1.3, 1.2, 1.04)
   ],
-  // 2 · ingestion: a long, low intake hall
+  // 2 · ingestion: a gateway with connector pods on top
   [
-    { type: 'box', g: [5.6, 9.2, 3, 2.4, 1.4] },
-    { type: 'box', g: [6, 9.6, 2.2, 1.6, 0.35, 1.4] }
+    { type: 'box', g: [5.6, 9.3, 3, 2.3, 0.55] },
+    { type: 'box', g: [5.85, 9.55, 0.75, 0.75, 0.75, 0.55], leds: true },
+    { type: 'box', g: [6.9, 9.55, 0.75, 0.75, 0.95, 0.55], leds: true },
+    { type: 'box', g: [7.95, 9.55, 0.4, 0.75, 0.6, 0.55], leds: true },
+    { type: 'box', g: [5.85, 10.6, 1.8, 0.75, 0.5, 0.55], leds: true }
   ],
-  // 3 · event backbone: the spine of the model
+  // 3 · event backbone: broker racks
   [
-    { type: 'box', g: [7, 4.7, 5.6, 1.7, 2.4] },
-    { type: 'box', g: [7.4, 5, 4.8, 1.1, 0.25, 2.4] }
+    { type: 'box', g: [7.3, 4.8, 1.3, 1.5, 2.7], units: 9, leds: true },
+    { type: 'box', g: [9.1, 4.8, 1.3, 1.5, 2.7], units: 9, leds: true },
+    { type: 'box', g: [10.9, 4.8, 1.3, 1.5, 2.7], units: 9, leds: true }
   ],
-  // 4 · processing: a stepped tower
+  // 4 · processing: a node pool on a cluster base
   [
-    { type: 'box', g: [12.7, 4.4, 2.6, 2.6, 2.2] },
-    { type: 'box', g: [13, 4.7, 2, 2, 1.8, 2.2] },
-    { type: 'box', g: [13.3, 5, 1.4, 1.4, 1.3, 4] }
+    { type: 'box', g: [12.7, 4.4, 2.7, 2.7, 0.3] },
+    { type: 'box', g: [12.9, 4.6, 1.05, 1.05, 1.1, 0.3], units: 2, leds: true },
+    { type: 'box', g: [14.15, 4.6, 1.05, 1.05, 1.6, 0.3], units: 3, leds: true },
+    { type: 'box', g: [12.9, 5.85, 1.05, 1.05, 0.8, 0.3], units: 2, leds: true },
+    { type: 'box', g: [14.15, 5.85, 1.05, 1.05, 1.3, 0.3], units: 2, leds: true }
   ],
-  // 5 · storage and serving: silos
+  // 5 · storage and serving: stacked volumes
   [
-    { type: 'silo', g: [14.3, 1.7, 0.8, 2.9] },
-    { type: 'silo', g: [16.2, 1.5, 0.8, 2.3] },
-    { type: 'silo', g: [15.3, 3.2, 0.8, 1.9] }
+    { type: 'disc', g: [14.6, 1.8, 0.8, 0.55, 0] },
+    { type: 'disc', g: [14.6, 1.8, 0.8, 0.55, 0.68] },
+    { type: 'disc', g: [14.6, 1.8, 0.8, 0.55, 1.36] },
+    { type: 'disc', g: [16.5, 1.6, 0.75, 0.55, 0] },
+    { type: 'disc', g: [16.5, 1.6, 0.75, 0.55, 0.68] },
+    { type: 'disc', g: [15.6, 3.4, 0.7, 0.55, 0] }
   ],
-  // 6 · observability: a slim mast with a beacon
+  // 6 · observability: a monitoring tower with a live screen
   [
-    { type: 'box', g: [19.3, 1.4, 1.3, 1.3, 0.6] },
-    { type: 'box', g: [19.65, 1.75, 0.6, 0.6, 4.4, 0.6] }
+    { type: 'box', g: [19.3, 1.4, 1.3, 1.3, 0.4], leds: true },
+    { type: 'box', g: [19.8, 1.95, 0.3, 0.3, 2.6, 0.4] },
+    { type: 'box', g: [19.0, 1.75, 1.9, 0.2, 1.15, 3.0] }
   ],
-  // 7 · consumers: a plaza of pavilions
+  // 7 · consumers: Go service pods behind an API gateway
   [
-    { type: 'box', g: [18.3, -4, 1.6, 1.5, 1] },
-    { type: 'box', g: [20.4, -4.1, 1.4, 1.4, 1.5] },
-    { type: 'box', g: [18.5, -1.9, 1.3, 1.2, 0.7] },
-    { type: 'box', g: [20.4, -2.2, 1.5, 1.2, 1.1] }
+    { type: 'box', g: [18.3, -2.1, 3.6, 1.1, 0.35], leds: true },
+    { type: 'box', g: [18.5, -4.0, 1.1, 1.1, 0.95], units: 2, leds: true },
+    { type: 'box', g: [19.95, -3.95, 0.9, 0.9, 1.3], units: 2, leds: true },
+    { type: 'box', g: [21.1, -4.0, 0.8, 1.1, 0.7], leds: true }
   ]
 ];
+// Namespaces for the service labels; the service name comes from each layer's first technology.
+const NAMESPACES = ['src', 'ingest', 'stream', 'proc', 'store', 'obs', 'serve'];
 
+let ledSeed = 0;
 const stages = c.stages.slice(0, STAGE_PARTS.length).map((stage, index) => {
   const parts = STAGE_PARTS[index];
-  const boxes = parts.filter((p): p is Extract<Part, { type: 'box' }> => p.type === 'box');
-  const silos = parts.filter((p): p is Extract<Part, { type: 'silo' }> => p.type === 'silo');
   const tops: number[] = [];
   const xs: number[] = [];
   const ys: number[] = [];
-  boxes.forEach(({ g: [gx, gy, w, d, h, gz = 0] }) => {
-    tops.push(gz + h);
-    xs.push(gx, gx + w);
-    ys.push(gy, gy + d);
-  });
-  silos.forEach(({ g: [cx, cy, r, h] }) => {
-    tops.push(h);
-    xs.push(cx - r, cx + r);
-    ys.push(cy - r, cy + r);
-  });
+  const shapes = parts
+    .map((part) => {
+      if (part.type === 'disc') {
+        const [cx, cy, r, h, gz] = part.g;
+        tops.push(gz + h);
+        xs.push(cx - r, cx + r);
+        ys.push(cy - r, cy + r);
+        ledSeed += 1;
+        return { kind: 'disc' as const, z: gz, depth: cx + cy + 2 * r, ...disc(cx, cy, r, h, gz), delay: (ledSeed * 0.37) % 2.4 };
+      }
+      const [gx, gy, w, d, h, gz = 0] = part.g;
+      tops.push(gz + h);
+      xs.push(gx, gx + w);
+      ys.push(gy, gy + d);
+      const units = part.units ?? 1;
+      const lines: string[] = [];
+      for (let k = 1; k < units; k += 1) {
+        const z = gz + (h * k) / units;
+        lines.push(fmt([iso(gx, gy + d, z), iso(gx + w, gy + d, z)]));
+        lines.push(fmt([iso(gx + w, gy, z), iso(gx + w, gy + d, z)]));
+      }
+      const leds: { x: number; y: number; delay: number }[] = [];
+      if (part.leds) {
+        for (let k = 0; k < units; k += 1) {
+          const [x, y] = iso(gx + Math.min(0.28, w * 0.22), gy + d, gz + (h * (k + 0.5)) / units);
+          ledSeed += 1;
+          leds.push({ x, y, delay: (ledSeed * 0.37) % 2.4 });
+        }
+      }
+      return { kind: 'box' as const, z: gz, depth: gx + w + gy + d, ...box(gx, gy, gz, w, d, h), lines, leds };
+    })
+    // Painter's order: lower levels first, then far before near.
+    .sort((a, b) => a.z - b.z || a.depth - b.depth);
   const ax = (Math.min(...xs) + Math.max(...xs)) / 2;
   const ay = (Math.min(...ys) + Math.max(...ys)) / 2;
   const height = Math.max(...tops);
   const [pinX, pinY] = iso(ax, ay, height + 1.1);
   const [, baseY] = iso(ax, ay, height + 0.1);
+  const service = `${NAMESPACES[index] ?? 'svc'}/${slug(stage.tech[0] ?? stage.name)}`;
   return {
     ...stage,
     index,
-    // Painter's order inside the building: far parts first.
-    shapes: [
-      ...boxes.map(({ g: [gx, gy, w, d, h, gz = 0] }) => ({ kind: 'box' as const, ...box(gx, gy, gz, w, d, h) })),
-      ...silos.map(({ g: [cx, cy, r, h] }) => ({ kind: 'silo' as const, ...silo(cx, cy, r, h), depth: cx + cy + 2 * r }))
-    ].sort((a, b) => a.depth - b.depth),
-    shadows: [
-      ...boxes
-        .filter(({ g }) => (g[5] ?? 0) === 0)
-        .map(({ g: [gx, gy, w, d, h] }) => shadowOf(gx, gy, w, d, h)),
-      ...silos.map(({ g: [cx, cy, r, h] }) => shadowOf(cx - r * 0.75, cy - r * 0.75, r * 1.5, r * 1.5, h))
-    ],
+    service,
+    shapes,
     pin: { x: pinX, y: pinY, baseY },
-    beacon: index === 5 ? iso(19.95, 2.05, 5.25) : null,
-    center: [ax, ay] as [number, number],
+    // The monitoring screen draws a live chart and carries a beacon.
+    screen:
+      index === 5
+        ? {
+            spark: fmt(
+              [0.1, 0.35, 0.25, 0.55, 0.42, 0.7, 0.5, 0.85, 0.62].map((v, k) =>
+                iso(19.15 + (k * 1.6) / 8, 1.95, 3.15 + v * 0.85)
+              )
+            ),
+            beacon: iso(19.95, 1.85, 4.3)
+          }
+        : null,
     depth: ax + ay
   };
 });
 
-// Plinth: stepped slabs that follow the flow. Sides first, then tops, so the tops merge.
-const PLINTH: [number, number, number, number][] = [
-  [0, 8.1, 10.8, 5],
-  [6.2, 3.5, 11.2, 5],
-  [12.8, -0.6, 9.8, 4.6],
-  [17.4, -5, 5.2, 4.8]
+// Platform: stepped zones that follow the flow. Sides first, then tops, so the tops merge.
+const ZONES: [number, number, number, number, string][] = [
+  [0, 8.1, 10.8, 5, 'ZONE A · EDGE'],
+  [6.2, 3.5, 11.2, 5, 'ZONE B · STREAM'],
+  [12.8, -0.6, 9.8, 4.6, 'ZONE C · DATA'],
+  [17.4, -5, 5.2, 4.8, 'ZONE D · SERVE']
 ];
-const PLINTH_H = 0.8;
-const plinth = PLINTH.map(([gx, gy, w, d]) => box(gx, gy, -PLINTH_H, w, d, PLINTH_H)).sort((a, b) => a.depth - b.depth);
+const ZONE_H = 0.45;
+const platform = ZONES.map(([gx, gy, w, d]) => box(gx, gy, -ZONE_H, w, d, ZONE_H));
+// Zone labels lie flat on the platform, written along the x axis.
+const zoneLabels = ZONES.map(([gx, gy, , d, label]) => {
+  const [x, y] = iso(gx + 0.35, gy + d - 0.35, 0);
+  return { label, transform: `matrix(${COS.toFixed(4)} 0.5 ${(-COS).toFixed(4)} 0.5 ${f1(x)} ${f1(y)})` };
+});
 
-// Grid lines on the plinth top, clipped to the tops.
+// Grid lines on the platform, clipped to its tops.
 const gridLines: string[] = [];
 for (let gx = 0; gx <= 23; gx += 1) gridLines.push(fmt([iso(gx, -5), iso(gx, 13.1)]));
 for (let gy = -5; gy <= 13; gy += 1) gridLines.push(fmt([iso(0, gy), iso(22.6, gy)]));
 
-// Conduit: a Manhattan route through every building, slightly above the ground.
+// Data link: a Manhattan route through every layer, slightly above the platform.
 const ROUTE: Pt[] = [
   [2.2, 10.6],
   [7.1, 10.6],
   [9.8, 10.6],
   [9.8, 5.55],
   [14, 5.55],
-  [15.3, 5.55],
-  [15.3, 2.4],
-  [19.95, 2.4],
-  [19.95, -2.6],
-  [20.6, -2.6]
+  [15.5, 5.55],
+  [15.5, 2.5],
+  [19.95, 2.5],
+  [19.95, -1.55],
+  [20.6, -1.55]
 ];
-const conduit = `M ${ROUTE.map(([gx, gy]) => iso(gx, gy, 0.02).map((n) => n.toFixed(1)).join(' ')).join(' L ')}`;
+const link = `M ${ROUTE.map(([gx, gy]) => iso(gx, gy, 0.02).map(f1).join(' ')).join(' L ')}`;
 
-// Trees and white context massing, as on an architect's model.
-const TREES: Pt[] = [
-  [4.6, 12.4],
-  [9.9, 12.5],
-  [0.7, 8.7],
-  [5.1, 8.6],
-  [16.6, 7.8],
-  [16.6, 4.2],
-  [11.9, 1.1],
-  [22, 3.6],
-  [17.9, 3.6],
-  [22, -0.6]
+// Idle nodes around the layers: the rest of the cluster.
+const IDLE: [number, number, number, number, number][] = [
+  [8.9, 7.3, 1.1, 0.9, 0.5],
+  [6.7, 3.9, 1.2, 0.8, 0.42],
+  [12.9, 0, 1.2, 0.9, 0.7],
+  [17.6, 6.3, 1.1, 1.1, 0.5],
+  [4.6, 12.3, 0.9, 0.7, 0.42],
+  [21.6, 3.3, 0.8, 0.8, 0.5]
 ];
-const trees = TREES.map(([gx, gy]) => {
-  const [x, y] = iso(gx, gy, 0);
-  return { x, y, s: 0.85 + (Math.abs(Math.round(gx * 7 + gy * 3)) % 5) * 0.06, depth: gx + gy };
+const idle = IDLE.map(([gx, gy, w, d, h], index) => {
+  const [lx, ly] = iso(gx + 0.25, gy + d, h / 2);
+  return { ...box(gx, gy, 0, w, d, h), led: [lx, ly] as Pt, depth: gx + w + gy + d, delay: (index * 0.53) % 2.4 };
 });
-const CONTEXT: [number, number, number, number, number][] = [
-  [8.9, 7.1, 1.6, 1.1, 0.9],
-  [6.6, 3.8, 1.4, 0.7, 0.6],
-  [13.2, -0.2, 1.6, 0.9, 1.1],
-  [17.6, 6.3, 1.1, 1.3, 0.7]
-];
-const context = CONTEXT.map(([gx, gy, w, d, h]) => ({ ...box(gx, gy, 0, w, d, h), shadow: shadowOf(gx, gy, w, d, h) }));
 
-// Everything on the plinth is drawn back to front.
 type Drawable =
   | { kind: 'stage'; depth: number; stage: (typeof stages)[number] }
-  | { kind: 'tree'; depth: number; tree: (typeof trees)[number] }
-  | { kind: 'context'; depth: number; ctx: (typeof context)[number] };
+  | { kind: 'idle'; depth: number; node: (typeof idle)[number] };
 const scene: Drawable[] = [
   ...stages.map((stage) => ({ kind: 'stage' as const, depth: stage.depth, stage })),
-  ...trees.map((tree) => ({ kind: 'tree' as const, depth: tree.depth, tree })),
-  ...context.map((ctx) => ({ kind: 'context' as const, depth: ctx.depth - 1, ctx }))
+  ...idle.map((node) => ({ kind: 'idle' as const, depth: node.depth - 1, node }))
 ].sort((a, b) => a.depth - b.depth);
 
 // The view box hugs the model.
 const bounds = (() => {
   const xs: number[] = [];
   const ys: number[] = [];
-  PLINTH.forEach(([gx, gy, w, d]) =>
-    [iso(gx, gy, 0), iso(gx + w, gy, 0), iso(gx, gy + d, 0), iso(gx + w, gy + d, -PLINTH_H)].forEach(([x, y]) => {
+  ZONES.forEach(([gx, gy, w, d]) =>
+    [iso(gx, gy, 0), iso(gx + w, gy, 0), iso(gx, gy + d, 0), iso(gx + w, gy + d, -ZONE_H)].forEach(([x, y]) => {
       xs.push(x);
       ys.push(y);
     })
   );
   stages.forEach((stage) => ys.push(stage.pin.y - 16));
-  return { x: Math.min(...xs) - 12, y: Math.min(...ys) - 8, w: Math.max(...xs) - Math.min(...xs) + 24, h: Math.max(...ys) - Math.min(...ys) + 20 };
+  return {
+    x: Math.min(...xs) - 12,
+    y: Math.min(...ys) - 8,
+    w: Math.max(...xs) - Math.min(...xs) + 24,
+    h: Math.max(...ys) - Math.min(...ys) + 26
+  };
 })();
 const viewBox = `${bounds.x.toFixed(0)} ${bounds.y.toFixed(0)} ${bounds.w.toFixed(0)} ${bounds.h.toFixed(0)}`;
-const packet = box(-0.22, -0.22, 0.05, 0.44, 0.44, 0.3);
+const packet = box(-0.2, -0.2, 0.05, 0.4, 0.4, 0.26);
 
-// ---------- Floors (work) and foundations (education) ----------
-const floors = [...c.work].sort((a, b) => b.start - a.start);
-const foundations = [...c.education].sort((a, b) => b.start - a.start);
+// ---------- Releases (work) and base image (education) ----------
+const releases = [...c.work].sort((a, b) => b.start - a.start);
+const layers = [...c.education].sort((a, b) => b.start - a.start);
+// A short, stable hash so every layer looks like an image digest.
+const digest = (text: string) => {
+  let h = 2166136261;
+  for (const ch of text) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return (h >>> 0).toString(16).padStart(8, '0').slice(0, 7);
+};
 
 // ---------- Projects ----------
 const tagCounts = new Map<string, number>();
 c.projects.forEach((project) => project.allTags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)));
 const PRIMARY_TAGS = 10;
 const allTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([tag]) => tag);
-// A small block per project; its height follows how many topics it covers.
-const lotBlock = (n: number) => {
-  const h = 0.6 + Math.min(n, 8) * 0.22;
-  const b = box(0, 0, 0, 1, 1, h);
-  const [, minY] = iso(0, 0, h);
-  return { ...b, viewBox: `-28 ${(minY - 4).toFixed(0)} 56 ${(34 - minY + 4).toFixed(0)}` };
+// A small stack per project; one layer for every two topics it covers.
+const serviceIcon = (n: number) => {
+  const count = Math.max(1, Math.min(4, Math.ceil(n / 2)));
+  const slabs = Array.from({ length: count }, (_, k) => box(0, 0, k * 0.42, 1, 1, 0.32));
+  const [, minY] = iso(0, 0, (count - 1) * 0.42 + 0.32);
+  return { slabs, viewBox: `-28 ${(minY - 4).toFixed(0)} 56 ${(34 - minY + 4).toFixed(0)}` };
 };
 
 const levelDots = (level: string) => t.levels[level] ?? 0;
@@ -440,26 +453,26 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
       alternates={getAlternateLinks()}
       noindex
     />
-    <link rel="preload" href="/assets/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <meta name="theme-color" content="#efeae1" />
+    <link rel="preload" href="/assets/fonts/mona-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0a0d13" />
   </head>
   <body class="cy">
     <a class="cy-skip" href="#main">{t.skip}</a>
 
     <header class="cy-bar">
       <a class="cy-brand" href={t.home} aria-label="David Barreiro">
-        <svg viewBox="-13 -15 26 30" width="26" height="30" aria-hidden="true">
-          <polygon points="0,-13 11.3,-6.5 0,0 -11.3,-6.5" fill="#ff5a1f"></polygon>
-          <polygon points="-11.3,-6.5 0,0 0,13 -11.3,6.5" fill="#1d1b18"></polygon>
-          <polygon points="0,0 11.3,-6.5 11.3,6.5 0,13" fill="#5b554c"></polygon>
+        <svg viewBox="-13 -15 26 30" width="24" height="28" aria-hidden="true">
+          <polygon points="0,-13 11.3,-6.5 0,0 -11.3,-6.5" fill="#c6f432"></polygon>
+          <polygon points="-11.3,-6.5 0,0 0,13 -11.3,6.5" fill="#2a3548"></polygon>
+          <polygon points="0,0 11.3,-6.5 11.3,6.5 0,13" fill="#1a2230"></polygon>
         </svg>
-        <span>David Barreiro</span>
+        <span>david<b>/</b>barreiro</span>
       </a>
       <nav class="cy-nav" aria-label={t.sections}>
-        <a href="#maqueta">{t.nav.model}</a>
-        <a href="#plantas">{t.nav.floors}</a>
-        <a href="#parcelas">{t.nav.lots}</a>
-        <a href="#materiales">{t.nav.materials}</a>
+        <a href="#topologia">{t.nav.topology}</a>
+        <a href="#despliegues">{t.nav.deploys}</a>
+        <a href="#servicios">{t.nav.services}</a>
+        <a href="#stack">{t.nav.stack}</a>
       </nav>
       <div class="cy-bar-end">
         <div class="cy-lang" role="group" aria-label={t.langLabel}>
@@ -471,11 +484,11 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
     </header>
 
     <main id="main">
-      <!-- ============ HERO + MODEL ============ -->
-      <section class="cy-hero" id="maqueta" aria-labelledby="cy-title">
+      <!-- ============ HERO + TOPOLOGY ============ -->
+      <section class="cy-hero" id="topologia" aria-labelledby="cy-title">
         <div class="cy-hero-copy">
-          <p class="cy-role">{t.role}</p>
-          <h1 id="cy-title" class="cy-name">David <span>Barreiro</span></h1>
+          <p class="cy-role"><span class="cy-status" aria-hidden="true"></span>{t.role} · {t.available}</p>
+          <h1 id="cy-title" class="cy-name">David<br />Barreiro</h1>
           <p class="cy-headline">{t.headline}</p>
           <p class="cy-lede">{t.lede(years)}</p>
           <div class="cy-actions">
@@ -535,134 +548,125 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
           <svg class="cy-scene" viewBox={viewBox} role="group" aria-label={t.modelTitle} data-scene>
             <defs>
               <filter id="cy-soft" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="5"></feGaussianBlur>
+                <feGaussianBlur stdDeviation="9"></feGaussianBlur>
               </filter>
               <filter id="cy-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="3.5"></feGaussianBlur>
+                <feGaussianBlur stdDeviation="3"></feGaussianBlur>
               </filter>
-              <clipPath id="cy-plinth-clip">
-                {plinth.map((slab) => <polygon points={slab.top} />)}
+              <clipPath id="cy-zone-clip">
+                {platform.map((zone) => <polygon points={zone.top} />)}
               </clipPath>
-              <linearGradient id="cy-silo" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#f3eee5"></stop>
-                <stop offset="0.5" stop-color="#e6dfd2"></stop>
-                <stop offset="1" stop-color="#cfc5b5"></stop>
+              <linearGradient id="cy-disc" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#2c3850"></stop>
+                <stop offset="0.55" stop-color="#1d2738"></stop>
+                <stop offset="1" stop-color="#121925"></stop>
               </linearGradient>
-              <linearGradient id="cy-silo-active" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#ff8a5c"></stop>
-                <stop offset="0.5" stop-color="#ff6a30"></stop>
-                <stop offset="1" stop-color="#d8460f"></stop>
+              <linearGradient id="cy-disc-active" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#d9ff6b"></stop>
+                <stop offset="0.55" stop-color="#a9d21f"></stop>
+                <stop offset="1" stop-color="#7a9a12"></stop>
               </linearGradient>
-              <radialGradient id="cy-tree" cx="0.35" cy="0.3" r="0.8">
-                <stop offset="0" stop-color="#b6c3b4"></stop>
-                <stop offset="1" stop-color="#7f9282"></stop>
-              </radialGradient>
-              <path id="cy-route" d={conduit}></path>
+              <path id="cy-route" d={link}></path>
             </defs>
 
-            <!-- ground shadow of the whole model -->
-            <g class="cy-ground-shadow" filter="url(#cy-soft)">
-              {plinth.map((slab) => <polygon points={slab.top} transform="translate(26 34)" />)}
+            <!-- platform glow and zones -->
+            <g class="cy-under" filter="url(#cy-soft)">
+              {platform.map((zone) => <polygon points={zone.top} transform="translate(0 22)" />)}
             </g>
-            <!-- plinth -->
-            <g class="cy-plinth">
+            <g class="cy-platform">
               {
-                plinth.map((slab) => (
+                platform.map((zone) => (
                   <>
-                    <polygon class="cy-face-left" points={slab.left} />
-                    <polygon class="cy-face-right" points={slab.right} />
+                    <polygon class="cy-face-left" points={zone.left} />
+                    <polygon class="cy-face-right" points={zone.right} />
                   </>
                 ))
               }
-              {plinth.map((slab) => <polygon class="cy-face-top" points={slab.top} />)}
+              {platform.map((zone) => <polygon class="cy-face-top" points={zone.top} />)}
             </g>
-            <g class="cy-grid" clip-path="url(#cy-plinth-clip)">
+            <g class="cy-grid" clip-path="url(#cy-zone-clip)">
               {gridLines.map((points) => <polyline points={points} />)}
             </g>
-
-            <!-- shadows -->
-            <g class="cy-shadows" filter="url(#cy-soft)" clip-path="url(#cy-plinth-clip)">
-              {stages.flatMap((stage) => stage.shadows.map((points) => <polygon points={points} />))}
-              {context.map((ctx) => <polygon points={ctx.shadow} />)}
+            <g class="cy-zone-labels" aria-hidden="true">
+              {zoneLabels.map((zone) => <text transform={zone.transform}>{zone.label}</text>)}
             </g>
 
-            <!-- conduit with moving packets -->
-            <path class="cy-conduit-bed" d={conduit}></path>
-            <path class="cy-conduit-glow" d={conduit} filter="url(#cy-glow)"></path>
-            <path class="cy-conduit" d={conduit}></path>
+            <!-- data link with moving packets -->
+            <path class="cy-link-bed" d={link}></path>
+            <path class="cy-link-glow" d={link} filter="url(#cy-glow)"></path>
+            <path class="cy-link" d={link}></path>
             {
-              [0, 1, 2, 3, 4, 5].map((n) => (
+              [0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
                 <g class="cy-packet">
                   <polygon class="cy-packet-l" points={packet.left} />
                   <polygon class="cy-packet-r" points={packet.right} />
                   <polygon class="cy-packet-t" points={packet.top} />
-                  <animateMotion dur="15s" begin={`${n * -2.5}s`} repeatCount="indefinite">
+                  <animateMotion dur="14s" begin={`${n * -1.75}s`} repeatCount="indefinite">
                     <mpath href="#cy-route" />
                   </animateMotion>
                 </g>
               ))
             }
 
-            <!-- buildings, trees and context, back to front -->
+            <!-- layers and idle nodes, back to front -->
             {
               scene.map((item) => {
-                if (item.kind === 'tree') {
-                  const { x, y, s } = item.tree;
+                if (item.kind === 'idle') {
+                  const node = item.node;
                   return (
-                    <g class="cy-tree" transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${s.toFixed(2)})`}>
-                      <ellipse class="cy-tree-shadow" cx="12" cy="-2" rx="13" ry="5" />
-                      <rect x="-1.2" y="-9" width="2.4" height="9" />
-                      <circle cx="0" cy="-17" r="9.5" />
-                    </g>
-                  );
-                }
-                if (item.kind === 'context') {
-                  return (
-                    <g class="cy-context">
-                      <polygon class="cy-face-left" points={item.ctx.left} />
-                      <polygon class="cy-face-right" points={item.ctx.right} />
-                      <polygon class="cy-face-top" points={item.ctx.top} />
+                    <g class="cy-idle">
+                      <polygon class="cy-face-left" points={node.left} />
+                      <polygon class="cy-face-right" points={node.right} />
+                      <polygon class="cy-face-top" points={node.top} />
+                      <circle class="cy-led cy-led-dim" cx={f1(node.led[0])} cy={f1(node.led[1])} r="1.6" style={`--d:${node.delay.toFixed(2)}s`} />
                     </g>
                   );
                 }
                 const stage = item.stage;
                 return (
                   <g
-                    class="cy-bldg"
+                    class="cy-node"
                     data-stage={stage.index}
                     tabindex="0"
                     role="button"
-                    aria-label={`${pad(stage.index + 1)}. ${stage.name}`}
-                    style={`--i:${stage.index}`}
+                    aria-label={`${pad(stage.index + 1)}. ${stage.name} (${stage.service})`}
                   >
-                    <g class="cy-bldg-body">
+                    <g class="cy-node-body">
                       {stage.shapes.map((shape) =>
                         shape.kind === 'box' ? (
                           <>
                             <polygon class="cy-face-left" points={shape.left} />
                             <polygon class="cy-face-right" points={shape.right} />
                             <polygon class="cy-face-top" points={shape.top} />
+                            {shape.lines.map((points) => (
+                              <polyline class="cy-unit" points={points} />
+                            ))}
+                            {shape.leds.map((led) => (
+                              <circle class="cy-led" cx={f1(led.x)} cy={f1(led.y)} r="1.7" style={`--d:${led.delay.toFixed(2)}s`} />
+                            ))}
                           </>
                         ) : (
                           <>
-                            <path class="cy-silo-body" d={shape.body} />
-                            <ellipse class="cy-face-top" cx={shape.cx.toFixed(1)} cy={shape.ty.toFixed(1)} rx={shape.rx.toFixed(1)} ry={shape.ry.toFixed(1)} />
-                            <ellipse class="cy-silo-lid" cx={shape.cx.toFixed(1)} cy={shape.ty.toFixed(1)} rx={(shape.rx * 0.55).toFixed(1)} ry={(shape.ry * 0.55).toFixed(1)} />
+                            <path class="cy-disc-body" d={shape.body} />
+                            <path class="cy-unit" d={shape.band} fill="none" />
+                            <ellipse class="cy-face-top" cx={f1(shape.cx)} cy={f1(shape.ty)} rx={f1(shape.rx)} ry={f1(shape.ry)} />
+                            <circle class="cy-led" cx={f1(shape.led[0])} cy={f1(shape.led[1])} r="1.7" style={`--d:${shape.delay.toFixed(2)}s`} />
                           </>
                         )
                       )}
-                      {stage.beacon && (
+                      {stage.screen && (
                         <>
-                          <circle class="cy-beacon-halo" cx={stage.beacon[0].toFixed(1)} cy={stage.beacon[1].toFixed(1)} r="10" />
-                          <circle class="cy-beacon" cx={stage.beacon[0].toFixed(1)} cy={stage.beacon[1].toFixed(1)} r="4" />
+                          <polyline class="cy-spark" points={stage.screen.spark} />
+                          <circle class="cy-beacon-halo" cx={f1(stage.screen.beacon[0])} cy={f1(stage.screen.beacon[1])} r="10" />
+                          <circle class="cy-beacon" cx={f1(stage.screen.beacon[0])} cy={f1(stage.screen.beacon[1])} r="3.6" />
                         </>
                       )}
                     </g>
                     <g class="cy-pin">
-                      <line x1={stage.pin.x.toFixed(1)} y1={(stage.pin.y + 11).toFixed(1)} x2={stage.pin.x.toFixed(1)} y2={stage.pin.baseY.toFixed(1)} />
-                      <g transform={`translate(${stage.pin.x.toFixed(1)} ${stage.pin.y.toFixed(1)})`}>
+                      <line x1={f1(stage.pin.x)} y1={f1(stage.pin.y + 11)} x2={f1(stage.pin.x)} y2={f1(stage.pin.baseY)} />
+                      <g transform={`translate(${f1(stage.pin.x)} ${f1(stage.pin.y)})`}>
                         <g class="cy-pin-badge">
-                          <circle r="12.5" />
+                          <rect x="-15" y="-10" width="30" height="20" rx="4" />
                           <text y="4" text-anchor="middle">
                             {pad(stage.index + 1)}
                           </text>
@@ -680,8 +684,10 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               <p class="cy-card-meta">
                 <span class="cy-card-num" data-card-num>01</span>
                 <span data-card-meta>{t.stageOf(1, stages.length)}</span>
+                <span class="cy-card-health"><i aria-hidden="true"></i>{t.healthy}</span>
               </p>
               <p class="cy-card-name" data-card-name>{stages[0].name}</p>
+              <p class="cy-card-service" data-card-service>{stages[0].service}</p>
               <p class="cy-card-detail" data-card-detail>{stages[0].detail}</p>
               <p class="cy-card-tech">
                 <span class="cy-card-tech-label">{t.builtWith}</span>
@@ -690,13 +696,32 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
                 </span>
               </p>
             </div>
-            <dl class="cy-titleblock" aria-hidden="true">
-              <div class="cy-tb-wide"><dt>{t.titleBlock.project}</dt><dd>{t.titleBlock.projectValue}</dd></div>
-              <div><dt>{t.titleBlock.drawn}</dt><dd>D. Barreiro</dd></div>
-              <div><dt>{t.titleBlock.scale}</dt><dd>{t.titleBlock.scaleValue}</dd></div>
-              <div><dt>{t.titleBlock.sheet}</dt><dd>A-01</dd></div>
-              <div><dt>{t.titleBlock.rev}</dt><dd>{nowYear}</dd></div>
-            </dl>
+            <div class="cy-telemetry" data-telemetry>
+              <p class="cy-telemetry-head">
+                <span class="cy-status" aria-hidden="true"></span>{t.telemetry}
+              </p>
+              <dl>
+                <div>
+                  <dt>{t.metrics.eps}</dt>
+                  <dd data-metric="eps">48.2k</dd>
+                </div>
+                <div>
+                  <dt>{t.metrics.p99}</dt>
+                  <dd data-metric="p99">14 ms</dd>
+                </div>
+                <div>
+                  <dt>{t.metrics.lag}</dt>
+                  <dd data-metric="lag">0</dd>
+                </div>
+                <div>
+                  <dt>{t.metrics.up}</dt>
+                  <dd>{stages.length}/{stages.length}</dd>
+                </div>
+              </dl>
+              <svg class="cy-telemetry-chart" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true">
+                <polyline data-chart points="0,30 240,30"></polyline>
+              </svg>
+            </div>
           </div>
 
           <ol class="cy-key" aria-label={t.key}>
@@ -714,29 +739,28 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
       </section>
 
-      <!-- ============ FLOORS: work experience ============ -->
-      <section class="cy-section" id="plantas" aria-labelledby="floors-title">
+      <!-- ============ RELEASES: work experience ============ -->
+      <section class="cy-section" id="despliegues" aria-labelledby="deploys-title">
         <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.floorsEyebrow}</p>
-          <h2 id="floors-title">{t.floorsTitle}</h2>
-          <p>{t.floorsIntro}</p>
+          <p class="cy-eyebrow">{t.deploysEyebrow}</p>
+          <h2 id="deploys-title">{t.deploysTitle}</h2>
+          <p>{t.deploysIntro}</p>
         </div>
         <div class="cy-section-body">
-          <ol class="cy-floors">
+          <ol class="cy-releases">
             {
-              floors.map((entry, index) => (
-                <li class:list={{ 'is-top': index === 0 }}>
-                  <div class="cy-floor-level" aria-hidden="true">
-                    <span>{t.floor}</span>
-                    <strong>{pad(floors.length - index)}</strong>
-                  </div>
+              releases.map((entry, index) => (
+                <li class:list={{ 'is-live': entry.end === null }}>
+                  <span class="cy-release-dot" aria-hidden="true" />
                   <details open={index === 0}>
                     <summary>
-                      <span class="cy-floor-period">{entry.period}</span>
-                      <span class="cy-floor-org">{entry.organisation}</span>
-                      <span class="cy-floor-role">{entry.role}</span>
+                      <span class="cy-release-tag">v{releases.length - index}.0</span>
+                      <span class="cy-release-period">{entry.period}</span>
+                      <span class="cy-release-org">{entry.organisation}</span>
+                      <span class="cy-release-role">{entry.role}</span>
+                      <span class="cy-release-state">{entry.end === null ? t.running : t.done}</span>
                     </summary>
-                    <div class="cy-floor-body">
+                    <div class="cy-release-body">
                       {entry.summary && <p>{entry.summary}</p>}
                       {entry.highlights.length > 0 && (
                         <>
@@ -761,35 +785,38 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               ))
             }
           </ol>
-          <p class="cy-ground">
-            <svg viewBox="0 0 16 12" width="16" height="12" aria-hidden="true"><path d="M1 1 H15 L8 11 Z"></path></svg>
-            ± 0.00 · {t.ground}
-          </p>
-          <h3 class="cy-foundations-title">{t.foundations}</h3>
-          <ol class="cy-foundations">
-            {
-              foundations.map((entry, index) => (
-                <li>
-                  <span class="cy-foundation-level" aria-hidden="true">{t.basement}{index + 1}</span>
-                  <span class="cy-floor-period">{entry.period}</span>
-                  <div>
-                    <p class="cy-foundation-org">{entry.organisation}</p>
-                    <p class="cy-foundation-role">{entry.role}</p>
-                    {entry.tech.length > 0 && <p class="cy-foundation-tech">{entry.tech.join(' · ')}</p>}
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
+          <div class="cy-image">
+            <h3 class="cy-image-title">
+              <span aria-hidden="true">$</span>
+              {t.baseTitle}
+            </h3>
+            <ol class="cy-layers">
+              {
+                layers.map((entry, index) => (
+                  <li>
+                    <span class="cy-layer-id" aria-hidden="true">
+                      {t.layer} {pad(layers.length - index)} · {digest(entry.organisation + entry.role)}
+                    </span>
+                    <span class="cy-layer-period">{entry.period}</span>
+                    <div>
+                      <p class="cy-layer-org">{entry.organisation}</p>
+                      <p class="cy-layer-role">{entry.role}</p>
+                      {entry.tech.length > 0 && <p class="cy-layer-tech">{entry.tech.join(' · ')}</p>}
+                    </div>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
         </div>
       </section>
 
-      <!-- ============ LOTS: projects ============ -->
-      <section class="cy-section" id="parcelas" aria-labelledby="lots-title" data-projects>
+      <!-- ============ SERVICES: projects ============ -->
+      <section class="cy-section" id="servicios" aria-labelledby="services-title" data-projects>
         <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.lotsEyebrow}</p>
-          <h2 id="lots-title">{t.lotsTitle}</h2>
-          <p>{t.lotsIntro}</p>
+          <p class="cy-eyebrow">{t.servicesEyebrow}</p>
+          <h2 id="services-title">{t.servicesTitle}</h2>
+          <p>{t.servicesIntro}</p>
         </div>
         <div class="cy-section-body">
           <div class="cy-filter" role="group" aria-label={t.filterLabel}>
@@ -825,21 +852,25 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
             <span data-count>{t.showing(c.projects.length, c.projects.length)}</span>
             <button type="button" class="cy-clear" data-clear hidden>{t.clear}</button>
           </p>
-          <ol class="cy-lots">
+          <ol class="cy-services">
             {
               c.projects.map((project, index) => {
-                const block = lotBlock(project.allTags.length);
+                const icon = serviceIcon(project.allTags.length);
                 return (
                   <li data-tags={JSON.stringify(project.allTags)}>
-                    <div class="cy-lot-head">
-                      <span class="cy-lot-num">
-                        {t.lot} {pad(index + 1)}
-                      </span>
-                      <svg class="cy-lot-block" viewBox={block.viewBox} width="44" height="40" aria-hidden="true">
-                        <polygon class="cy-face-left" points={block.left} />
-                        <polygon class="cy-face-right" points={block.right} />
-                        <polygon class="cy-face-top" points={block.top} />
+                    <div class="cy-service-head">
+                      <svg class="cy-service-icon" viewBox={icon.viewBox} width="40" height="38" aria-hidden="true">
+                        {icon.slabs.map((s) => (
+                          <>
+                            <polygon class="cy-face-left" points={s.left} />
+                            <polygon class="cy-face-right" points={s.right} />
+                            <polygon class="cy-face-top" points={s.top} />
+                          </>
+                        ))}
                       </svg>
+                      <span class="cy-service-id">
+                        svc-{pad(index + 1)} · {slug(project.name)}
+                      </span>
                     </div>
                     <h3>
                       {project.url ? (
@@ -855,7 +886,11 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
                       )}
                     </h3>
                     <p>{project.oneLiner}</p>
-                    <p class="cy-tags">{project.allTags.join(' · ')}</p>
+                    <p class="cy-tags">
+                      {project.allTags.map((tag) => (
+                        <span>{tag}</span>
+                      ))}
+                    </p>
                   </li>
                 );
               })
@@ -865,15 +900,15 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
       </section>
 
-      <!-- ============ MATERIALS: skills ============ -->
-      <section class="cy-section" id="materiales" aria-labelledby="materials-title">
+      <!-- ============ STACK: skills ============ -->
+      <section class="cy-section" id="stack" aria-labelledby="stack-title">
         <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.materialsEyebrow}</p>
-          <h2 id="materials-title">{t.materialsTitle}</h2>
-          <p>{t.materialsIntro}</p>
+          <p class="cy-eyebrow">{t.stackEyebrow}</p>
+          <h2 id="stack-title">{t.stackTitle}</h2>
+          <p>{t.stackIntro}</p>
         </div>
         <div class="cy-section-body">
-          <div class="cy-tabs" role="tablist" aria-label={t.materialsTitle}>
+          <div class="cy-tabs" role="tablist" aria-label={t.stackTitle}>
             {
               c.skillGroups.map((group, index) => (
                 <button
@@ -884,7 +919,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
                   aria-selected={index === 0 ? 'true' : 'false'}
                   tabindex={index === 0 ? 0 : -1}
                 >
-                  <span class="cy-tab-num">{pad(index + 1)}</span>
+                  <span class="cy-tab-num">L{index + 1}</span>
                   {group.name}
                 </button>
               ))
@@ -897,7 +932,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
                   {group.keywords.map((skill) => (
                     <li>
                       {skill.logo ? (
-                        <img src={skill.logo} alt="" width="34" height="34" loading="lazy" />
+                        <img src={skill.logo} alt="" width="32" height="32" loading="lazy" />
                       ) : (
                         <span class="cy-skill-ph" aria-hidden="true" />
                       )}
@@ -947,20 +982,25 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
       </section>
 
-      <!-- ============ CONTACT: the site office ============ -->
-      <section class="cy-office" id="contacto" aria-labelledby="contact-title">
-        <div class="cy-office-inner">
-          <p class="cy-eyebrow">{t.officeEyebrow}</p>
-          <h2 id="contact-title">{t.contactTitle}</h2>
-          <p>{t.contactText}</p>
-          <div class="cy-actions">
-            <a class="cy-btn cy-btn-accent" href={`mailto:${c.email}`}>{c.email}</a>
-            <a class="cy-btn cy-btn-ghost" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+      <!-- ============ CONTACT: open a connection ============ -->
+      <section class="cy-contact" id="contacto" aria-labelledby="contact-title">
+        <div class="cy-contact-inner">
+          <div>
+            <p class="cy-eyebrow">{t.contactEyebrow}</p>
+            <h2 id="contact-title">{t.contactTitle}</h2>
+            <p>{t.contactText}</p>
+            <div class="cy-actions">
+              <a class="cy-btn cy-btn-accent" href={`mailto:${c.email}`}>{c.email}</a>
+              <a class="cy-btn cy-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+            </div>
+            <p class="cy-links">
+              <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+            </p>
           </div>
-          <p class="cy-links cy-links-invert">
-            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
-          </p>
+          <pre class="cy-terminal" aria-hidden="true"><span class="cy-t-dim">~/platform</span> <span class="cy-t-acc">$</span> connect --to david-barreiro
+<span class="cy-t-ok">✓</span> {t.terminalOk}
+<span class="cy-t-dim">~/platform</span> <span class="cy-t-acc">$</span> <span class="cy-caret"></span></pre>
         </div>
       </section>
     </main>
@@ -974,7 +1014,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
       type="application/json"
       id="cy-data"
       set:html={JSON.stringify({
-        stages: stages.map((stage) => ({ name: stage.name, detail: stage.detail, tech: stage.tech })),
+        stages: stages.map((stage) => ({ name: stage.name, detail: stage.detail, tech: stage.tech, service: stage.service })),
         labels: {
           stage: t.stageOf(0, 0).replace(/\d+/g, '{n}'),
           showing: t.showing(0, 0).replace(/\d+/g, '{n}')
