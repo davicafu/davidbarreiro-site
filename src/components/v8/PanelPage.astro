@@ -251,9 +251,9 @@ const KNOB_SWEEP = 2 * Math.PI * KNOB_R * 0.75;
       alternates={getAlternateLinks()}
       noindex
     />
-    <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/fonts/doto-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <meta name="theme-color" content="#e4e2dc" />
+    <meta name="theme-color" content="#f3f3f1" />
     <script is:inline>
       document.documentElement.classList.add('ip-js');
     </script>
@@ -380,10 +380,6 @@ const KNOB_SWEEP = 2 * Math.PI * KNOB_R * 0.75;
               <figcaption class="ip-engrave">{t.operator}</figcaption>
             </figure>
           </div>
-          <span class="ip-screw ip-screw-tl" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-tr" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-bl" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-br" aria-hidden="true"></span>
         </div>
       </section>
 
@@ -739,8 +735,8 @@ const KNOB_SWEEP = 2 * Math.PI * KNOB_R * 0.75;
         <h3 class="ip-certs-title">{t.certsTitle}</h3>
         <ol class="ip-stamps">
           {
-            certificates.map((cert, index) => (
-              <li class="ip-stamp" style={`--tilt:${[-2, 1.5, -1, 2, -1.5][index % 5]}deg`}>
+            certificates.map((cert) => (
+              <li class="ip-stamp">
                 <span class="ip-stamp-year">{cert.date.slice(0, 4)}</span>
                 {cert.url ? (
                   <a href={cert.url} target="_blank" rel="noopener noreferrer">
@@ -776,10 +772,6 @@ const KNOB_SWEEP = 2 * Math.PI * KNOB_R * 0.75;
             <span class="ip-led is-on"></span>
             <span>{t.ready}</span>
           </div>
-          <span class="ip-screw ip-screw-tl" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-tr" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-bl" aria-hidden="true"></span>
-          <span class="ip-screw ip-screw-br" aria-hidden="true"></span>
         </div>
       </section>
     </main>
