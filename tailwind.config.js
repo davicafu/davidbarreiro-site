@@ -5,7 +5,10 @@ module.exports = {
     './src/**/*.{astro,html,js}',
     '!./src/components/v[3-9]/**',
     '!./src/pages/v[3-9]/**',
-    '!./src/pages/es/v[3-9]/**'
+    '!./src/pages/es/v[3-9]/**',
+    '!./src/components/v1[0-9]/**',
+    '!./src/pages/v1[0-9]/**',
+    '!./src/pages/es/v1[0-9]/**'
   ],
   safelist: [
     'bg-slate-950/85',

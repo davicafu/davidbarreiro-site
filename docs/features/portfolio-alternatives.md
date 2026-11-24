@@ -23,6 +23,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T6  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L9, L11 |
 | T7  | S2         | inline | done                          | L12, L13 |
 | T8  | S2, S4, S5 | delegated (parallel writers, disjoint surfaces) | done | L12, L14 |
+| T9  | S2         | delegated (parallel writers) | in progress | L15 |
+| T10 | S2         | delegated (parallel writers) | in progress | L15 |
+| T11 | S2, S4, S5 | delegated (parallel writers) | in progress | L15 |
+| T12 | S2, S4, S5 | delegated (parallel writers) | in progress | L15 |
 
 ## Non-goals
 
@@ -54,3 +58,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L12 (2026-11-23, owner feedback, verbatim): "vale estas, estas 3 versiones si que ya son muy buenas, la a, b y c las puedes olvidar ya, y las web mejorada tambien, quedate son lo con la actual y estas 3 y ofreceme otras dos del mismo nivel de calidad. despues ya nos centraremos en cual elegir o si ofertar todas con cambio de theme entre ellas". T7 removes `/v2/`, `/es/v2/` and `/v3/a|b|c/` (S1 is withdrawn). T8 adds two more redesigns, `/v7/` and `/v8/`.
 - L13 (T7): the old variants and their components were deleted; `previewContent.ts` stays because v4–v6 use it. The build produced 9 pages.
 - L14 (T8): two parallel writers delivered `/v7/` (isometric city: Bricolage Grotesque + IBM Plex Mono) and `/v8/` (instrument panel: Instrument Sans + Doto + Martian Mono), each with an EN/ES pair and full parity. Each writer's probe passed every interaction with no page errors, and the parent reran the v7 probe. `/v3/` now compares five designs. Build: 13 pages; lint clean. vshots at 1440 and 390 showed no errors, with widths of 1440 and 390. `/` and `/es/` HTML and the BaseLayout CSS are identical to `main`. Open data issues: EN lists 4 certifications and ES lists 5 (no Databricks entry in `resume.json`); the "Servcio" typo is unchanged.
+
+- L15 (2026-11-24, owner feedback, verbatim): "la ciudad isometrica no esta mal, pero parece mas de un arquitecto clasico que de un informatico; el panel de instrumentso me gusta algo mas en cuanto a la funcionalidades, y demas pero me da la sensacion de que alguna cosa está un pelin desfasada en cuanto a diseño. podrias mejorarlas un poco mas y hacer un par mas de versiones?" Tasks:
+  - T9: move v7 from architectural model to software infrastructure.
+  - T10: modernise v8 (assumption: the skeuomorphic details read as dated).
+  - T11: `/v9/` command palette.
+  - T12: `/v10/` data notebook.
+  - Tailwind content now also excludes v10–v19.
