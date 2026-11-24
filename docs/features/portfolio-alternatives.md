@@ -9,6 +9,9 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - S2 (L1): "varias opciones para elegir una nueva" — three redesign previews with real `resume.json` content on separate routes, for the owner to pick one.
 - S3 (L0, original request): "tiene que tener las mismas funcionalidades" — the chosen redesign is completed later with full feature parity. The previews are explicitly partial.
 - S4 (L0): "en otro endpoint para no estropear lo que ya tenemos" — the rendered output of `/` and `/es/` must stay unchanged.
+- S6 (L17): "quedate con la paleta de comandos, el cartel suizo y la infrastrucutra isometrica, generame las versiones con todo eso y vamos ajustando". Only `/v6/`, `/v7/` and `/v9/` remain.
+- S7 (L17): "el orden de las secciones y el nombre debe ser las mimas que la actual". Section order and kicker/title strings must match the main site (EN from `src/pages/index.astro`, ES from `src/js/i18n.js`).
+- S8 (L17): "me gustaria tener una forma de cambiar de theme en la parte superior del menú". Shared `src/components/v3/ThemeSwitch.astro` in each theme's top bar.
 - S5 (assumption): alternative routes are `noindex` and point their canonical at the main pages, so search engines do not see duplicate content.
 
 ## Tasks
@@ -27,6 +30,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T10 | S2         | delegated (parallel writers) | done | L15, L16 |
 | T11 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
 | T12 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
+| T13 | S6, S7     | inline | done | L17 |
+| T14 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
+| T15 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
+| T16 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
 
 ## Non-goals
 
@@ -72,3 +79,6 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
     - v7 and v9 say "Abierto a nuevos puestos", which needs the owner to confirm.
     - The "Servcio" typo is unchanged.
     - EN lists 4 certifications and ES lists 5.
+- L17 (2026-11-24, owner request, verbatim): "vale, quedate con la paleta de comandos, el cartel suizo y la infrastrucutra isometrica, generame las versiones con todo eso y vamos ajustando, el orden de las secciones y el nombre debe ser las mimas que la actual, y me gustaria tener una forma de cambiar de theme en la parte superior del menú. ademas desde octubre de este año deje sdg y estoy en Factorial. mis tareas que hago son estas: [Factorial role description] para que añadas a resumen.json de cada uno de ellos".
+  - T13 (inline): Factorial (2026-10, current) added to both resumes, with SDG ending 2026-10. Assumption: the position is "Senior Software Engineer". v4, v5, v8 and v10 and their fonts are removed. The shared ThemeSwitch is added and `/v3/` now lists 3 themes.
+  - T14–T16: align v6, v7 and v9 to the main site's section order and names, and add the theme switch.

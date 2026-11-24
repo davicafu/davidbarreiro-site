@@ -1,0 +1,148 @@
+---
+/**
+ * Theme switcher shared by the redesigns (/v6/, /v7/, /v9/). Each theme is its own page,
+ * so switching is a link that keeps the locale and the section the visitor is reading.
+ * Pages style it through the --ts-* custom properties; the defaults are neutral.
+ */
+export type ThemeId = 'poster' | 'infra' | 'command';
+
+interface Props {
+  locale: 'en' | 'es';
+  current: ThemeId;
+}
+
+const { locale, current } = Astro.props;
+const prefix = locale === 'es' ? '/es' : '';
+
+const themes: { id: ThemeId; path: string; swatch: string; label: Record<'en' | 'es', string> }[] = [
+  { id: 'poster', path: '/v6/', swatch: '#e0251b', label: { en: 'Poster', es: 'Cartel' } },
+  { id: 'infra', path: '/v7/', swatch: '#c6f432', label: { en: 'Infra', es: 'Infra' } },
+  { id: 'command', path: '/v9/', swatch: '#8f9dff', label: { en: 'Command', es: 'Comandos' } }
+];
+
+const groupLabel = locale === 'es' ? 'Tema' : 'Theme';
+---
+
+<div class="ts" role="group" aria-label={groupLabel} data-theme-switch>
+  <span class="ts-label" aria-hidden="true">{groupLabel}</span>
+  {
+    themes.map((theme) => (
+      <a
+        class="ts-option"
+        href={`${prefix}${theme.path}`}
+        data-theme-id={theme.id}
+        aria-current={theme.id === current ? 'true' : undefined}
+        title={theme.label[locale]}
+      >
+        <span class="ts-swatch" style={`--swatch:${theme.swatch}`} aria-hidden="true" />
+        <span class="ts-name">{theme.label[locale]}</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .ts {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--ts-border, currentColor);
+    border-radius: var(--ts-radius, 999px);
+    background: var(--ts-bg, transparent);
+    color: var(--ts-fg, inherit);
+    font: var(--ts-font, inherit);
+    font-size: var(--ts-size, 0.75rem);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .ts-label {
+    padding: 0 0.45em 0 0.55em;
+    opacity: 0.65;
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+  }
+  .ts-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 28px;
+    padding: 0 0.65em;
+    border-radius: calc(var(--ts-radius, 999px) - 2px);
+    color: inherit;
+    text-decoration: none;
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+  .ts-option:hover {
+    background: var(--ts-hover, rgba(127, 127, 127, 0.16));
+  }
+  .ts-option:focus-visible {
+    outline: 2px solid var(--ts-focus, currentColor);
+    outline-offset: 2px;
+  }
+  .ts-option[aria-current='true'] {
+    background: var(--ts-active-bg, currentColor);
+    color: var(--ts-active-fg, #fff);
+  }
+  .ts-swatch {
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+    flex: none;
+  }
+  @media (max-width: 560px) {
+    .ts-label,
+    .ts-name {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .ts-option {
+      min-width: 32px;
+      min-height: 32px;
+      justify-content: center;
+      padding: 0;
+    }
+    .ts-swatch {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'portfolio-theme';
+
+  // Carry the section in view (or the current hash) to the next theme, since every theme
+  // uses the same section ids as the main site.
+  const currentSectionHash = () => {
+    if (location.hash) return location.hash;
+    const sections = [...document.querySelectorAll<HTMLElement>('main section[id]')];
+    const inView = sections.filter((section) => section.getBoundingClientRect().top <= window.innerHeight * 0.35);
+    const last = inView[inView.length - 1];
+    return last && window.scrollY > 40 ? `#${last.id}` : '';
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-theme-switch]').forEach((group) => {
+    group.querySelectorAll<HTMLAnchorElement>('a[data-theme-id]').forEach((link) => {
+      link.addEventListener('click', () => {
+        try {
+          localStorage.setItem(STORAGE_KEY, link.dataset.themeId || '');
+        } catch {
+          // Storage can be blocked; the link still works.
+        }
+        const base = link.getAttribute('href') || '';
+        link.setAttribute('href', base.split('#')[0] + currentSectionHash());
+      });
+    });
+  });
+</script>
