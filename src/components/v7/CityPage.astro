@@ -27,7 +27,6 @@ const t = {
     sections: 'Sections',
     langLabel: 'Language',
     role: 'Senior Software Engineer',
-    available: 'Open to new roles',
     headline: 'I design real-time data platforms and build the Go backends that hold them up.',
     lede: (years: number) =>
       `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java: from the first event to the dashboard that reads it.`,
@@ -90,7 +89,6 @@ const t = {
     sections: 'Secciones',
     langLabel: 'Idioma',
     role: 'Ingeniero de Software Senior',
-    available: 'Abierto a nuevos puestos',
     headline: 'Diseño plataformas de datos en tiempo real y construyo los backends en Go que las sostienen.',
     lede: (years: number) =>
       `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java: desde el primer evento hasta el panel que lo lee.`,
@@ -487,7 +485,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
       <!-- ============ HERO + TOPOLOGY ============ -->
       <section class="cy-hero" id="topologia" aria-labelledby="cy-title">
         <div class="cy-hero-copy">
-          <p class="cy-role"><span class="cy-status" aria-hidden="true"></span>{t.role} · {t.available}</p>
+          <p class="cy-role">{t.role}</p>
           <h1 id="cy-title" class="cy-name">David<br />Barreiro</h1>
           <p class="cy-headline">{t.headline}</p>
           <p class="cy-lede">{t.lede(years)}</p>
