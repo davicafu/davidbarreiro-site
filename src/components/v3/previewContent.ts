@@ -113,8 +113,9 @@ const COPY = {
       skills: 'Skills',
       contact: 'Contact'
     },
-    contactTitle: "Let's build something with data",
-    contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.'
+    contactTitle: "Let's talk data",
+    contactText:
+      "Streaming, ClickHouse, data quality or a query that refuses to get faster: I'm always happy to compare notes with other engineers."
   },
   es: {
     role: 'Ingeniero de Software Senior',
@@ -132,9 +133,9 @@ const COPY = {
       skills: 'Skills',
       contact: 'Contacto'
     },
-    contactTitle: 'Construyamos algo con datos',
+    contactTitle: 'Hablemos de datos',
     contactText:
-      'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.'
+      'Streaming, ClickHouse, calidad de datos o una consulta que se resiste a ir más rápido: siempre me gusta intercambiar ideas con otros ingenieros.'
   }
 } as const;
 

@@ -39,10 +39,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T14 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
 | T15 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
 | T16 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
-| T17 | S10, S11   | inline | in progress | L19 |
-| T18 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
-| T19 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
-| T20 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
+| T17 | S10, S11   | inline | done | L19, 98a1f23 |
+| T18 | S9, S12    | delegated (parallel writers, disjoint surfaces) | done | L19 |
+| T19 | S9, S12    | delegated (parallel writers, disjoint surfaces) | done | L19 |
+| T20 | S9, S12    | delegated (parallel writers, disjoint surfaces) | done | L19 |
 | T21 | S13        | inline (read-only) | done | L19 |
 
 ## Non-goals
