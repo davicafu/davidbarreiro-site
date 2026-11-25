@@ -1,8 +1,9 @@
 ---
 /**
- * Redesign "Command palette" (routes /v9/ and /es/v9/).
- * The portfolio as a modern developer tool: a live command palette in the hero (and on
- * ⌘K / Ctrl+K / "/" anywhere) that searches every section, the design method as a
+ * Redesign "Dev" (routes /v9/ and /es/v9/).
+ * The portfolio as a modern developer tool: the hero is a tool landing (a `whoami`
+ * readout derived from the resume plus a live command palette, also on ⌘K / Ctrl+K / "/"
+ * anywhere) that searches every section, the design method as a
  * pipeline run with an inspector, the career as a release changelog, projects as
  * repository cards and skills as a settings panel. Standalone page: it does not load the
  * main site's JS or Tailwind.
@@ -44,7 +45,13 @@ const t = {
       professional: ['Professional', 'Formal'],
       jsonresume: ['JSONResume', 'Structured']
     },
-    metrics: { experience: 'Experience', coreSkills: 'Core Skills', focus: 'Focus', focusValue: 'System Design · Cloud-Native' },
+    searchAll: 'Search everything',
+    readout: {
+      title: 'Profile',
+      at: 'at',
+      projects: (n: number) => `${n} projects`,
+      credential: 'View credential'
+    },
     palette: {
       placeholder: 'Try “kafka”, “go” or “cv”…',
       input: 'Search the portfolio',
@@ -80,7 +87,9 @@ const t = {
       certMeta: 'Certification',
       theme: 'Theme',
       themePoster: 'Poster',
-      themeInfra: 'Infra'
+      themeInfra: 'Infra',
+      themeDev: 'Dev',
+      themeCurrent: 'Current'
     },
     copied: 'Email copied to the clipboard',
     copyFailed: 'Could not copy. Use the email link instead.',
@@ -145,8 +154,9 @@ const t = {
     certsTitle: 'Certifications',
     verify: 'Verify',
     contactKicker: 'Contact',
-    contactTitle: "Let's build something with data",
-    contactText: 'Available for data engineering, streaming platforms, and software architecture.',
+    contactTitle: "Let's talk data",
+    contactText:
+      "Streaming, ClickHouse, data quality or a query that refuses to get faster: I'm always happy to compare notes with other engineers.",
     copy: 'Copy',
     send: 'Send email',
     footerHint: 'Press',
@@ -171,11 +181,12 @@ const t = {
       professional: ['Profesional', 'Formal'],
       jsonresume: ['JSONResume', 'Estructurado']
     },
-    metrics: {
-      experience: 'Experiencia',
-      coreSkills: 'Habilidades principales',
-      focus: 'Enfoque',
-      focusValue: 'Diseño de Sistemas · Nativo para la nube'
+    searchAll: 'Buscar en todo',
+    readout: {
+      title: 'Perfil',
+      at: 'en',
+      projects: (n: number) => `${n} proyectos`,
+      credential: 'Ver credencial'
     },
     palette: {
       placeholder: 'Prueba «kafka», «go» o «cv»…',
@@ -212,7 +223,9 @@ const t = {
       certMeta: 'Certificación',
       theme: 'Tema',
       themePoster: 'Cartel',
-      themeInfra: 'Infra'
+      themeInfra: 'Infra',
+      themeDev: 'Dev',
+      themeCurrent: 'Actual'
     },
     copied: 'Email copiado al portapapeles',
     copyFailed: 'No se pudo copiar. Usa el enlace de email.',
@@ -275,9 +288,9 @@ const t = {
     certsTitle: 'Certificaciones',
     verify: 'Verificar',
     contactKicker: 'Contacto',
-    contactTitle: 'Construyamos algo con datos',
+    contactTitle: 'Hablemos de datos',
     contactText:
-      'Disponible para proyectos de ingeniería de datos, plataformas de tiempo real y arquitectura de software.',
+      'Streaming, ClickHouse, calidad de datos o una consulta que se resiste a ir más rápido: siempre me gusta intercambiar ideas con otros ingenieros.',
     copy: 'Copiar',
     send: 'Enviar email',
     footerHint: 'Pulsa',
@@ -287,27 +300,26 @@ const t = {
 }[locale];
 
 const nowYear = new Date().getFullYear();
-const firstWorkYear = Math.min(...c.work.map((job) => job.start));
-const years = nowYear - firstWorkYear;
 const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
 const work = [...c.work].sort((a, b) => b.start - a.start);
 const education = [...c.education].sort((a, b) => b.start - a.start);
 const pad = (n: number) => String(n).padStart(2, '0');
 const prefix = locale === 'es' ? '/es' : '';
 
-/* ---- Hero: the same kicker, name and summary as the main site ---- */
+/* ---- Hero: main-site kicker and name, condensed summary, full summary on demand ---- */
 const basics = getResume(locale).basics;
 const summary = String(basics.summary || '')
   .split(/\n\s*\n/)
   .map((paragraph) => paragraph.trim())
   .filter(Boolean);
-// Same rule as the main site's "Core Skills" metric: skills at an advanced level.
-const coreSkills = c.skillGroups
-  .flatMap((group) => group.keywords)
-  .filter((skill) => {
-    const value = skill.level.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    return value.includes('advanced') || value.includes('avanzado');
-  }).length;
+
+/* ---- Hero readout: every value derived from the resume ---- */
+const currentJob = c.work[0];
+const readoutStack = (currentJob?.tech ?? []).slice(0, 4);
+// Only certifications with a public credential; short name is the issuer (or the name).
+const readoutCerts = c.certificateDetails
+  .filter((cert) => cert.url)
+  .map((cert) => ({ ...cert, short: (cert.issuer || cert.name).toLowerCase() }));
 
 // resume.json mixes case and has a typo ("Intemediate"); read levels by prefix.
 const levelValue = (level: string) => {
@@ -350,7 +362,7 @@ const groups: CommandGroup[] = [
       { id: 'nav-system-design', label: t.systemKicker, meta: t.systemTitle, keywords: 'pipeline method architecture', icon: 'hash', href: '#system-design', action: 'go' },
       { id: 'nav-experience', label: t.timelineKicker, meta: t.timelineTitle, keywords: 'jobs career work experience', icon: 'hash', href: '#experience', action: 'go' },
       { id: 'nav-skills', label: t.skillsKicker, meta: t.skillsTitle, keywords: 'stack skills certifications', icon: 'hash', href: '#skills', action: 'go' },
-      { id: 'nav-contact', label: t.contactKicker, meta: t.contactTitle, keywords: 'email hire', icon: 'hash', href: '#contact', action: 'go' }
+      { id: 'nav-contact', label: t.contactKicker, meta: t.contactTitle, keywords: 'email mail talk', icon: 'hash', href: '#contact', action: 'go' }
     ]
   },
   {
@@ -379,7 +391,9 @@ const groups: CommandGroup[] = [
     label: t.groups.theme,
     items: [
       { id: 'theme-poster', label: `${t.cmd.theme}: ${t.cmd.themePoster}`, meta: '/v6/', keywords: 'theme tema poster cartel swiss suizo', icon: 'swatch', href: `${prefix}/v6/`, action: 'go' },
-      { id: 'theme-infra', label: `${t.cmd.theme}: ${t.cmd.themeInfra}`, meta: '/v7/', keywords: 'theme tema infra isometric isométrica', icon: 'swatch', href: `${prefix}/v7/`, action: 'go' }
+      { id: 'theme-infra', label: `${t.cmd.theme}: ${t.cmd.themeInfra}`, meta: '/v7/', keywords: 'theme tema infra isometric isométrica', icon: 'swatch', href: `${prefix}/v7/`, action: 'go' },
+      { id: 'theme-dev', label: `${t.cmd.theme}: ${t.cmd.themeDev}`, meta: '/v9/', keywords: 'theme tema dev command comandos palette paleta', icon: 'swatch', href: `${prefix}/v9/`, action: 'go' },
+      { id: 'theme-current', label: `${t.cmd.theme}: ${t.cmd.themeCurrent}`, meta: '/', keywords: 'theme tema current actual main site web', icon: 'swatch', href: `${prefix}/`, action: 'go' }
     ]
   },
   {
@@ -493,7 +507,7 @@ const groups: CommandGroup[] = [
     </header>
 
     <main id="main">
-      <!-- ============ HERO ============ -->
+      <!-- ============ HERO: developer tool landing (whoami readout + palette) ============ -->
       <section class="cp-hero" aria-labelledby="cp-title">
         <div class="cp-hero-glow" aria-hidden="true"></div>
         <div class="cp-hero-copy">
@@ -505,22 +519,26 @@ const groups: CommandGroup[] = [
             <span>{c.name.split(' ')[0]}</span>
             <span class="cp-headline-accent">{c.name.split(' ').slice(1).join(' ')}</span>
           </h1>
-          {summary[0] && <p class="cp-lede">{summary[0]}</p>}
+          <p class="cp-lede">{c.copy.summary}</p>
           {
-            summary.length > 1 && (
+            summary.length > 0 && (
               <details class="cp-summary-more">
                 <summary>
                   <span class="cp-more-closed">{t.readMore}</span>
                   <span class="cp-more-open">{t.readLess}</span>
                 </summary>
-                {summary.slice(1).map((paragraph) => (
+                {summary.map((paragraph) => (
                   <p>{paragraph}</p>
                 ))}
               </details>
             )
           }
           <div class="cp-actions">
-            <a class="cp-btn cp-btn-primary" href={`mailto:${c.email}`}>
+            <button type="button" class="cp-btn cp-btn-primary cp-btn-search" data-open-palette aria-haspopup="dialog">
+              <Icon name="search" />{t.searchAll}
+              <kbd class="cp-kbd" data-shortcut>⌘K</kbd>
+            </button>
+            <a class="cp-btn" href={`mailto:${c.email}`}>
               <Icon name="mail" />{t.contact}
             </a>
             <details class="cp-cv" data-cv>
@@ -541,11 +559,6 @@ const groups: CommandGroup[] = [
               </ul>
             </details>
           </div>
-          <dl class="cp-stats">
-            <div><dt>{t.metrics.experience}</dt><dd>{years}+</dd></div>
-            <div><dt>{t.metrics.coreSkills}</dt><dd>{coreSkills}+</dd></div>
-            <div class="cp-stats-focus"><dt>{t.metrics.focus}</dt><dd>{t.metrics.focusValue}</dd></div>
-          </dl>
           <p class="cp-links">
             <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub<Icon name="external" /></a>
             <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn<Icon name="external" /></a>
@@ -556,7 +569,61 @@ const groups: CommandGroup[] = [
           <div class="cp-window">
             <div class="cp-window-bar" aria-hidden="true">
               <span class="cp-dots"><i></i><i></i><i></i></span>
-              <span class="cp-window-title">davidbarreiro — search</span>
+              <span class="cp-window-title">davidbarreiro — dev</span>
+            </div>
+            <div class="cp-readout">
+              <p class="cp-readout-cmd" aria-hidden="true"><span>$</span> whoami --verbose</p>
+              <dl aria-label={t.readout.title}>
+                {
+                  currentJob && (
+                    <div>
+                      <dt>now</dt>
+                      <dd>
+                        {currentJob.role.toLowerCase()} <span class="cp-readout-dim">{t.readout.at}</span>{' '}
+                        <span class="cp-readout-hl">{currentJob.organisation.toLowerCase()}</span>
+                      </dd>
+                    </div>
+                  )
+                }
+                {
+                  readoutStack.length > 0 && (
+                    <div>
+                      <dt>stack</dt>
+                      <dd>{readoutStack.join(' · ')}</dd>
+                    </div>
+                  )
+                }
+                {
+                  readoutCerts.length > 0 && (
+                    <div>
+                      <dt>certs</dt>
+                      <dd class="cp-readout-list">
+                        {readoutCerts.map((cert, index) => (
+                          <>
+                            {index > 0 && <span class="cp-readout-dim">,</span>}
+                            <a
+                              href={cert.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${cert.name} · ${t.readout.credential}`}
+                              title={cert.name}
+                            >
+                              {cert.short}
+                              <Icon name="external" />
+                            </a>
+                          </>
+                        ))}
+                      </dd>
+                    </div>
+                  )
+                }
+                <div>
+                  <dt>projects</dt>
+                  <dd>
+                    <a href="#portfolio">{t.readout.projects(c.projects.length)} <span aria-hidden="true">→</span></a>
+                  </dd>
+                </div>
+              </dl>
             </div>
             <Palette id="hero" variant="inline" groups={groups} labels={t.palette} />
           </div>
