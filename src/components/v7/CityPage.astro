@@ -34,11 +34,16 @@ const t = {
       professional: ['Professional', 'Formal'],
       jsonresume: ['JSONResume', 'Structured']
     },
-    heroMetrics: {
-      experience: 'Experience',
-      coreSkills: 'Core Skills',
-      focus: 'Focus',
-      focusValue: 'System Design · Cloud-Native'
+    fullSummary: 'Read the full summary',
+    ready: 'Ready',
+    facts: {
+      title: 'Node status',
+      now: 'Now',
+      pipeline: 'Pipeline',
+      certified: 'Certified',
+      credential: (issuer: string) => `${issuer} credential`,
+      projects: 'Projects',
+      projectsLink: 'see all'
     },
     capabilities: {
       title: 'Capabilities',
@@ -97,8 +102,9 @@ const t = {
     certsTitle: 'Certifications',
     certsNote: 'Most recent first',
     contactKicker: 'Contact',
-    contactTitle: "Let's build something with data",
-    contactText: 'Available for data engineering, streaming platforms, and software architecture.',
+    contactTitle: "Let's talk data",
+    contactText:
+      "Streaming, ClickHouse, data quality or a query that refuses to get faster: I'm always happy to compare notes with other engineers.",
     terminalOk: 'listening on email, LinkedIn and GitHub',
     footerRole: 'Software Engineer',
     skip: 'Skip to content'
@@ -115,11 +121,16 @@ const t = {
       professional: ['Profesional', 'Formal'],
       jsonresume: ['JSONResume', 'Estructurado']
     },
-    heroMetrics: {
-      experience: 'Experiencia',
-      coreSkills: 'Habilidades principales',
-      focus: 'Enfoque',
-      focusValue: 'Diseño de Sistemas · Nativo para la nube'
+    fullSummary: 'Leer el resumen completo',
+    ready: 'Operativo',
+    facts: {
+      title: 'Estado del nodo',
+      now: 'Ahora',
+      pipeline: 'Pipeline',
+      certified: 'Certificado',
+      credential: (issuer: string) => `Credencial de ${issuer}`,
+      projects: 'Proyectos',
+      projectsLink: 'ver todos'
     },
     capabilities: {
       title: 'Capacidades',
@@ -176,9 +187,9 @@ const t = {
     certsTitle: 'Certificaciones',
     certsNote: 'Las más recientes primero',
     contactKicker: 'Contacto',
-    contactTitle: 'Construyamos algo con datos',
+    contactTitle: 'Hablemos de datos',
     contactText:
-      'Disponible para proyectos de ingeniería de datos, plataformas de tiempo real y arquitectura de software.',
+      'Streaming, ClickHouse, calidad de datos o una consulta que se resiste a ir más rápido: siempre me gusta intercambiar ideas con otros ingenieros.',
     terminalOk: 'escuchando en email, LinkedIn y GitHub',
     footerRole: 'Ingeniero de Software',
     skip: 'Saltar al contenido'
@@ -194,8 +205,6 @@ const summaryParagraphs = String(resume.basics.summary || '')
   .filter(Boolean);
 
 const nowYear = new Date().getFullYear();
-const firstWorkYear = Math.min(...c.work.map((job) => job.start));
-const years = nowYear - firstWorkYear;
 const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
 const pad = (n: number) => String(n).padStart(2, '0');
 const slug = (text: string) =>
@@ -482,19 +491,12 @@ const serviceIcon = (n: number) => {
 
 const levelDots = (level: string) => t.levels[level] ?? 0;
 
-// Hero metrics, computed the same way as the main site: years since the first job and the number
-// of skills at an advanced level.
-const normaliseLevel = (value: string) =>
-  value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-const coreSkills = c.skillGroups
-  .flatMap((group) => group.keywords)
-  .filter((skill) => {
-    const level = normaliseLevel(skill.level);
-    return level.includes('advanced') || level.includes('avanzado');
-  }).length;
+// Hero facts, all derived from the resume: current release, its data path, credentials and services.
+const currentJob = c.work[0];
+const pipeline = (currentJob?.tech ?? []).slice(0, 3);
+const credentials = c.certificateDetails
+  .filter((cert) => cert.url && cert.issuer)
+  .filter((cert, index, list) => list.findIndex((other) => other.issuer === cert.issuer) === index);
 
 // A small rack for the hero node card: three units with status LEDs.
 const heroRack = [0, 1, 2].map((k) => {
@@ -556,9 +558,13 @@ const heroRack = [0, 1, 2].map((k) => {
         <div class="cy-hero-copy">
           <p class="cy-role">{kicker}</p>
           <h1 id="cy-title" class="cy-name">David<br />Barreiro</h1>
-          <div class="cy-summary">
-            {summaryParagraphs.map((text) => <p>{text}</p>)}
-          </div>
+          <p class="cy-lede">{c.copy.summary}</p>
+          <details class="cy-bio">
+            <summary>{t.fullSummary}</summary>
+            <div class="cy-summary">
+              {summaryParagraphs.map((text) => <p>{text}</p>)}
+            </div>
+          </details>
           <div class="cy-actions">
             <a class="cy-btn" href={`mailto:${c.email}`}>{t.heroContact}</a>
             <a class="cy-btn cy-btn-line" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -581,12 +587,20 @@ const heroRack = [0, 1, 2].map((k) => {
           </div>
         </div>
 
-        <aside class="cy-node-card">
-          <p class="cy-node-card-head" aria-hidden="true">
-            <span class="cy-status"></span>node/david-barreiro
-          </p>
+        <!-- Hero node card: a `kubectl describe`-style status panel for the person. -->
+        <aside class="cy-node-card" aria-label={t.facts.title}>
+          <div class="cy-node-card-head">
+            <p class="cy-node-cmd" aria-hidden="true">
+              <span class="cy-t-acc">$</span> <span class="cy-node-verb">kubectl describe</span> <b>node/david-barreiro</b>
+            </p>
+            <p class="cy-ready"><span class="cy-status" aria-hidden="true"></span>{t.ready}</p>
+          </div>
           <div class="cy-node-card-id">
             <img src={c.image} alt={c.name} width="96" height="96" />
+            <div class="cy-node-meta">
+              <p>{c.name}</p>
+              <p>{c.copy.positioning}</p>
+            </div>
             <svg class="cy-node-rack" viewBox="-50 -60 120 126" width="104" height="109" aria-hidden="true">
               {
                 heroRack.map((unit) => (
@@ -602,10 +616,60 @@ const heroRack = [0, 1, 2].map((k) => {
               }
             </svg>
           </div>
-          <dl class="cy-stats">
-            <div><dt>{t.heroMetrics.experience}</dt><dd>{years}</dd></div>
-            <div><dt>{t.heroMetrics.coreSkills}</dt><dd>{coreSkills}</dd></div>
-            <div class="cy-stats-wide"><dt>{t.heroMetrics.focus}</dt><dd>{t.heroMetrics.focusValue}</dd></div>
+          <dl class="cy-spec">
+            {
+              currentJob && (
+                <div>
+                  <dt>{t.facts.now}</dt>
+                  <dd>
+                    <strong>{currentJob.organisation}</strong> <span class="cy-spec-dim">·</span> {currentJob.role}
+                  </dd>
+                </div>
+              )
+            }
+            {
+              pipeline.length > 0 && (
+                <div>
+                  <dt>{t.facts.pipeline}</dt>
+                  <dd>
+                    <ol class="cy-flow">
+                      {pipeline.map((tech) => (
+                        <li>{tech}</li>
+                      ))}
+                    </ol>
+                  </dd>
+                </div>
+              )
+            }
+            {
+              credentials.length > 0 && (
+                <div>
+                  <dt>{t.facts.certified}</dt>
+                  <dd class="cy-spec-links">
+                    {credentials.map((cert) => (
+                      <a
+                        href={cert.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={t.facts.credential(cert.issuer)}
+                        title={cert.name}
+                      >
+                        {cert.issuer}
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              )
+            }
+            <div>
+              <dt>{t.facts.projects}</dt>
+              <dd>
+                <a class="cy-spec-count" href="#portfolio">
+                  <strong>{c.projects.length}</strong>
+                  <span>{t.facts.projectsLink}</span>
+                </a>
+              </dd>
+            </div>
           </dl>
         </aside>
       </section>

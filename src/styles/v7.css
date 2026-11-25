@@ -202,10 +202,18 @@
   align-items: center;
   gap: 1.5rem;
   padding: 0.7rem var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+/* The blur lives on a pseudo-element: a backdrop-filter on the bar itself would become the
+   containing block of the theme menu, which is position: fixed (bottom sheet) on phones. */
+.cy-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: rgb(10 13 19 / 0.78);
   backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-bottom: 1px solid var(--line);
 }
 .cy-brand {
   display: inline-flex;
@@ -319,24 +327,63 @@
   background-clip: text;
   color: transparent;
 }
-.cy-summary {
-  margin: 0 0 2rem;
+.cy-lede {
+  margin: 0 0 1rem;
+  max-width: 52ch;
+  color: var(--text);
+  font-size: clamp(1.08rem, 1.5vw, 1.32rem);
+  font-weight: 520;
+  line-height: 1.42;
+  letter-spacing: -0.01em;
+}
+/* The long resume summary stays one click away. */
+.cy-bio {
+  margin: 0 0 1.75rem;
   max-width: 62ch;
 }
+.cy-bio summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  color: var(--link);
+  font: 500 0.78rem/1.2 var(--mono);
+  cursor: pointer;
+  list-style: none;
+}
+.cy-bio summary::-webkit-details-marker {
+  display: none;
+}
+.cy-bio summary::before {
+  content: '+';
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid var(--line-2);
+  border-radius: 4px;
+  color: var(--accent);
+}
+.cy-bio[open] summary::before {
+  content: '−';
+}
+.cy-bio summary:hover {
+  color: var(--text);
+}
+.cy-summary {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--line-2);
+}
 .cy-summary p {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.8rem;
   color: var(--text-2);
 }
-.cy-summary p:first-child {
-  margin-bottom: 1.1rem;
-  color: var(--text);
-  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
-  font-weight: 560;
-  line-height: 1.35;
-  letter-spacing: -0.012em;
+.cy-summary p:last-child {
+  margin-bottom: 0;
 }
 
-/* Hero node card: photo, a small rack and the main site's metrics. */
+/* Hero node card: a `kubectl describe`-style status panel with photo, rack and resume facts. */
 .cy-node-card {
   position: relative;
   min-width: 0;
@@ -353,10 +400,38 @@
 .cy-node-card-head {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  margin: 0 0 1.1rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: -1.25rem -1.25rem 1.1rem;
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: rgb(10 13 19 / 0.55);
+  border-radius: 16px 16px 0 0;
+  font: 500 0.75rem/1.3 var(--mono);
+}
+.cy-node-cmd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
   color: var(--text-3);
-  font: 500 0.75rem/1 var(--mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cy-node-cmd b {
+  color: var(--text);
+  font-weight: 500;
+}
+.cy-ready {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgb(198 244 50 / 0.3);
+  border-radius: 999px;
+  background: rgb(198 244 50 / 0.08);
+  color: var(--accent);
 }
 .cy-node-card-id {
   display: flex;
@@ -372,6 +447,24 @@
   border: 1px solid var(--line-2);
   object-fit: cover;
   background: var(--panel);
+}
+.cy-node-meta {
+  flex: 1;
+  min-width: 0;
+}
+.cy-node-meta p {
+  margin: 0;
+}
+.cy-node-meta p:first-child {
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.cy-node-meta p + p {
+  margin-top: 0.35rem;
+  color: var(--text-3);
+  font: 500 0.75rem/1.4 var(--mono);
 }
 .cy-node-rack {
   flex: none;
@@ -392,20 +485,94 @@
 .cy-node-rack .cy-face-right {
   fill: #131a28;
 }
-.cy-node-card .cy-stats {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.cy-spec {
   margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgb(17 24 36 / 0.6);
 }
-.cy-node-card .cy-stats .cy-stats-wide {
-  grid-column: 1 / -1;
-  border-left: 0;
-  border-top: 1px solid var(--line);
+.cy-spec div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.8rem 1rem;
 }
-.cy-node-card .cy-stats .cy-stats-wide dd {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+.cy-spec div + div {
+  border-top: 1px dashed var(--line-2);
+}
+.cy-spec dt {
+  color: var(--text-3);
+  font: 500 0.72rem/1.4 var(--mono);
+  letter-spacing: 0.02em;
+}
+.cy-spec dt::after {
+  content: ':';
+}
+.cy-spec dd {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.98rem;
+  line-height: 1.4;
+}
+.cy-spec strong {
+  color: var(--text);
+  font-weight: 650;
+}
+.cy-spec-dim {
+  color: var(--text-3);
+}
+.cy-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cy-flow li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text);
+  font: 500 0.82rem/1 var(--mono);
+}
+.cy-flow li + li::before {
+  content: '→' / '';
+  color: var(--accent);
+}
+.cy-spec-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+}
+.cy-spec-links a,
+.cy-spec-count {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px solid rgb(92 200 255 / 0.35);
+}
+.cy-spec-links a:hover,
+.cy-spec-count:hover {
+  color: var(--text);
+  border-bottom-color: currentColor;
+}
+.cy-spec-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+.cy-spec-count strong {
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cy-spec-count span {
+  font: 500 0.75rem/1 var(--mono);
+}
+.cy-spec-count span::after {
+  content: ' →';
 }
 
 /* Capabilities: three zone cards under the hero. */
@@ -468,12 +635,16 @@
   --ts-border: var(--line-2);
   --ts-radius: 7px;
   --ts-fg: var(--text-2);
+  --ts-bg: transparent;
   --ts-hover: var(--panel-2);
   --ts-active-bg: var(--panel-2);
   --ts-active-fg: var(--text);
   --ts-focus: var(--focus);
   --ts-font: 500 0.75rem/1 var(--mono);
   --ts-size: 0.75rem;
+  --ts-menu-bg: var(--panel);
+  --ts-menu-fg: var(--text);
+  --ts-shadow: 0 0 0 1px rgb(255 255 255 / 0.02) inset, 0 24px 60px -20px rgb(0 0 0 / 0.85);
 }
 
 .cy-actions {
@@ -533,37 +704,6 @@
 .cy-cv span {
   color: var(--text-3);
   font-size: 0.82rem;
-}
-.cy-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 2.4rem 0 1.4rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: rgb(17 24 36 / 0.6);
-}
-.cy-stats div {
-  display: flex;
-  flex-direction: column;
-  padding: 0.9rem 1rem;
-}
-.cy-stats dd {
-  order: -1;
-}
-.cy-stats div + div {
-  border-left: 1px solid var(--line);
-}
-.cy-stats dt {
-  color: var(--text-3);
-  font: 400 0.7rem/1.35 var(--mono);
-}
-.cy-stats dd {
-  margin: 0 0 0.3rem;
-  font-size: 2.3rem;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
 }
 .cy-links {
   display: flex;
@@ -1832,7 +1972,33 @@
     padding-top: 1.75rem;
   }
   .cy-name {
-    font-size: clamp(3.2rem, 16vw, 4.4rem);
+    margin-bottom: 1rem;
+    font-size: clamp(2.9rem, 14vw, 4rem);
+  }
+  .cy-lede {
+    font-size: 1.02rem;
+  }
+  .cy-bio {
+    margin-bottom: 1.25rem;
+  }
+  /* Tighter node card on phones: the status rows carry it, so the photo and rack row is dropped. */
+  .cy-node-card {
+    padding: 1rem;
+  }
+  .cy-node-card-head {
+    margin: -1rem -1rem 0.9rem;
+    padding: 0.7rem 1rem;
+  }
+  .cy-node-card-id {
+    display: none;
+  }
+  .cy-spec div {
+    grid-template-columns: 5.4rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.65rem 0.8rem;
+  }
+  .cy-spec dd {
+    font-size: 0.92rem;
   }
   .cy-model {
     margin-inline: calc(var(--gutter) * -1 + 0.25rem);
@@ -1902,6 +2068,9 @@
 }
 
 @media (max-width: 480px) {
+  .cy-node-verb {
+    display: none;
+  }
   .cy-cv ul {
     left: auto;
     right: 0;
@@ -1911,9 +2080,6 @@
   }
   .cy-bar {
     gap: 0.75rem;
-  }
-  .cy-stats dd {
-    font-size: 2rem;
   }
   .cy-releases summary {
     grid-template-columns: auto minmax(0, 1fr);
