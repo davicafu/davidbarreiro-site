@@ -169,6 +169,8 @@ const education = [...c.education].sort((a, b) => b.start - a.start);
 
 // Flat poster colours, cycled across stages and project tiles.
 const FIELDS = ['red', 'cobalt', 'ochre', 'ink', 'cobalt', 'red', 'ochre'];
+// Project tiles get a wider palette so no two projects share a colour.
+const PROJECT_FIELDS = ['cobalt', 'ochre', 'ink', 'green', 'red', 'violet', 'pink', 'sky'];
 
 const tagCounts = new Map<string, number>();
 c.projects.forEach((project) =>
@@ -366,7 +368,7 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
           {
             c.projects.map((project, index) => (
               <li
-                class:list={['sp-tile', `sp-f-${FIELDS[(index + 1) % FIELDS.length]}`]}
+                class:list={['sp-tile', `sp-f-${PROJECT_FIELDS[index % PROJECT_FIELDS.length]}`]}
                 data-tags={JSON.stringify(project.allTags)}
               >
                 <span class="sp-tile-num" aria-hidden="true">

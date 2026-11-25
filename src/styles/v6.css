@@ -32,6 +32,10 @@
   --red: #e3241b;
   --cobalt: #1d43c8;
   --ochre: #eba51a;
+  --green: #1d7a4e;
+  --violet: #5a3aa0;
+  --pink: #f3a6bf;
+  --sky: #8cc8ec;
   --focus: #1d43c8;
   --wrap: 82rem;
   --gutter: clamp(1rem, 4vw, 2.75rem);
@@ -111,6 +115,22 @@
 .sp-f-ink {
   --f: var(--ink);
   --f-ink: #fff;
+}
+.sp-f-green {
+  --f: var(--green);
+  --f-ink: #fff;
+}
+.sp-f-violet {
+  --f: var(--violet);
+  --f-ink: #fff;
+}
+.sp-f-pink {
+  --f: var(--pink);
+  --f-ink: var(--ink);
+}
+.sp-f-sky {
+  --f: var(--sky);
+  --f-ink: var(--ink);
 }
 
 /* ---------------- Buttons ---------------- */
