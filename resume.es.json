@@ -272,7 +272,7 @@
           "logo": "./assets/logos/clickhouse.svg"
         },
         {
-          "name": "MariaDb",
+          "name": "MariaDB",
           "level": "Avanzado",
           "notes": "",
           "logo": "./assets/logos/mariadb.svg"
