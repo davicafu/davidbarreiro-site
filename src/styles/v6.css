@@ -505,6 +505,55 @@
   animation: sp-fade 0.8s 1.1s both;
 }
 
+.sp-summary {
+  display: grid;
+  gap: 0.85rem;
+}
+.sp-summary .sp-headline {
+  max-width: 34ch;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+.sp-summary .sp-lede {
+  font-size: 1rem;
+}
+.sp-poster dl,
+.sp-poster dd {
+  margin: 0;
+}
+.sp-p-years dt,
+.sp-p-certs dt {
+  order: 2;
+}
+.sp-p-certs {
+  max-width: 42%;
+}
+.sp-p-certs .sp-p-cap {
+  line-height: 1.25;
+}
+.sp-p-stack dt {
+  margin-bottom: 0.3em;
+  opacity: 0.6;
+}
+
+/* Theme switch (shared component, styled through its --ts-* properties) */
+.sp-bar-end {
+  --ts-border: var(--ink);
+  --ts-radius: 0;
+  --ts-bg: transparent;
+  --ts-fg: var(--ink);
+  --ts-font: 800 0.75rem/1 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --ts-transform: uppercase;
+  --ts-tracking: 0.06em;
+  --ts-hover: var(--paper-2);
+  --ts-active-bg: var(--ink);
+  --ts-active-fg: #fff;
+  --ts-focus: var(--focus);
+}
+.sp .sp-bar-end .ts {
+  border-width: 2px;
+  padding: 2px;
+}
+
 /* ---------------- Sections ---------------- */
 .sp-section {
   max-width: var(--wrap);
@@ -521,7 +570,7 @@
   margin-bottom: clamp(2rem, 4vw, 3rem);
   border-top: 6px solid var(--ink);
 }
-.sp-kicker {
+.sp-head-num {
   grid-column: 1 / span 2;
   align-self: start;
   font-size: clamp(2.5rem, 6vw, 5.5rem);
@@ -531,18 +580,89 @@
   color: var(--red);
   font-variant-numeric: tabular-nums;
 }
-.sp-head h2 {
+.sp-head-title {
   grid-column: 3 / span 6;
+  display: grid;
+  gap: 0.75rem;
+}
+.sp-kicker {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+.sp-head h2 {
   font-size: clamp(2.2rem, 5vw, 4.5rem);
   font-weight: 900;
   line-height: 0.92;
   letter-spacing: -0.045em;
   text-wrap: balance;
 }
-.sp-head p {
+.sp-head-intro {
   grid-column: 9 / span 4;
   color: var(--ink-2);
   text-wrap: pretty;
+}
+
+/* Capabilities: three flat colour fields */
+.sp-caps {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  scroll-margin-top: 3.5rem;
+}
+.sp-caps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+}
+.sp-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: 17rem;
+  padding: clamp(1.25rem, 2.4vw, 2rem);
+  background: var(--f);
+  color: var(--f-ink);
+  transition: transform 0.35s var(--ease);
+}
+.sp-cap:hover {
+  transform: translateY(-6px);
+}
+.sp-cap-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.sp-cap h3 {
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.sp-cap-desc {
+  margin-top: auto;
+  font-weight: 500;
+  line-height: 1.45;
+  opacity: 0.92;
+}
+.sp-js .sp-caps[data-reveal]:not(.is-in) .sp-cap {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.sp-js .sp-caps[data-reveal] .sp-cap {
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+}
+.sp-js .sp-caps[data-reveal] .sp-cap:nth-child(2) {
+  transition-delay: 0.08s;
+}
+.sp-js .sp-caps[data-reveal] .sp-cap:nth-child(3) {
+  transition-delay: 0.16s;
 }
 
 /* Method */
@@ -1157,7 +1277,7 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 1.25rem clamp(1rem, 2vw, 1.5rem);
 }
-.sp-contact-kicker {
+.sp-contact-num {
   grid-column: 1 / span 2;
   font-size: clamp(2.5rem, 6vw, 5.5rem);
   font-weight: 900;
@@ -1165,10 +1285,20 @@
   letter-spacing: -0.06em;
   color: #fff;
 }
-.sp-contact h2 {
+.sp-contact-head {
   grid-column: 3 / span 9;
   position: relative;
   z-index: 1;
+  display: grid;
+  gap: 0.9rem;
+}
+.sp-contact-kicker {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.sp-contact h2 {
   font-size: clamp(3rem, 8.5vw, 8.5rem);
   font-weight: 900;
   line-height: 0.86;
@@ -1227,6 +1357,19 @@
   color: rgb(255 255 255 / 0.7);
   font-size: 0.88rem;
   font-weight: 600;
+}
+
+.sp-footer-links {
+  display: flex;
+  gap: 1rem;
+}
+.sp-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+.sp-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
 }
 
 /* ---------------- Scroll reveals (only once JS is running) ---------------- */
@@ -1362,6 +1505,12 @@
   .sp-stage {
     grid-column: 1 / span 12;
   }
+  .sp-caps-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sp-cap {
+    min-height: 0;
+  }
   .sp-stage {
     min-height: 20rem;
   }
@@ -1455,6 +1604,9 @@
   .sp-p-photo {
     width: 26%;
   }
+  .sp-p-bar {
+    bottom: 19%;
+  }
   .sp-p-circle {
     width: 58%;
     top: 34%;
@@ -1473,7 +1625,7 @@
   }
   .sp-footer {
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
   }
 }
 
