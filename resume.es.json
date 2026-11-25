@@ -112,14 +112,14 @@
       "position": "Ingeniero de Software Senior",
       "startDate": "2026-10",
       "summary": "Mantengo fiable y rápida la plataforma de datos que sostiene los informes y la analítica de Factorial: el pipeline de eventos (Kafka → ClickHouse), los controles de calidad de datos y el motor de consultas analíticas.",
-      "tech": ["Kafka", "ClickHouse", "CubeQL", "MySQL", "Datadog"],
+      "tech": ["Ruby", "Go", "Kafka", "ClickHouse", "MySQL"],
       "highlights": [
-        "Calidad de datos: rastreo hasta su causa raíz las discrepancias entre MySQL, el data lake y ClickHouse y las corrijo en origen. Además amplié el proceso automático de reparación para que resuelva más casos sin intervención manual.",
-        "Rendimiento analítico: optimicé la generación de SQL de nuestro motor de consultas (CubeQL) y las vistas de ClickHouse que lo sostienen, con vistas estrechas que leen solo las columnas necesarias, una consulta por dashboard en lugar de una por widget y menos lecturas redundantes. Algunas vistas leen ahora unas 6 veces menos filas.",
-        "Fiabilidad: diagnostiqué y corregí incidencias en producción de consumidores de Kafka multirregión y de vistas materializadas, y mantengo los monitores de Datadog y los dashboards de observabilidad.",
-        "Método: valido cada cambio reproduciendo consultas reales de producción antes de desplegarlo y compruebo el resultado una vez en producción.",
-        "Visualización de datos: diseño y construyo dashboards internos (calidad de datos, linaje y rendimiento de ClickHouse) que muestran a los equipos la salud y el coste de la plataforma, y trabajo en el motor de los dashboards analíticos que usan nuestros clientes.",
-        "Trato con cliente: trabajo con los Account Managers para entender qué necesitan los clientes de sus informes y convertirlo en mejoras concretas de datos y rendimiento."
+        "Mantener y mejorar la fiabilidad y el rendimiento de la plataforma de datos y la infraestructura analítica de Factorial.",
+        "Garantizar la calidad y la coherencia de los datos entre fuentes, identificando y resolviendo discrepancias y automatizando los procesos de corrección.",
+        "Optimizar los motores de consultas analíticas y los modelos de datos para mejorar el rendimiento y la escalabilidad de las consultas.",
+        "Resolver incidencias en producción en pipelines de datos distribuidos y mantener la observabilidad y la monitorización de la plataforma.",
+        "Diseñar y desarrollar dashboards internos para monitorizar la calidad de los datos, el rendimiento de la plataforma y los costes de infraestructura.",
+        "Desarrollar y mejorar las capacidades de analítica e informes para clientes junto con los Account Managers, traduciendo las necesidades de los clientes en soluciones técnicas."
       ]
     },
     {
