@@ -1,6 +1,6 @@
 /**
  * Client behaviour for the command palette redesign (/v9/): the inline and ⌘K palettes,
- * the scripted demo, the pipeline inspector, the CV menu, the release list, the project
+ * the scripted demo, the help dialog, the pipeline inspector, the CV menu, the release list, the project
  * filter and the skill tabs. No dependencies; without this script every palette option is
  * still a plain link and every section is readable.
  */
@@ -57,11 +57,17 @@ function reveal(target: HTMLElement) {
 }
 
 let selectSkill: ((index: number) => void) | undefined;
+let openPalette: (() => void) | undefined;
+let openHelp: (() => void) | undefined;
 
 /** Runs a palette option that is not a plain link. Returns true when it handled the option. */
 function runAction(option: HTMLElement): boolean {
   const action = option.dataset.action;
   const value = option.dataset.value || '';
+  if (action === 'help') {
+    openHelp?.();
+    return true;
+  }
   if (action === 'copy') {
     void copyText(value);
     return true;
@@ -153,7 +159,16 @@ function setupPalette(root: HTMLElement, onDone: () => void, onEscape: () => voi
     option.click();
   };
 
-  input.addEventListener('input', () => filter(input.value, true));
+  input.addEventListener('input', () => {
+    // A lone "?" opens the help instead of searching for it.
+    if (input.value.trim() === '?' && openHelp) {
+      input.value = '';
+      filter('', false);
+      openHelp();
+      return;
+    }
+    filter(input.value, true);
+  });
   input.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
@@ -205,12 +220,15 @@ function setupDialog() {
 
   const open = () => {
     if (dialog.open) return;
+    const help = document.querySelector<HTMLDialogElement>('[data-help]');
+    if (help?.open) help.close();
     palette.input.value = '';
     palette.filter('', false);
     dialog.showModal();
     palette.input.focus();
   };
 
+  openPalette = open;
   document.querySelectorAll<HTMLElement>('[data-open-palette]').forEach((button) =>
     button.addEventListener('click', open)
   );
@@ -225,11 +243,45 @@ function setupDialog() {
       event.preventDefault();
       if (dialog.open) close();
       else open();
-    } else if (event.key === '/' && !typing && !dialog.open) {
+    } else if (event.key === '/' && !typing && !dialog.open && !document.querySelector('[data-help][open]')) {
       event.preventDefault();
       open();
     }
   });
+}
+
+/* ---------------- Help dialog ("?" in a palette, the Help command, the footer hint) ---------------- */
+function setupHelp() {
+  const help = document.querySelector<HTMLDialogElement>('[data-help]');
+  if (!help || typeof help.showModal !== 'function') return;
+  const palette = document.querySelector<HTMLDialogElement>('[data-dialog]');
+  const closeButton = help.querySelector<HTMLElement>('[data-help-close]');
+  // Where Esc returns to: the ⌘K palette when the help was opened from it, else the opener.
+  let backToPalette = false;
+  let returnTo: HTMLElement | null = null;
+
+  openHelp = () => {
+    if (help.open) return;
+    backToPalette = Boolean(palette?.open);
+    returnTo = backToPalette ? null : (document.activeElement as HTMLElement | null);
+    if (palette?.open) palette.close();
+    help.showModal();
+    closeButton?.focus();
+  };
+
+  closeButton?.addEventListener('click', () => help.close());
+  help.addEventListener('click', (event) => {
+    if (event.target === help) help.close();
+  });
+  help.addEventListener('close', () => {
+    if (backToPalette) openPalette?.();
+    else if (!palette?.open) returnTo?.focus({ preventScroll: true });
+    backToPalette = false;
+    returnTo = null;
+  });
+  document.querySelectorAll<HTMLElement>('[data-open-help]').forEach((button) =>
+    button.addEventListener('click', () => openHelp?.())
+  );
 }
 
 /* ---------------- Inline hero palette with a scripted demo ---------------- */
@@ -545,6 +597,7 @@ setupShortcutLabels();
 setupTabs();
 setupHeroPalette();
 setupDialog();
+setupHelp();
 if (data) setupPipeline(data);
 setupCvMenu();
 setupCopyButtons();

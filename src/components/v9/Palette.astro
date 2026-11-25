@@ -13,7 +13,7 @@ export interface Command {
   keywords: string;
   icon: IconName;
   href: string;
-  action: 'go' | 'copy' | 'skill' | 'job';
+  action: 'go' | 'copy' | 'skill' | 'job' | 'help';
   value?: string;
   external?: boolean;
   download?: boolean;
@@ -40,6 +40,7 @@ interface Props {
     clear: string;
     results: string;
     shortcut: string;
+    help: string;
   };
 }
 
@@ -115,6 +116,9 @@ const total = groups.reduce((sum, group) => sum + group.items.length, 0);
   </div>
   <div class="cp-foot">
     <span class="cp-count" id={`${id}-count`} data-count>{labels.results.replace('{n}', String(total))}</span>
+    <button type="button" class="cp-help-hint" data-open-help aria-haspopup="dialog">
+      <kbd class="cp-kbd">?</kbd> {labels.help}
+    </button>
     <span class="cp-keys" aria-hidden="true">
       <span><kbd class="cp-kbd">↑</kbd><kbd class="cp-kbd">↓</kbd>{labels.navigate}</span>
       <span><kbd class="cp-kbd">↵</kbd>{labels.open}</span>

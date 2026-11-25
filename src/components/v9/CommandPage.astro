@@ -15,6 +15,7 @@ import ThemeSwitch from '../v3/ThemeSwitch.astro';
 import { getResume } from '../../data/resume';
 import Icon from './Icon.astro';
 import Palette, { type CommandGroup } from './Palette.astro';
+import Help from './Help.astro';
 import '../../styles/v9.css';
 
 interface Props {
@@ -62,7 +63,35 @@ const t = {
       close: 'close',
       clear: 'clear',
       results: '{n} results',
-      shortcut: '⌘K'
+      shortcut: '⌘K',
+      help: 'for help'
+    },
+    help: {
+      title: 'Help',
+      intro: 'Every command in the palette, and the keys that work on this page.',
+      close: 'Close help',
+      keysTitle: 'Keyboard shortcuts',
+      commandsTitle: 'Commands',
+      count: '{n} commands',
+      does: {
+        help: 'Shows this help',
+        copy: 'Copies it to the clipboard',
+        job: 'Opens the role in Experience',
+        skill: 'Shows the group in Skills',
+        anchor: 'Jumps to it on this page',
+        mail: 'Opens your email app',
+        external: 'Opens in a new tab',
+        page: 'Loads {href}'
+      },
+      keys: [
+        { keys: ['⌘K', 'Ctrl K'], text: 'Open or close the palette' },
+        { keys: ['/'], text: 'Open the palette (outside text fields)' },
+        { keys: ['↑', '↓'], text: 'Move through the results' },
+        { keys: ['↵'], text: 'Run the selected command, or the first result' },
+        { keys: ['esc'], text: 'Clear the search, then close the palette, this help or the PDF menu' },
+        { keys: ['?'], text: 'Type it in the palette to show this help' },
+        { keys: ['←', '→', 'Home', 'End'], text: 'Switch pipeline stage or skill group when a tab has focus' }
+      ]
     },
     paletteCaption: 'Everything on this page, one keystroke away.',
     groups: {
@@ -198,7 +227,35 @@ const t = {
       close: 'cerrar',
       clear: 'borrar',
       results: '{n} resultados',
-      shortcut: '⌘K'
+      shortcut: '⌘K',
+      help: 'para ayuda'
+    },
+    help: {
+      title: 'Ayuda',
+      intro: 'Todos los comandos de la paleta y las teclas que funcionan en esta página.',
+      close: 'Cerrar la ayuda',
+      keysTitle: 'Atajos de teclado',
+      commandsTitle: 'Comandos',
+      count: '{n} comandos',
+      does: {
+        help: 'Muestra esta ayuda',
+        copy: 'Lo copia al portapapeles',
+        job: 'Abre el puesto en Experiencia',
+        skill: 'Muestra el grupo en Habilidades',
+        anchor: 'Lleva a esa parte de la página',
+        mail: 'Abre tu aplicación de correo',
+        external: 'Se abre en una pestaña nueva',
+        page: 'Carga {href}'
+      },
+      keys: [
+        { keys: ['⌘K', 'Ctrl K'], text: 'Abrir o cerrar la paleta' },
+        { keys: ['/'], text: 'Abrir la paleta (fuera de campos de texto)' },
+        { keys: ['↑', '↓'], text: 'Moverse por los resultados' },
+        { keys: ['↵'], text: 'Ejecutar el comando seleccionado o el primer resultado' },
+        { keys: ['esc'], text: 'Borrar la búsqueda y después cerrar la paleta, esta ayuda o el menú de PDF' },
+        { keys: ['?'], text: 'Escríbelo en la paleta para ver esta ayuda' },
+        { keys: ['←', '→', 'Home', 'End'], text: 'Cambiar de etapa del pipeline o de grupo de habilidades con una pestaña enfocada' }
+      ]
     },
     paletteCaption: 'Todo lo de esta página, a una tecla.',
     groups: {
@@ -383,7 +440,8 @@ const groups: CommandGroup[] = [
       { id: 'mail', label: t.cmd.mail, meta: c.email, keywords: 'email mail contact', icon: 'mail', href: `mailto:${c.email}`, action: 'go' },
       { id: 'lang', label: t.cmd.lang, meta: t.other.code, keywords: 'language idioma english español', icon: 'globe', href: t.other.href, action: 'go' },
       { id: 'github', label: 'GitHub', meta: c.githubUrl.replace(/^https?:\/\//, ''), keywords: 'code repos', icon: 'link', href: c.githubUrl, action: 'go', external: true },
-      { id: 'linkedin', label: 'LinkedIn', meta: c.linkedinUrl.replace(/^https?:\/\/(www\.)?/, ''), keywords: 'profile', icon: 'link', href: c.linkedinUrl, action: 'go', external: true }
+      { id: 'linkedin', label: 'LinkedIn', meta: c.linkedinUrl.replace(/^https?:\/\/(www\.)?/, ''), keywords: 'profile', icon: 'link', href: c.linkedinUrl, action: 'go', external: true },
+      { id: 'help', label: t.help.title, meta: '?', keywords: 'help ayuda ? commands comandos shortcuts atajos keys teclas', icon: 'help', href: '#cp-help', action: 'help' }
     ]
   },
   {
@@ -1003,6 +1061,8 @@ const groups: CommandGroup[] = [
     <dialog class="cp-dialog" aria-label={t.palette.input} data-dialog>
       <Palette id="modal" variant="modal" groups={groups} labels={t.palette} />
     </dialog>
+
+    <Help groups={groups} labels={t.help} />
 
     <p class="cp-toast" role="status" aria-live="polite" data-toast></p>
 

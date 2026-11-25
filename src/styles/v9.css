@@ -838,6 +838,151 @@ body.cp {
   flex: 1;
   max-height: none;
 }
+/* ---------------- Help dialog ---------------- */
+.cp-help-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: 400 11.5px/1 var(--mono);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cp-help-hint:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+.cp-help-hint .cp-kbd {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-size: 10px;
+}
+.cp-dialog.cp-help {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(680px, 84vh);
+  margin-top: 8vh;
+}
+.cp-help-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 58px;
+  padding: 0 14px 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+.cp-help-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 17px/1 var(--display);
+}
+.cp-help-title .cp-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+.cp-help-close {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+.cp-help-close:hover .cp-kbd {
+  color: var(--text);
+}
+.cp-help-body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 18px 22px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.cp .cp-help-body:focus-visible {
+  outline-offset: -2px;
+}
+.cp-help-intro {
+  color: var(--muted);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.cp-help-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font: 600 14px/1.2 var(--sans);
+}
+.cp-help-count {
+  color: var(--faint);
+  font: 400 11.5px/1 var(--mono);
+}
+.cp-help-keys > div {
+  display: grid;
+  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.cp-help-keys dt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.cp-help-keys dd {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.cp-help-group h4 {
+  margin: 16px 0 4px;
+  color: var(--faint);
+  font: 400 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.cp-help-group h4 span {
+  margin-left: 4px;
+  color: var(--line-3);
+}
+.cp-help-group li {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) minmax(0, auto);
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.cp-help-group li .cp-icon {
+  align-self: center;
+  color: var(--muted);
+}
+.cp-help-label {
+  overflow-wrap: anywhere;
+}
+.cp-help-does {
+  color: var(--faint);
+  font: 400 12px/1.4 var(--mono);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
 @keyframes cp-pop {
   from {
     opacity: 0;
@@ -2310,6 +2455,23 @@ a.cp-tag-cert:hover {
     border-radius: 2px;
     background: var(--line-3);
   }
+  .cp-dialog.cp-help {
+    width: 100%;
+    max-height: 86dvh;
+    margin: auto 0 0;
+  }
+  .cp-help-keys > div {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 10px;
+  }
+  .cp-help-group li {
+    grid-template-columns: 16px minmax(0, 1fr);
+    gap: 2px 10px;
+  }
+  .cp-help-does {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 @keyframes cp-flow-v {
   from {
@@ -2385,4 +2547,10 @@ a.cp-tag-cert:hover {
     opacity: 1;
     transform: none;
   }
+}
+
+/* Keep the search row and footer at their natural height inside the flex-column dialog. */
+.cp-dialog .cp-search,
+.cp-dialog .cp-foot {
+  flex: none;
 }

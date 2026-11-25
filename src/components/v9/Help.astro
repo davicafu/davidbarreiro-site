@@ -1,0 +1,99 @@
+---
+/**
+ * Help dialog for the command palette. Rendered from the same groups the palette renders,
+ * so it lists exactly the commands that exist; each one says what running it does.
+ */
+import Icon from './Icon.astro';
+import type { Command, CommandGroup } from './Palette.astro';
+
+export interface HelpLabels {
+  title: string;
+  intro: string;
+  close: string;
+  keysTitle: string;
+  commandsTitle: string;
+  count: string;
+  does: {
+    help: string;
+    copy: string;
+    job: string;
+    skill: string;
+    anchor: string;
+    mail: string;
+    external: string;
+    page: string;
+  };
+  keys: { keys: string[]; text: string }[];
+}
+
+interface Props {
+  groups: CommandGroup[];
+  labels: HelpLabels;
+}
+
+const { groups, labels } = Astro.props;
+const total = groups.reduce((sum, group) => sum + group.items.length, 0);
+
+/** What running a command does, derived from its action and target. */
+const describe = (cmd: Command) => {
+  if (cmd.action !== 'go') return labels.does[cmd.action];
+  if (cmd.href.startsWith('#')) return labels.does.anchor;
+  if (cmd.href.startsWith('mailto:')) return labels.does.mail;
+  if (cmd.external) return labels.does.external;
+  return labels.does.page.replace('{href}', cmd.href);
+};
+---
+
+<dialog class="cp-dialog cp-help" id="cp-help" aria-labelledby="cp-help-title" data-help>
+  <div class="cp-help-head">
+    <h2 id="cp-help-title" class="cp-help-title">
+      <Icon name="help" />{labels.title}
+    </h2>
+    <button type="button" class="cp-help-close" data-help-close>
+      <span class="cp-sr">{labels.close}</span>
+      <kbd class="cp-kbd" aria-hidden="true">esc</kbd>
+    </button>
+  </div>
+  <div class="cp-help-body" tabindex="0" role="region" aria-labelledby="cp-help-title">
+    <p class="cp-help-intro">{labels.intro}</p>
+
+    <h3 class="cp-help-h">{labels.keysTitle}</h3>
+    <dl class="cp-help-keys">
+      {
+        labels.keys.map((row) => (
+          <div>
+            <dt>
+              {row.keys.map((key) => (
+                <kbd class="cp-kbd">{key}</kbd>
+              ))}
+            </dt>
+            <dd>{row.text}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <h3 class="cp-help-h">
+      {labels.commandsTitle}
+      <span class="cp-help-count" data-help-count>{labels.count.replace('{n}', String(total))}</span>
+    </h3>
+    {
+      groups.map((group) => (
+        <section class="cp-help-group" aria-labelledby={`cp-help-g-${group.key}`}>
+          <h4 id={`cp-help-g-${group.key}`}>
+            {group.label} <span>{group.items.length}</span>
+          </h4>
+          <ul>
+            {group.items.map((cmd) => (
+              <li data-help-command={cmd.id}>
+                <Icon name={cmd.icon} />
+                <span class="cp-help-label">{cmd.label}</span>
+                <span class="cp-help-does">{describe(cmd)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</dialog>
