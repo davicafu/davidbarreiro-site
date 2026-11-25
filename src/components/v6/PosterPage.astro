@@ -37,8 +37,9 @@ const t = {
       professional: ['Professional', 'Formal'],
       jsonresume: ['JSONResume', 'Structured']
     },
-    metrics: { experience: 'Experience', coreSkills: 'Core Skills', focus: 'Focus' },
-    focusValue: 'System Design · Cloud-Native',
+    facts: { label: 'At a glance', now: 'Now', certified: 'Certified', projects: 'Personal projects' },
+    moreSummary: 'Read the full summary',
+    lessSummary: 'Hide the full summary',
     capabilitiesTitle: 'Capabilities',
     capabilities: [
       {
@@ -86,8 +87,9 @@ const t = {
     certified: 'Certified',
     certsTitle: 'Certifications',
     contactKicker: 'Contact',
-    contactTitle: "Let's build something with data",
-    contactText: 'Available for data engineering, streaming platforms and software architecture.',
+    contactTitle: "Let's talk data",
+    contactText:
+      "Streaming, ClickHouse, data quality or a query that refuses to get faster: I'm always happy to compare notes with other engineers.",
     footerRole: 'Software Engineer'
   },
   es: {
@@ -103,8 +105,9 @@ const t = {
       professional: ['Profesional', 'Formal'],
       jsonresume: ['JSONResume', 'Estructurado']
     },
-    metrics: { experience: 'Experiencia', coreSkills: 'Habilidades principales', focus: 'Enfoque' },
-    focusValue: 'Diseño de Sistemas · Nativo para la nube',
+    facts: { label: 'En resumen', now: 'Ahora', certified: 'Certificaciones', projects: 'Proyectos personales' },
+    moreSummary: 'Leer el resumen completo',
+    lessSummary: 'Ocultar el resumen completo',
     capabilitiesTitle: 'Capacidades',
     capabilities: [
       {
@@ -152,15 +155,14 @@ const t = {
     certified: 'Certificado',
     certsTitle: 'Certificaciones',
     contactKicker: 'Contacto',
-    contactTitle: 'Construyamos algo con datos',
+    contactTitle: 'Hablemos de datos',
     contactText:
-      'Disponible para proyectos de ingeniería de datos, plataformas de tiempo real y arquitectura de software.',
+      'Streaming, ClickHouse, calidad de datos o una consulta que se resiste a ir más rápido: siempre me gusta intercambiar ideas con otros ingenieros.',
     footerRole: 'Ingeniero de Software'
   }
 }[locale];
 
 const nowYear = new Date().getFullYear();
-const years = nowYear - Math.min(...c.work.map((job) => job.start));
 const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompare(a.date));
 const work = [...c.work].sort((a, b) => b.start - a.start);
 const education = [...c.education].sort((a, b) => b.start - a.start);
@@ -180,16 +182,22 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
 const pad = (n: number) => String(n).padStart(2, '0');
 const firstStage = c.stages[0];
 const summary = basics.summary.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
-// Same rule as the main site's metric: keywords whose level reads advanced.
-const coreSkills = c.skillGroups
-  .flatMap((group) => group.keywords)
-  .filter((skill) => {
-    const level = skill.level
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    return level.includes('advanced') || level.includes('avanzado');
-  }).length;
+
+// Hero facts, all derived from the resume. "Now": the current employer plus the pipeline it
+// runs, read from the job's tech in the order the system-design stages use (e.g. Kafka → ClickHouse).
+const currentJob = c.work[0];
+const stageTech = c.stages.flatMap((stage) => stage.tech.map((tech) => tech.toLowerCase()));
+const stageIndex = (tech: string) => stageTech.indexOf(tech.toLowerCase());
+const pipelineTech = (currentJob?.tech ?? [])
+  .filter((tech) => stageIndex(tech) !== -1)
+  .sort((a, b) => stageIndex(a) - stageIndex(b));
+const nowCaption =
+  pipelineTech.length >= 2
+    ? `${pipelineTech[0]} → ${pipelineTech[pipelineTech.length - 1]}`
+    : currentJob?.role ?? '';
+// "Certified": only credentials with a verification URL count.
+const verified = c.certificateDetails.filter((cert) => cert.url);
+const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))];
 ---
 
 <html lang={locale}>
@@ -236,16 +244,23 @@ const coreSkills = c.skillGroups
 
     <main id="main">
       <!-- ============ HERO POSTER ============ -->
+      <!-- The name is the poster's dominant block; the facts below it are flat colour fields. -->
       <section class="sp-hero" aria-labelledby="sp-title">
+        <div class="sp-hero-deco" aria-hidden="true">
+          <span class="sp-hero-disc"></span>
+          <span class="sp-hero-rule"></span>
+        </div>
+        <p class="sp-role">{basics.label}</p>
+        <h1 id="sp-title" class="sp-name">
+          <span>David</span>
+          <span>Barreiro</span>
+        </h1>
+        <span class="sp-hero-photo">
+          <img src="/assets/profile/avatar-224.avif" alt="" width="224" height="224" />
+        </span>
         <div class="sp-hero-copy">
-          <p class="sp-role">{basics.label}</p>
-          <h1 id="sp-title" class="sp-name">
-            <span>David</span>
-            <span>Barreiro</span>
-          </h1>
-          <div class="sp-summary">
-            {summary.map((paragraph, index) => <p class:list={[index === 0 ? 'sp-headline' : 'sp-lede']}>{paragraph}</p>)}
-          </div>
+          <p class="sp-deck">{c.copy.summary}</p>
+          <div class="sp-hero-cta">
           <div class="sp-actions">
             <a class="sp-btn" href={`mailto:${c.email}`}>{t.contact}</a>
             <details class="sp-cv" data-cv>
@@ -268,33 +283,43 @@ const coreSkills = c.skillGroups
             <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
           </p>
+          </div>
+          <details class="sp-more">
+            <summary>
+              <span class="sp-more-open">{t.moreSummary}</span>
+              <span class="sp-more-close">{t.lessSummary}</span>
+            </summary>
+            <div class="sp-more-body">
+              {summary.map((paragraph) => <p>{paragraph}</p>)}
+            </div>
+          </details>
         </div>
 
-        <figure class="sp-poster">
-          <div class="sp-p sp-p-cobalt" aria-hidden="true"></div>
-          <div class="sp-p sp-p-circle" aria-hidden="true"></div>
-          <div class="sp-p sp-p-ochre" aria-hidden="true"></div>
-          <div class="sp-p sp-p-bar" aria-hidden="true"></div>
-          <dl class="sp-p sp-p-years">
-            <dt class="sp-p-cap">{t.metrics.experience}</dt>
-            <dd class="sp-p-num">{years}</dd>
-          </dl>
-          <dl class="sp-p sp-p-certs">
-            <dt class="sp-p-cap">{t.metrics.coreSkills}</dt>
-            <dd class="sp-p-num sp-p-num-sm">{coreSkills}</dd>
-          </dl>
-          <img
-            class="sp-p sp-p-photo"
-            src="/assets/profile/avatar-224.avif"
-            alt=""
-            width="224"
-            height="224"
-          />
-          <dl class="sp-p sp-p-stack">
-            <dt>{t.metrics.focus}</dt>
-            <dd>{t.focusValue}</dd>
-          </dl>
-        </figure>
+        <ul class="sp-facts" aria-label={t.facts.label}>
+          {
+            currentJob && (
+              <li class="sp-fact sp-fact-now sp-f-red">
+                <span class="sp-fact-label">{t.facts.now}</span>
+                <span class="sp-fact-value sp-fact-word">{currentJob.organisation}</span>
+                <span class="sp-fact-cap">{nowCaption}</span>
+              </li>
+            )
+          }
+          <li class="sp-fact sp-f-cobalt">
+            <a class="sp-fact-link" href="#skills">
+              <span class="sp-fact-label">{t.facts.certified}</span>
+              <span class="sp-fact-value">{verified.length}</span>
+              <span class="sp-fact-cap">{issuers.join(' · ')}</span>
+            </a>
+          </li>
+          <li class="sp-fact sp-f-ochre">
+            <a class="sp-fact-link" href="#portfolio">
+              <span class="sp-fact-label">{t.portfolioKicker}</span>
+              <span class="sp-fact-value">{c.projects.length}</span>
+              <span class="sp-fact-cap">{t.facts.projects}</span>
+            </a>
+          </li>
+        </ul>
       </section>
 
       <!-- ============ CAPABILITIES ============ -->
