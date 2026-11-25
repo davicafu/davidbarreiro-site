@@ -1,15 +1,16 @@
 ---
 /**
- * Redesign "Isometric infrastructure" (routes /v7/ and /es/v7/).
- * The data-platform method is an isometric topology: each layer is a piece of infrastructure
- * (app servers, connector pods, broker racks, a node pool, storage volumes, a monitoring tower,
- * Go service pods) joined by a live data link. Work experience reads as release history,
- * education as the base image, projects as a service catalog and skills as stack layers.
+ * "Infra" theme (routes /v7/ and /es/v7/): the main site's sections, in the same order and with the
+ * same names, drawn as software infrastructure. The data-platform method is an isometric topology
+ * (app servers, connector pods, broker racks, a node pool, storage volumes, a monitoring tower and
+ * Go service pods) joined by a live data link; jobs read as releases and projects as services.
  * Standalone page: it does not load the main site's JS or Tailwind.
  */
 import SeoHead from '../common/SeoHead.astro';
 import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
 import { getPreviewContent } from '../v3/previewContent';
+import ThemeSwitch from '../v3/ThemeSwitch.astro';
+import { getResume } from '../../data/resume';
 import '../../styles/v7.css';
 
 interface Props {
@@ -23,24 +24,49 @@ const c = getPreviewContent(locale);
 const t = {
   en: {
     home: '/v7/',
-    nav: { topology: 'Topology', deploys: 'Experience', services: 'Projects', stack: 'Skills', contact: 'Contact' },
+    nav: { portfolio: 'Portfolio', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
     sections: 'Sections',
-    langLabel: 'Language',
-    role: 'Senior Software Engineer',
-    headline: 'I design real-time data platforms and build the Go backends that hold them up.',
-    lede: (years: number) =>
-      `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java: from the first event to the dashboard that reads it.`,
-    contact: 'Get in touch',
-    cv: 'Download CV',
+    langLabel: 'Language selector',
+    heroContact: 'Contact',
+    downloadPdf: 'Download PDF',
     cvOptions: {
-      onePage: ['One page', 'Compact summary'],
-      professional: ['Professional', 'Full detail, minimal layout'],
-      jsonresume: ['JSON Resume', 'Standard format']
+      onePage: ['One Page', 'Compact'],
+      professional: ['Professional', 'Formal'],
+      jsonresume: ['JSONResume', 'Structured']
     },
-    statYears: 'years in production',
-    statCerts: 'certifications',
-    statStages: 'platform layers',
-    modelTitle: 'How I design data platforms',
+    heroMetrics: {
+      experience: 'Experience',
+      coreSkills: 'Core Skills',
+      focus: 'Focus',
+      focusValue: 'System Design · Cloud-Native'
+    },
+    capabilities: {
+      title: 'Capabilities',
+      cards: [
+        {
+          label: 'Backend',
+          heading: 'Hexagonal · DDD · Event-Driven',
+          description:
+            'Domain-centric design, decoupled architectures and scalable distributed systems focused on long-term maintainability.'
+        },
+        {
+          label: 'Data',
+          heading: 'Batch & Stream · High Throughput · Scalability',
+          description:
+            'Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.'
+        },
+        {
+          label: 'Platform',
+          heading: 'High Availability · Automation · Observability',
+          description:
+            'Building resilient infrastructure, streamlining operations and providing deep insights into system performance.'
+        }
+      ]
+    },
+    portfolioKicker: 'Portfolio',
+    portfolioTitle: 'Personal projects & technical work',
+    systemKicker: 'System Design',
+    systemTitle: 'How I design data platforms',
     modelHint: 'Each node is one layer of the platform. Select one to inspect it.',
     pause: 'Pause traffic',
     resume: 'Resume traffic',
@@ -50,17 +76,14 @@ const t = {
     key: 'Layers',
     telemetry: 'Simulated telemetry',
     metrics: { eps: 'events / s', p99: 'p99 latency', lag: 'consumer lag', up: 'healthy layers' },
-    deploysEyebrow: 'Release history',
-    deploysTitle: 'Work experience',
-    deploysIntro: 'One release per role, the newest first. Expand one to see what shipped.',
+    timelineKicker: 'Timeline',
+    experienceTitle: 'Professional experience',
     running: 'running',
     done: 'completed',
-    highlights: 'What shipped',
-    baseTitle: 'Base image · education',
     layer: 'layer',
-    servicesEyebrow: 'Service catalog',
-    servicesTitle: 'Projects',
-    servicesIntro: 'Personal and technical work. Filter by topic; a project shows if it has any selected topic.',
+    skillsKicker: 'Skills',
+    skillsTitle: 'Stack technology',
+    skillsTip: ['Tip:', 'select a category to view its keywords.'],
     filterAll: 'All',
     filterLabel: 'Topics',
     showing: (n: number, total: number) => `${n} of ${total} projects`,
@@ -69,40 +92,60 @@ const t = {
     lessTopics: 'Fewer topics',
     empty: 'No project matches these topics.',
     repo: 'Repository',
-    stackEyebrow: 'Stack layers',
-    stackTitle: 'Skills',
-    stackIntro: 'The stack the platform runs on, layer by layer. Pick one to see level and certificates.',
     levels: { Advanced: 2, Intermediate: 1, Expert: 3 } as Record<string, number>,
     certified: 'Certified',
     certsTitle: 'Certifications',
     certsNote: 'Most recent first',
-    contactEyebrow: 'Open a connection',
+    contactKicker: 'Contact',
     contactTitle: "Let's build something with data",
-    contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    contactText: 'Available for data engineering, streaming platforms, and software architecture.',
     terminalOk: 'listening on email, LinkedIn and GitHub',
-    footerRole: 'Senior Software Engineer',
+    footerRole: 'Software Engineer',
     skip: 'Skip to content'
   },
   es: {
     home: '/es/v7/',
-    nav: { topology: 'Topología', deploys: 'Experiencia', services: 'Proyectos', stack: 'Skills', contact: 'Contacto' },
+    nav: { portfolio: 'Proyectos', experience: 'Experiencia', skills: 'Habilidades', contact: 'Contacto' },
     sections: 'Secciones',
-    langLabel: 'Idioma',
-    role: 'Ingeniero de Software Senior',
-    headline: 'Diseño plataformas de datos en tiempo real y construyo los backends en Go que las sostienen.',
-    lede: (years: number) =>
-      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java: desde el primer evento hasta el panel que lo lee.`,
-    contact: 'Contactar',
-    cv: 'Descargar CV',
+    langLabel: 'Selector de idioma',
+    heroContact: 'Contacto',
+    downloadPdf: 'Descargar PDF',
     cvOptions: {
-      onePage: ['Una página', 'Resumen compacto · en inglés'],
-      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
-      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+      onePage: ['Una página', 'Compacto'],
+      professional: ['Profesional', 'Formal'],
+      jsonresume: ['JSONResume', 'Estructurado']
     },
-    statYears: 'años en producción',
-    statCerts: 'certificaciones',
-    statStages: 'capas por plataforma',
-    modelTitle: 'Cómo diseño plataformas de datos',
+    heroMetrics: {
+      experience: 'Experiencia',
+      coreSkills: 'Habilidades principales',
+      focus: 'Enfoque',
+      focusValue: 'Diseño de Sistemas · Nativo para la nube'
+    },
+    capabilities: {
+      title: 'Capacidades',
+      cards: [
+        {
+          label: 'Backend',
+          heading: 'Hexagonal · DDD · Event-Driven',
+          description:
+            'Diseño orientado al dominio, arquitecturas desacopladas y sistemas distribuidos escalables mantenibles.'
+        },
+        {
+          label: 'Data',
+          heading: 'Batch y Stream · Alto Throughput · Escalabilidad',
+          description: 'Pipelines robustos capaces de procesar grandes volúmenes, con baja latencia y escalado fluido.'
+        },
+        {
+          label: 'Plataforma',
+          heading: 'Alta Disponibilidad · Automatización · Observabilidad',
+          description: 'Infraestructura resiliente, operaciones automatizadas y observabilidad profunda del rendimiento.'
+        }
+      ]
+    },
+    portfolioKicker: 'Portfolio',
+    portfolioTitle: 'Proyectos personales y trabajo técnico',
+    systemKicker: 'Diseño de Sistemas',
+    systemTitle: 'Diseño de plataformas de datos',
     modelHint: 'Cada nodo es una capa de la plataforma. Elige uno para inspeccionarlo.',
     pause: 'Pausar tráfico',
     resume: 'Reanudar tráfico',
@@ -112,17 +155,14 @@ const t = {
     key: 'Capas',
     telemetry: 'Telemetría simulada',
     metrics: { eps: 'eventos / s', p99: 'latencia p99', lag: 'lag de consumo', up: 'capas operativas' },
-    deploysEyebrow: 'Historial de versiones',
-    deploysTitle: 'Experiencia laboral',
-    deploysIntro: 'Una versión por puesto, la más reciente primero. Ábrela para ver qué se entregó.',
+    timelineKicker: 'Trayectoria',
+    experienceTitle: 'Experiencia profesional',
     running: 'en curso',
     done: 'completado',
-    highlights: 'Qué se entregó',
-    baseTitle: 'Imagen base · formación',
     layer: 'capa',
-    servicesEyebrow: 'Catálogo de servicios',
-    servicesTitle: 'Proyectos',
-    servicesIntro: 'Trabajo personal y técnico. Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
+    skillsKicker: 'Habilidades',
+    skillsTitle: 'Stack tecnológico',
+    skillsTip: ['Tip:', 'selecciona una categoría para ver sus tecnologías.'],
     filterAll: 'Todos',
     filterLabel: 'Temas',
     showing: (n: number, total: number) => `${n} de ${total} proyectos`,
@@ -131,22 +171,27 @@ const t = {
     lessTopics: 'Menos temas',
     empty: 'Ningún proyecto coincide con estos temas.',
     repo: 'Repositorio',
-    stackEyebrow: 'Capas del stack',
-    stackTitle: 'Skills',
-    stackIntro: 'El stack sobre el que corre la plataforma, capa a capa. Elige una para ver nivel y certificados.',
     levels: { Avanzado: 2, Intermedio: 1, Experto: 3 } as Record<string, number>,
     certified: 'Certificado',
     certsTitle: 'Certificaciones',
     certsNote: 'Las más recientes primero',
-    contactEyebrow: 'Abre una conexión',
+    contactKicker: 'Contacto',
     contactTitle: 'Construyamos algo con datos',
     contactText:
-      'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+      'Disponible para proyectos de ingeniería de datos, plataformas de tiempo real y arquitectura de software.',
     terminalOk: 'escuchando en email, LinkedIn y GitHub',
-    footerRole: 'Ingeniero de Software Senior',
+    footerRole: 'Ingeniero de Software',
     skip: 'Saltar al contenido'
   }
 }[locale];
+
+const resume = getResume(locale);
+// Hero copy comes straight from the resume, as on the main site.
+const kicker = resume.basics.label;
+const summaryParagraphs = String(resume.basics.summary || '')
+  .split(/\n\s*\n/)
+  .map((text) => text.trim())
+  .filter(Boolean);
 
 const nowYear = new Date().getFullYear();
 const firstWorkYear = Math.min(...c.work.map((job) => job.start));
@@ -436,6 +481,30 @@ const serviceIcon = (n: number) => {
 };
 
 const levelDots = (level: string) => t.levels[level] ?? 0;
+
+// Hero metrics, computed the same way as the main site: years since the first job and the number
+// of skills at an advanced level.
+const normaliseLevel = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+const coreSkills = c.skillGroups
+  .flatMap((group) => group.keywords)
+  .filter((skill) => {
+    const level = normaliseLevel(skill.level);
+    return level.includes('advanced') || level.includes('avanzado');
+  }).length;
+
+// A small rack for the hero node card: three units with status LEDs.
+const heroRack = [0, 1, 2].map((k) => {
+  const unit = box(0, 0, k * 0.62, 2.4, 1.6, 0.5);
+  const leds = [0.35, 0.6, 0.85].map((x, n) => {
+    const [lx, ly] = iso(x, 1.6, k * 0.62 + 0.25);
+    return { x: lx, y: ly, delay: ((k * 3 + n) * 0.41) % 2.4 };
+  });
+  return { ...unit, leds };
+});
 ---
 
 <html lang={locale}>
@@ -467,32 +536,35 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         <span>david<b>/</b>barreiro</span>
       </a>
       <nav class="cy-nav" aria-label={t.sections}>
-        <a href="#topologia">{t.nav.topology}</a>
-        <a href="#despliegues">{t.nav.deploys}</a>
-        <a href="#servicios">{t.nav.services}</a>
-        <a href="#stack">{t.nav.stack}</a>
+        <a href="#portfolio">{t.nav.portfolio}</a>
+        <a href="#experience">{t.nav.experience}</a>
+        <a href="#skills">{t.nav.skills}</a>
       </nav>
       <div class="cy-bar-end">
+        <ThemeSwitch locale={locale} current="infra" />
         <div class="cy-lang" role="group" aria-label={t.langLabel}>
           <a href="/v7/" hreflang="en" lang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
           <a href="/es/v7/" hreflang="es" lang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
         </div>
-        <a class="cy-btn cy-btn-sm" href="#contacto">{t.nav.contact}</a>
+        <a class="cy-btn cy-btn-sm" href="#contact">{t.nav.contact}</a>
       </div>
     </header>
 
     <main id="main">
-      <!-- ============ HERO + TOPOLOGY ============ -->
-      <section class="cy-hero" id="topologia" aria-labelledby="cy-title">
+      <!-- ============ HERO ============ -->
+      <section class="cy-hero" aria-labelledby="cy-title">
         <div class="cy-hero-copy">
-          <p class="cy-role">{t.role}</p>
+          <p class="cy-role">{kicker}</p>
           <h1 id="cy-title" class="cy-name">David<br />Barreiro</h1>
-          <p class="cy-headline">{t.headline}</p>
-          <p class="cy-lede">{t.lede(years)}</p>
+          <div class="cy-summary">
+            {summaryParagraphs.map((text) => <p>{text}</p>)}
+          </div>
           <div class="cy-actions">
-            <a class="cy-btn" href={`mailto:${c.email}`}>{t.contact}</a>
+            <a class="cy-btn" href={`mailto:${c.email}`}>{t.heroContact}</a>
+            <a class="cy-btn cy-btn-line" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a class="cy-btn cy-btn-line" href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
             <details class="cy-cv" data-cv>
-              <summary class="cy-btn cy-btn-line">{t.cv}</summary>
+              <summary class="cy-btn cy-btn-line">{t.downloadPdf}</summary>
               <ul>
                 {
                   c.cvOptions.map((option) => (
@@ -507,23 +579,154 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               </ul>
             </details>
           </div>
-          <dl class="cy-stats">
-            <div><dt>{t.statYears}</dt><dd>{years}</dd></div>
-            <div><dt>{t.statCerts}</dt><dd>{certificates.length}</dd></div>
-            <div><dt>{t.statStages}</dt><dd>{stages.length}</dd></div>
-          </dl>
-          <p class="cy-links">
-            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          </p>
         </div>
 
-        <div class="cy-model">
-          <div class="cy-model-head">
-            <div>
-              <h2>{t.modelTitle}</h2>
-              <p>{t.modelHint}</p>
-            </div>
+        <aside class="cy-node-card">
+          <p class="cy-node-card-head" aria-hidden="true">
+            <span class="cy-status"></span>node/david-barreiro
+          </p>
+          <div class="cy-node-card-id">
+            <img src={c.image} alt={c.name} width="96" height="96" />
+            <svg class="cy-node-rack" viewBox="-50 -60 120 126" width="104" height="109" aria-hidden="true">
+              {
+                heroRack.map((unit) => (
+                  <>
+                    <polygon class="cy-face-left" points={unit.left} />
+                    <polygon class="cy-face-right" points={unit.right} />
+                    <polygon class="cy-face-top" points={unit.top} />
+                    {unit.leds.map((led) => (
+                      <circle class="cy-led" cx={f1(led.x)} cy={f1(led.y)} r="1.8" style={`--d:${led.delay.toFixed(2)}s`} />
+                    ))}
+                  </>
+                ))
+              }
+            </svg>
+          </div>
+          <dl class="cy-stats">
+            <div><dt>{t.heroMetrics.experience}</dt><dd>{years}</dd></div>
+            <div><dt>{t.heroMetrics.coreSkills}</dt><dd>{coreSkills}</dd></div>
+            <div class="cy-stats-wide"><dt>{t.heroMetrics.focus}</dt><dd>{t.heroMetrics.focusValue}</dd></div>
+          </dl>
+        </aside>
+      </section>
+
+      <!-- ============ CAPABILITIES ============ -->
+      <section class="cy-capabilities" id="capabilities" aria-labelledby="capabilities-title">
+        <h2 id="capabilities-title" class="cy-sr">{t.capabilities.title}</h2>
+        <ul>
+          {
+            t.capabilities.cards.map((card, index) => (
+              <li>
+                <p class="cy-cap-label">
+                  <span aria-hidden="true">{pad(index + 1)}</span>
+                  {card.label}
+                </p>
+                <h3>{card.heading}</h3>
+                <p>{card.description}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- ============ PORTFOLIO: projects as services ============ -->
+      <section class="cy-section" id="portfolio" aria-labelledby="portfolio-title" data-projects>
+        <div class="cy-section-head">
+          <p class="cy-eyebrow">{t.portfolioKicker}</p>
+          <h2 id="portfolio-title">{t.portfolioTitle}</h2>
+        </div>
+        <div class="cy-section-body">
+          <div class="cy-filter" role="group" aria-label={t.filterLabel}>
+            <button type="button" class="cy-chip" data-tag="" aria-pressed="true">{t.filterAll}</button>
+            {
+              allTags.map((tag, index) => (
+                <button
+                  type="button"
+                  class:list={['cy-chip', { 'is-extra': index >= PRIMARY_TAGS }]}
+                  data-tag={tag}
+                  aria-pressed="false"
+                >
+                  {tag}
+                </button>
+              ))
+            }
+            {
+              allTags.length > PRIMARY_TAGS && (
+                <button
+                  type="button"
+                  class="cy-more"
+                  data-more
+                  aria-expanded="false"
+                  data-label-more={t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                  data-label-less={t.lessTopics}
+                >
+                  {t.moreTopics(allTags.length - PRIMARY_TAGS)}
+                </button>
+              )
+            }
+          </div>
+          <p class="cy-filter-status">
+            <span data-count>{t.showing(c.projects.length, c.projects.length)}</span>
+            <button type="button" class="cy-clear" data-clear hidden>{t.clear}</button>
+          </p>
+          <ol class="cy-services">
+            {
+              c.projects.map((project, index) => {
+                const icon = serviceIcon(project.allTags.length);
+                return (
+                  <li data-tags={JSON.stringify(project.allTags)}>
+                    <div class="cy-service-head">
+                      <svg class="cy-service-icon" viewBox={icon.viewBox} width="40" height="38" aria-hidden="true">
+                        {icon.slabs.map((s) => (
+                          <>
+                            <polygon class="cy-face-left" points={s.left} />
+                            <polygon class="cy-face-right" points={s.right} />
+                            <polygon class="cy-face-top" points={s.top} />
+                          </>
+                        ))}
+                      </svg>
+                      <span class="cy-service-id">
+                        svc-{pad(index + 1)} · {slug(project.name)}
+                      </span>
+                    </div>
+                    <h3>
+                      {project.url ? (
+                        <a href={project.url} target="_blank" rel="noopener noreferrer">
+                          {project.name}
+                          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" class="cy-ext">
+                            <path d="M3 9 L9 3 M4 3 H9 V8" fill="none" stroke="currentColor" stroke-width="1.6" />
+                          </svg>
+                          <span class="cy-sr">({t.repo})</span>
+                        </a>
+                      ) : (
+                        project.name
+                      )}
+                    </h3>
+                    <p>{project.oneLiner}</p>
+                    <p class="cy-tags">
+                      {project.allTags.map((tag) => (
+                        <span>{tag}</span>
+                      ))}
+                    </p>
+                  </li>
+                );
+              })
+            }
+          </ol>
+          <p class="cy-empty" data-empty hidden>{t.empty}</p>
+        </div>
+      </section>
+
+      <!-- ============ SYSTEM DESIGN: the topology ============ -->
+      <section class="cy-section cy-section-system" id="system-design" aria-labelledby="system-title">
+        <div class="cy-section-head">
+          <p class="cy-eyebrow">{t.systemKicker}</p>
+          <h2 id="system-title">{t.systemTitle}</h2>
+          <p>{t.modelHint}</p>
+        </div>
+        <div class="cy-section-body">
+          <div class="cy-model">
+            <div class="cy-model-head">
             <button
               type="button"
               class="cy-pause"
@@ -541,9 +744,9 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               </svg>
               <span data-pause-text>{t.pause}</span>
             </button>
-          </div>
+            </div>
 
-          <svg class="cy-scene" viewBox={viewBox} role="group" aria-label={t.modelTitle} data-scene>
+          <svg class="cy-scene" viewBox={viewBox} role="group" aria-label={t.systemTitle} data-scene>
             <defs>
               <filter id="cy-soft" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="9"></feGaussianBlur>
@@ -734,15 +937,15 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
               ))
             }
           </ol>
+          </div>
         </div>
       </section>
 
-      <!-- ============ RELEASES: work experience ============ -->
-      <section class="cy-section" id="despliegues" aria-labelledby="deploys-title">
+      <!-- ============ EXPERIENCE: releases and base image ============ -->
+      <section class="cy-section" id="experience" aria-labelledby="experience-title">
         <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.deploysEyebrow}</p>
-          <h2 id="deploys-title">{t.deploysTitle}</h2>
-          <p>{t.deploysIntro}</p>
+          <p class="cy-eyebrow">{t.timelineKicker}</p>
+          <h2 id="experience-title">{t.experienceTitle}</h2>
         </div>
         <div class="cy-section-body">
           <ol class="cy-releases">
@@ -761,14 +964,11 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
                     <div class="cy-release-body">
                       {entry.summary && <p>{entry.summary}</p>}
                       {entry.highlights.length > 0 && (
-                        <>
-                          <h3>{t.highlights}</h3>
-                          <ul>
-                            {entry.highlights.map((item) => (
-                              <li>{item}</li>
-                            ))}
-                          </ul>
-                        </>
+                        <ul>
+                          {entry.highlights.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
                       )}
                       {entry.tech.length > 0 && (
                         <p class="cy-chips">
@@ -784,10 +984,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
             }
           </ol>
           <div class="cy-image">
-            <h3 class="cy-image-title">
-              <span aria-hidden="true">$</span>
-              {t.baseTitle}
-            </h3>
+            <p class="cy-image-title" aria-hidden="true"><span>$</span> base-image --layers</p>
             <ol class="cy-layers">
               {
                 layers.map((entry, index) => (
@@ -809,104 +1006,15 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
       </section>
 
-      <!-- ============ SERVICES: projects ============ -->
-      <section class="cy-section" id="servicios" aria-labelledby="services-title" data-projects>
+      <!-- ============ SKILLS: stack layers ============ -->
+      <section class="cy-section" id="skills" aria-labelledby="skills-title">
         <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.servicesEyebrow}</p>
-          <h2 id="services-title">{t.servicesTitle}</h2>
-          <p>{t.servicesIntro}</p>
+          <p class="cy-eyebrow">{t.skillsKicker}</p>
+          <h2 id="skills-title">{t.skillsTitle}</h2>
+          <p><strong>{t.skillsTip[0]}</strong> {t.skillsTip[1]}</p>
         </div>
         <div class="cy-section-body">
-          <div class="cy-filter" role="group" aria-label={t.filterLabel}>
-            <button type="button" class="cy-chip" data-tag="" aria-pressed="true">{t.filterAll}</button>
-            {
-              allTags.map((tag, index) => (
-                <button
-                  type="button"
-                  class:list={['cy-chip', { 'is-extra': index >= PRIMARY_TAGS }]}
-                  data-tag={tag}
-                  aria-pressed="false"
-                >
-                  {tag}
-                </button>
-              ))
-            }
-            {
-              allTags.length > PRIMARY_TAGS && (
-                <button
-                  type="button"
-                  class="cy-more"
-                  data-more
-                  aria-expanded="false"
-                  data-label-more={t.moreTopics(allTags.length - PRIMARY_TAGS)}
-                  data-label-less={t.lessTopics}
-                >
-                  {t.moreTopics(allTags.length - PRIMARY_TAGS)}
-                </button>
-              )
-            }
-          </div>
-          <p class="cy-filter-status">
-            <span data-count>{t.showing(c.projects.length, c.projects.length)}</span>
-            <button type="button" class="cy-clear" data-clear hidden>{t.clear}</button>
-          </p>
-          <ol class="cy-services">
-            {
-              c.projects.map((project, index) => {
-                const icon = serviceIcon(project.allTags.length);
-                return (
-                  <li data-tags={JSON.stringify(project.allTags)}>
-                    <div class="cy-service-head">
-                      <svg class="cy-service-icon" viewBox={icon.viewBox} width="40" height="38" aria-hidden="true">
-                        {icon.slabs.map((s) => (
-                          <>
-                            <polygon class="cy-face-left" points={s.left} />
-                            <polygon class="cy-face-right" points={s.right} />
-                            <polygon class="cy-face-top" points={s.top} />
-                          </>
-                        ))}
-                      </svg>
-                      <span class="cy-service-id">
-                        svc-{pad(index + 1)} · {slug(project.name)}
-                      </span>
-                    </div>
-                    <h3>
-                      {project.url ? (
-                        <a href={project.url} target="_blank" rel="noopener noreferrer">
-                          {project.name}
-                          <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" class="cy-ext">
-                            <path d="M3 9 L9 3 M4 3 H9 V8" fill="none" stroke="currentColor" stroke-width="1.6" />
-                          </svg>
-                          <span class="cy-sr">({t.repo})</span>
-                        </a>
-                      ) : (
-                        project.name
-                      )}
-                    </h3>
-                    <p>{project.oneLiner}</p>
-                    <p class="cy-tags">
-                      {project.allTags.map((tag) => (
-                        <span>{tag}</span>
-                      ))}
-                    </p>
-                  </li>
-                );
-              })
-            }
-          </ol>
-          <p class="cy-empty" data-empty hidden>{t.empty}</p>
-        </div>
-      </section>
-
-      <!-- ============ STACK: skills ============ -->
-      <section class="cy-section" id="stack" aria-labelledby="stack-title">
-        <div class="cy-section-head">
-          <p class="cy-eyebrow">{t.stackEyebrow}</p>
-          <h2 id="stack-title">{t.stackTitle}</h2>
-          <p>{t.stackIntro}</p>
-        </div>
-        <div class="cy-section-body">
-          <div class="cy-tabs" role="tablist" aria-label={t.stackTitle}>
+          <div class="cy-tabs" role="tablist" aria-label={t.skillsTitle}>
             {
               c.skillGroups.map((group, index) => (
                 <button
@@ -980,16 +1088,16 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
         </div>
       </section>
 
-      <!-- ============ CONTACT: open a connection ============ -->
-      <section class="cy-contact" id="contacto" aria-labelledby="contact-title">
+      <!-- ============ CONTACT ============ -->
+      <section class="cy-contact" id="contact" aria-labelledby="contact-title">
         <div class="cy-contact-inner">
           <div>
-            <p class="cy-eyebrow">{t.contactEyebrow}</p>
+            <p class="cy-eyebrow">{t.contactKicker}</p>
             <h2 id="contact-title">{t.contactTitle}</h2>
             <p>{t.contactText}</p>
             <div class="cy-actions">
               <a class="cy-btn cy-btn-accent" href={`mailto:${c.email}`}>{c.email}</a>
-              <a class="cy-btn cy-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
+              <a class="cy-btn cy-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.downloadPdf}</a>
             </div>
             <p class="cy-links">
               <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
