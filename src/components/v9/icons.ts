@@ -14,7 +14,8 @@ export const ICONS = {
   arrow: 'M3 8h10M9 4l4 4-4 4',
   external: 'M9.5 2.5h4v4M13.5 2.5 7.5 8.5M12 9.5v4H2.5V4h4',
   enter: 'M13 3v5.5H3.5M6.5 5.5l-3 3 3 3',
-  cap: 'M1 6 8 2.5 15 6 8 9.5 1 6ZM4 7.5v3.5c1.2 1.3 6.8 1.3 8 0V7.5'
+  cap: 'M1 6 8 2.5 15 6 8 9.5 1 6ZM4 7.5v3.5c1.2 1.3 6.8 1.3 8 0V7.5',
+  swatch: 'M8 14.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM8 1.5v13M8 1.5a6.5 6.5 0 0 1 0 13'
 } as const;
 
 export type IconName = keyof typeof ICONS;

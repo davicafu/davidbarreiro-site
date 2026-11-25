@@ -1826,6 +1826,175 @@ a.cp-tag-cert:hover {
   transform: translate(-50%, 0);
 }
 
+/* ---------------- Theme switch (shared component, styled through --ts-*) ---------------- */
+.cp-bar {
+  --ts-border: var(--line-2);
+  --ts-bg: var(--panel);
+  --ts-fg: var(--muted);
+  --ts-radius: 10px;
+  --ts-font: 400 12px/1 var(--mono);
+  --ts-size: 12px;
+  --ts-hover: rgba(255, 255, 255, 0.06);
+  --ts-active-bg: var(--panel-3);
+  --ts-active-fg: var(--text);
+  --ts-focus: var(--accent);
+}
+
+/* The theme switch needs room in the bar: the search trigger is icon + shortcut only. */
+.cp-trigger {
+  width: auto;
+  gap: 8px;
+  padding: 0 6px 0 10px;
+}
+.cp-trigger-text {
+  display: none;
+}
+
+/* ---------------- Hero: main-site kicker, name and summary ---------------- */
+.cp-who {
+  margin-top: 0;
+}
+.cp-who img {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+.cp-hero-kicker {
+  color: var(--muted);
+  font: 400 12.5px/1.5 var(--mono);
+  letter-spacing: 0.01em;
+}
+.cp-headline {
+  font-size: clamp(2.6rem, 5.4vw, 4.6rem);
+  line-height: 0.98;
+}
+.cp-summary-more {
+  max-width: 56ch;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.cp-summary-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font: 400 12.5px/1 var(--mono);
+  cursor: pointer;
+  list-style: none;
+}
+.cp-summary-more > summary::-webkit-details-marker {
+  display: none;
+}
+.cp-summary-more > summary::before {
+  content: '+';
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 5px;
+  color: var(--accent);
+}
+.cp-summary-more[open] > summary::before {
+  content: '−';
+}
+.cp-summary-more > summary:hover {
+  color: var(--accent);
+}
+.cp-summary-more > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.cp-more-open,
+.cp-summary-more[open] .cp-more-closed {
+  display: none;
+}
+.cp-summary-more[open] .cp-more-open {
+  display: inline;
+}
+.cp-summary-more p {
+  margin-top: 12px;
+}
+.cp-stats {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+.cp-stats-focus dd {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  padding-top: 6px;
+}
+
+/* ---------------- Capabilities ---------------- */
+.cp-caps-section {
+  padding-top: clamp(40px, 6vw, 72px);
+}
+.cp-caps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--line);
+  overflow: hidden;
+}
+.cp-cap {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 26px 26px 30px;
+  background: var(--bg-2);
+  transition: background 200ms var(--ease);
+}
+.cp-cap::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-line), transparent);
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+}
+.cp-cap:hover {
+  background: var(--panel);
+}
+.cp-cap:hover::before {
+  opacity: 1;
+}
+.cp-cap-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font: 500 14px/1 var(--sans);
+}
+.cp-cap-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  color: var(--cool);
+  font: 400 11.5px/1 var(--mono);
+  text-transform: uppercase;
+}
+.cp-cap h3 {
+  font: 600 19px/1.25 var(--display);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.cp-cap p:last-child {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 1140px) {
   .cp-nav {
@@ -1846,6 +2015,9 @@ a.cp-tag-cert:hover {
 }
 
 @media (max-width: 960px) {
+  .cp-caps {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .cp-hero {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2076,6 +2248,30 @@ a.cp-tag-cert:hover {
 @media (max-width: 480px) {
   .cp-brand-text {
     display: none;
+  }
+  .cp-bar-inner {
+    gap: 8px;
+  }
+  .cp-bar-end {
+    gap: 6px;
+  }
+  .cp-bar .ts {
+    gap: 0;
+    padding: 2px;
+  }
+  .cp-bar .ts-option {
+    min-width: 28px;
+    min-height: 30px;
+  }
+  .cp-stats {
+    grid-template-columns: auto auto;
+  }
+  .cp-stats-focus {
+    grid-column: 1 / -1;
+    padding-left: 0 !important;
+    border-left: 0 !important;
+    border-top: 1px solid var(--line);
+    margin-top: 14px;
   }
   .cp-actions .cp-btn,
   .cp-actions .cp-cv {

@@ -10,6 +10,8 @@
 import SeoHead from '../common/SeoHead.astro';
 import { getAlternateLinks, getLocaleMetadata, type Locale } from '../../lib/locale';
 import { getPreviewContent } from '../v3/previewContent';
+import ThemeSwitch from '../v3/ThemeSwitch.astro';
+import { getResume } from '../../data/resume';
 import Icon from './Icon.astro';
 import Palette, { type CommandGroup } from './Palette.astro';
 import '../../styles/v9.css';
@@ -27,22 +29,22 @@ const t = {
     home: '/v9/',
     other: { href: '/es/v9/', label: 'Ver en español', code: 'ES' },
     sections: 'Sections',
-    nav: { method: 'Method', work: 'Experience', projects: 'Projects', skills: 'Skills', contact: 'Contact' },
+    // Navigation and section names match the main site (src/pages/index.astro, src/js/i18n.js).
+    nav: { portfolio: 'Portfolio', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
     langLabel: 'Language',
     skip: 'Skip to content',
     search: 'Search',
     searchLong: 'Search or jump to…',
-    role: 'Senior Software Engineer',
-    headline: ['I design real-time', 'data platforms', 'and the Go backends that run them.'],
-    lede: (years: number) =>
-      `${years} years taking systems to production with Kafka, Spark, ClickHouse, Go and Java, from the first event to the dashboard that reads it.`,
-    contact: 'Get in touch',
-    cv: 'Download CV',
+    readMore: 'Read more',
+    readLess: 'Read less',
+    contact: 'Contact',
+    cv: 'Download PDF',
     cvOptions: {
-      onePage: ['One page', 'Compact summary'],
-      professional: ['Professional', 'Full detail, minimal layout'],
-      jsonresume: ['JSON Resume', 'Standard format']
+      onePage: ['One Page', 'Compact'],
+      professional: ['Professional', 'Formal'],
+      jsonresume: ['JSONResume', 'Structured']
     },
+    metrics: { experience: 'Experience', coreSkills: 'Core Skills', focus: 'Focus', focusValue: 'System Design · Cloud-Native' },
     palette: {
       placeholder: 'Try “kafka”, “go” or “cv”…',
       input: 'Search the portfolio',
@@ -59,14 +61,15 @@ const t = {
     groups: {
       navigate: 'Go to',
       actions: 'Actions',
-      projects: 'Projects',
+      theme: 'Theme',
+      projects: 'Portfolio',
       experience: 'Experience',
       skills: 'Skills',
       certs: 'Certifications'
     },
     cmd: {
       section: 'Section',
-      cv: 'Download CV',
+      cv: 'Download PDF',
       copy: 'Copy email address',
       mail: 'Send an email',
       lang: 'Switch to Spanish',
@@ -74,13 +77,39 @@ const t = {
       noRepo: 'Details',
       skill: 'Skill group',
       verify: 'Credential',
-      certMeta: 'Certification'
+      certMeta: 'Certification',
+      theme: 'Theme',
+      themePoster: 'Poster',
+      themeInfra: 'Infra'
     },
     copied: 'Email copied to the clipboard',
     copyFailed: 'Could not copy. Use the email link instead.',
-    stats: { years: 'years in production', certs: 'certifications', stages: 'pipeline stages' },
-    methodKicker: 'pipeline',
-    methodTitle: 'How I design data platforms',
+    capabilitiesTitle: 'Capabilities',
+    capabilities: [
+      {
+        label: 'Backend',
+        heading: 'Hexagonal · DDD · Event-Driven',
+        description:
+          'Domain-centric design, decoupled architectures and scalable distributed systems focused on long-term maintainability.'
+      },
+      {
+        label: 'Data',
+        heading: 'Batch & Stream · High Throughput · Scalability',
+        description:
+          'Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.'
+      },
+      {
+        label: 'Platform',
+        heading: 'High Availability · Automation · Observability',
+        description:
+          'Building resilient infrastructure, streamlining operations and providing deep insights into system performance.'
+      }
+    ],
+    portfolioKicker: 'Portfolio',
+    portfolioTitle: 'Personal projects & technical work',
+    projectsIntro: 'Filter by topic; a project shows if it has any selected topic.',
+    systemKicker: 'System Design',
+    systemTitle: 'How I design data platforms',
     methodIntro: 'Seven stages, from the systems that produce data to the people who use it. Select a stage to inspect it.',
     run: 'Run',
     stage: (n: number, total: number) => `Stage ${n} of ${total}`,
@@ -90,16 +119,13 @@ const t = {
     output: 'Output',
     source: 'source',
     sink: 'users',
-    workKicker: 'changelog',
-    workTitle: 'Experience',
+    timelineKicker: 'Timeline',
+    timelineTitle: 'Professional experience',
     workIntro: 'Every role as a release, newest first. Open one to read what changed.',
     latest: 'Current',
     changes: 'Highlights',
     stack: 'Stack',
     educationTitle: 'Education',
-    projectsKicker: 'repositories',
-    projectsTitle: 'Projects',
-    projectsIntro: 'Personal and technical work. Filter by topic; a project shows if it has any selected topic.',
     filterLabel: 'Topics',
     filterAll: 'All',
     showing: (n: number, total: number) => `${n} of ${total} projects`,
@@ -110,42 +136,46 @@ const t = {
     publicRepo: 'Public',
     openRepo: 'Open repository',
     noRepo: 'No public repository',
-    skillsKicker: 'settings',
-    skillsTitle: 'Skills',
+    skillsKicker: 'Skills',
+    skillsTitle: 'Stack technology',
     skillsIntro: 'The stack, grouped. Each skill shows the level I work at.',
     groupLevel: 'Group level',
     levelNames: ['', 'Intermediate', 'Advanced', 'Expert'],
     certified: 'Certified',
     certsTitle: 'Certifications',
     verify: 'Verify',
-    contactKicker: 'contact',
-    contactTitle: "Let's build something with data.",
-    contactText: 'Open to data engineering, streaming platforms and software architecture roles and projects.',
+    contactKicker: 'Contact',
+    contactTitle: "Let's build something with data",
+    contactText: 'Available for data engineering, streaming platforms, and software architecture.',
     copy: 'Copy',
     send: 'Send email',
     footerHint: 'Press',
     footerHint2: 'anywhere to search.',
-    footerRole: 'Senior Software Engineer'
+    footerRole: 'Software Engineer'
   },
   es: {
     home: '/es/v9/',
     other: { href: '/v9/', label: 'View in English', code: 'EN' },
     sections: 'Secciones',
-    nav: { method: 'Método', work: 'Experiencia', projects: 'Proyectos', skills: 'Skills', contact: 'Contacto' },
+    nav: { portfolio: 'Proyectos', experience: 'Experiencia', skills: 'Habilidades', contact: 'Contacto' },
     langLabel: 'Idioma',
     skip: 'Saltar al contenido',
     search: 'Buscar',
     searchLong: 'Buscar o ir a…',
-    role: 'Ingeniero de Software Senior',
-    headline: ['Diseño plataformas', 'de datos en tiempo real', 'y los backends en Go que las mueven.'],
-    lede: (years: number) =>
-      `${years} años llevando sistemas a producción con Kafka, Spark, ClickHouse, Go y Java, desde el primer evento hasta el panel que lo lee.`,
-    contact: 'Contactar',
-    cv: 'Descargar CV',
+    readMore: 'Leer más',
+    readLess: 'Leer menos',
+    contact: 'Contacto',
+    cv: 'Descargar PDF',
     cvOptions: {
-      onePage: ['Una página', 'Resumen compacto · en inglés'],
-      professional: ['Profesional', 'Completo, diseño sobrio · en inglés'],
-      jsonresume: ['JSON Resume', 'Formato estándar · en inglés']
+      onePage: ['Una página', 'Compacto'],
+      professional: ['Profesional', 'Formal'],
+      jsonresume: ['JSONResume', 'Estructurado']
+    },
+    metrics: {
+      experience: 'Experiencia',
+      coreSkills: 'Habilidades principales',
+      focus: 'Enfoque',
+      focusValue: 'Diseño de Sistemas · Nativo para la nube'
     },
     palette: {
       placeholder: 'Prueba «kafka», «go» o «cv»…',
@@ -163,28 +193,53 @@ const t = {
     groups: {
       navigate: 'Ir a',
       actions: 'Acciones',
+      theme: 'Tema',
       projects: 'Proyectos',
       experience: 'Experiencia',
-      skills: 'Skills',
+      skills: 'Habilidades',
       certs: 'Certificaciones'
     },
     cmd: {
       section: 'Sección',
-      cv: 'Descargar CV',
+      cv: 'Descargar PDF',
       copy: 'Copiar el email',
       mail: 'Enviar un email',
       lang: 'Cambiar a inglés',
       repo: 'Repositorio',
       noRepo: 'Detalles',
-      skill: 'Grupo de skills',
+      skill: 'Grupo de habilidades',
       verify: 'Credencial',
-      certMeta: 'Certificación'
+      certMeta: 'Certificación',
+      theme: 'Tema',
+      themePoster: 'Cartel',
+      themeInfra: 'Infra'
     },
     copied: 'Email copiado al portapapeles',
     copyFailed: 'No se pudo copiar. Usa el enlace de email.',
-    stats: { years: 'años en producción', certs: 'certificaciones', stages: 'etapas del pipeline' },
-    methodKicker: 'pipeline',
-    methodTitle: 'Cómo diseño plataformas de datos',
+    capabilitiesTitle: 'Capacidades',
+    capabilities: [
+      {
+        label: 'Backend',
+        heading: 'Hexagonal · DDD · Event-Driven',
+        description:
+          'Diseño orientado al dominio, arquitecturas desacopladas y sistemas distribuidos escalables mantenibles.'
+      },
+      {
+        label: 'Data',
+        heading: 'Batch y Stream · Alto Throughput · Escalabilidad',
+        description: 'Pipelines robustos capaces de procesar grandes volúmenes, con baja latencia y escalado fluido.'
+      },
+      {
+        label: 'Plataforma',
+        heading: 'Alta Disponibilidad · Automatización · Observabilidad',
+        description: 'Infraestructura resiliente, operaciones automatizadas y observabilidad profunda del rendimiento.'
+      }
+    ],
+    portfolioKicker: 'Portfolio',
+    portfolioTitle: 'Proyectos personales y trabajo técnico',
+    projectsIntro: 'Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
+    systemKicker: 'Diseño de Sistemas',
+    systemTitle: 'Diseño de plataformas de datos',
     methodIntro: 'Siete etapas, de los sistemas que producen datos a las personas que los usan. Elige una etapa para inspeccionarla.',
     run: 'Ejecución',
     stage: (n: number, total: number) => `Etapa ${n} de ${total}`,
@@ -194,16 +249,13 @@ const t = {
     output: 'Salida',
     source: 'origen',
     sink: 'usuarios',
-    workKicker: 'changelog',
-    workTitle: 'Experiencia',
+    timelineKicker: 'Trayectoria',
+    timelineTitle: 'Experiencia profesional',
     workIntro: 'Cada puesto como una versión, de la más reciente a la más antigua. Abre una para ver qué cambió.',
     latest: 'Actual',
     changes: 'Logros',
     stack: 'Stack',
     educationTitle: 'Formación',
-    projectsKicker: 'repositorios',
-    projectsTitle: 'Proyectos',
-    projectsIntro: 'Trabajo personal y técnico. Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
     filterLabel: 'Temas',
     filterAll: 'Todos',
     showing: (n: number, total: number) => `${n} de ${total} proyectos`,
@@ -214,22 +266,23 @@ const t = {
     publicRepo: 'Público',
     openRepo: 'Abrir repositorio',
     noRepo: 'Sin repositorio público',
-    skillsKicker: 'ajustes',
-    skillsTitle: 'Skills',
-    skillsIntro: 'El stack, agrupado. Cada skill indica el nivel al que trabajo.',
+    skillsKicker: 'Habilidades',
+    skillsTitle: 'Stack tecnológico',
+    skillsIntro: 'El stack, agrupado. Cada habilidad indica el nivel al que trabajo.',
     groupLevel: 'Nivel del grupo',
     levelNames: ['', 'Intermedio', 'Avanzado', 'Experto'],
     certified: 'Certificado',
     certsTitle: 'Certificaciones',
     verify: 'Verificar',
-    contactKicker: 'contacto',
-    contactTitle: 'Construyamos algo con datos.',
-    contactText: 'Abierto a puestos y proyectos de ingeniería de datos, plataformas streaming y arquitectura de software.',
+    contactKicker: 'Contacto',
+    contactTitle: 'Construyamos algo con datos',
+    contactText:
+      'Disponible para proyectos de ingeniería de datos, plataformas de tiempo real y arquitectura de software.',
     copy: 'Copiar',
     send: 'Enviar email',
     footerHint: 'Pulsa',
     footerHint2: 'en cualquier parte para buscar.',
-    footerRole: 'Ingeniero de Software Senior'
+    footerRole: 'Ingeniero de Software'
   }
 }[locale];
 
@@ -240,6 +293,21 @@ const certificates = [...c.certificateDetails].sort((a, b) => b.date.localeCompa
 const work = [...c.work].sort((a, b) => b.start - a.start);
 const education = [...c.education].sort((a, b) => b.start - a.start);
 const pad = (n: number) => String(n).padStart(2, '0');
+const prefix = locale === 'es' ? '/es' : '';
+
+/* ---- Hero: the same kicker, name and summary as the main site ---- */
+const basics = getResume(locale).basics;
+const summary = String(basics.summary || '')
+  .split(/\n\s*\n/)
+  .map((paragraph) => paragraph.trim())
+  .filter(Boolean);
+// Same rule as the main site's "Core Skills" metric: skills at an advanced level.
+const coreSkills = c.skillGroups
+  .flatMap((group) => group.keywords)
+  .filter((skill) => {
+    const value = skill.level.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return value.includes('advanced') || value.includes('avanzado');
+  }).length;
 
 // resume.json mixes case and has a typo ("Intemediate"); read levels by prefix.
 const levelValue = (level: string) => {
@@ -277,11 +345,12 @@ const groups: CommandGroup[] = [
     key: 'navigate',
     label: t.groups.navigate,
     items: [
-      { id: 'nav-method', label: t.nav.method, meta: t.methodTitle, keywords: 'pipeline method', icon: 'hash', href: '#method', action: 'go' },
-      { id: 'nav-work', label: t.nav.work, meta: t.cmd.section, keywords: 'changelog jobs career', icon: 'hash', href: '#experience', action: 'go' },
-      { id: 'nav-projects', label: t.nav.projects, meta: t.cmd.section, keywords: 'repos github', icon: 'hash', href: '#projects', action: 'go' },
-      { id: 'nav-skills', label: t.nav.skills, meta: t.cmd.section, keywords: 'stack', icon: 'hash', href: '#skills', action: 'go' },
-      { id: 'nav-contact', label: t.nav.contact, meta: t.cmd.section, keywords: 'email hire', icon: 'hash', href: '#contact', action: 'go' }
+      { id: 'nav-capabilities', label: t.capabilitiesTitle, meta: t.cmd.section, keywords: 'backend data platform', icon: 'hash', href: '#capabilities', action: 'go' },
+      { id: 'nav-portfolio', label: t.portfolioKicker, meta: t.portfolioTitle, keywords: 'projects repos github proyectos', icon: 'hash', href: '#portfolio', action: 'go' },
+      { id: 'nav-system-design', label: t.systemKicker, meta: t.systemTitle, keywords: 'pipeline method architecture', icon: 'hash', href: '#system-design', action: 'go' },
+      { id: 'nav-experience', label: t.timelineKicker, meta: t.timelineTitle, keywords: 'jobs career work experience', icon: 'hash', href: '#experience', action: 'go' },
+      { id: 'nav-skills', label: t.skillsKicker, meta: t.skillsTitle, keywords: 'stack skills certifications', icon: 'hash', href: '#skills', action: 'go' },
+      { id: 'nav-contact', label: t.contactKicker, meta: t.contactTitle, keywords: 'email hire', icon: 'hash', href: '#contact', action: 'go' }
     ]
   },
   {
@@ -303,6 +372,14 @@ const groups: CommandGroup[] = [
       { id: 'lang', label: t.cmd.lang, meta: t.other.code, keywords: 'language idioma english español', icon: 'globe', href: t.other.href, action: 'go' },
       { id: 'github', label: 'GitHub', meta: c.githubUrl.replace(/^https?:\/\//, ''), keywords: 'code repos', icon: 'link', href: c.githubUrl, action: 'go', external: true },
       { id: 'linkedin', label: 'LinkedIn', meta: c.linkedinUrl.replace(/^https?:\/\/(www\.)?/, ''), keywords: 'profile', icon: 'link', href: c.linkedinUrl, action: 'go', external: true }
+    ]
+  },
+  {
+    key: 'theme',
+    label: t.groups.theme,
+    items: [
+      { id: 'theme-poster', label: `${t.cmd.theme}: ${t.cmd.themePoster}`, meta: '/v6/', keywords: 'theme tema poster cartel swiss suizo', icon: 'swatch', href: `${prefix}/v6/`, action: 'go' },
+      { id: 'theme-infra', label: `${t.cmd.theme}: ${t.cmd.themeInfra}`, meta: '/v7/', keywords: 'theme tema infra isometric isométrica', icon: 'swatch', href: `${prefix}/v7/`, action: 'go' }
     ]
   },
   {
@@ -400,12 +477,12 @@ const groups: CommandGroup[] = [
           <kbd class="cp-kbd" data-shortcut>⌘K</kbd>
         </button>
         <nav class="cp-nav" aria-label={t.sections}>
-          <a href="#method">{t.nav.method}</a>
-          <a href="#experience">{t.nav.work}</a>
-          <a href="#projects">{t.nav.projects}</a>
+          <a href="#portfolio">{t.nav.portfolio}</a>
+          <a href="#experience">{t.nav.experience}</a>
           <a href="#skills">{t.nav.skills}</a>
         </nav>
         <div class="cp-bar-end">
+          <ThemeSwitch locale={locale} current="command" />
           <div class="cp-lang" role="group" aria-label={t.langLabel}>
             <a href="/v9/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
             <a href="/es/v9/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
@@ -421,18 +498,27 @@ const groups: CommandGroup[] = [
         <div class="cp-hero-glow" aria-hidden="true"></div>
         <div class="cp-hero-copy">
           <div class="cp-who">
-            <img src="/assets/profile/avatar-112.avif" alt="" width="56" height="56" />
-            <div>
-              <h1 id="cp-title" class="cp-name">David Barreiro</h1>
-              <p class="cp-role">{t.role}</p>
-            </div>
+            <img src="/assets/profile/avatar-112.avif" alt="" width="52" height="52" />
+            <p class="cp-hero-kicker">{basics.label}</p>
           </div>
-          <p class="cp-headline">
-            <span>{t.headline[0]}</span>
-            <span class="cp-headline-accent">{t.headline[1]}</span>
-            <span class="cp-headline-muted">{t.headline[2]}</span>
-          </p>
-          <p class="cp-lede">{t.lede(years)}</p>
+          <h1 id="cp-title" class="cp-headline">
+            <span>{c.name.split(' ')[0]}</span>
+            <span class="cp-headline-accent">{c.name.split(' ').slice(1).join(' ')}</span>
+          </h1>
+          {summary[0] && <p class="cp-lede">{summary[0]}</p>}
+          {
+            summary.length > 1 && (
+              <details class="cp-summary-more">
+                <summary>
+                  <span class="cp-more-closed">{t.readMore}</span>
+                  <span class="cp-more-open">{t.readLess}</span>
+                </summary>
+                {summary.slice(1).map((paragraph) => (
+                  <p>{paragraph}</p>
+                ))}
+              </details>
+            )
+          }
           <div class="cp-actions">
             <a class="cp-btn cp-btn-primary" href={`mailto:${c.email}`}>
               <Icon name="mail" />{t.contact}
@@ -456,9 +542,9 @@ const groups: CommandGroup[] = [
             </details>
           </div>
           <dl class="cp-stats">
-            <div><dt>{t.stats.years}</dt><dd>{years}</dd></div>
-            <div><dt>{t.stats.certs}</dt><dd>{certificates.length}</dd></div>
-            <div><dt>{t.stats.stages}</dt><dd>{c.stages.length}</dd></div>
+            <div><dt>{t.metrics.experience}</dt><dd>{years}+</dd></div>
+            <div><dt>{t.metrics.coreSkills}</dt><dd>{coreSkills}+</dd></div>
+            <div class="cp-stats-focus"><dt>{t.metrics.focus}</dt><dd>{t.metrics.focusValue}</dd></div>
           </dl>
           <p class="cp-links">
             <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub<Icon name="external" /></a>
@@ -478,138 +564,30 @@ const groups: CommandGroup[] = [
         </div>
       </section>
 
-      <!-- ============ METHOD: PIPELINE ============ -->
-      <section class="cp-section" id="method" aria-labelledby="method-title" data-reveal>
-        <header class="cp-head">
-          <p class="cp-kicker"><span>01</span>{t.methodKicker}</p>
-          <h2 id="method-title">{t.methodTitle}</h2>
-          <p>{t.methodIntro}</p>
-        </header>
-        <div class="cp-run" data-run>
-          <div class="cp-run-bar">
-            <span class="cp-run-name"><span class="cp-check" aria-hidden="true"></span>{t.run} · data-platform</span>
-            <span class="cp-run-meta" aria-hidden="true">{c.stages.length}/{c.stages.length}</span>
-          </div>
-          <div class="cp-graph" role="tablist" aria-label={t.methodTitle} aria-orientation="horizontal" data-graph>
-            {
-              c.stages.map((stage, index) => (
-                <button
-                  type="button"
-                  class="cp-node"
-                  role="tab"
-                  id={`stage-tab-${index}`}
-                  aria-selected={index === 0 ? 'true' : 'false'}
-                  aria-controls="stage-panel"
-                  tabindex={index === 0 ? 0 : -1}
-                  style={`--i:${index}`}
-                  data-stage={index}
-                >
-                  <span class="cp-node-top">
-                    <span class="cp-node-status" aria-hidden="true"></span>
-                    <span class="cp-node-index">{pad(index + 1)}</span>
-                  </span>
-                  <span class="cp-node-name">{stage.name}</span>
-                  <span class="cp-node-tech">{stage.tech.slice(0, 2).join(' · ')}</span>
-                </button>
-              ))
-            }
-          </div>
-          <div class="cp-inspector" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-0" tabindex="0" data-inspector>
-            <div class="cp-inspector-head">
-              <span class="cp-inspector-label">{t.inspector}</span>
-              <span class="cp-inspector-step" data-inspector-step>{t.stage(1, c.stages.length)}</span>
-            </div>
-            <h3 data-inspector-name>{c.stages[0].name}</h3>
-            <p data-inspector-detail>{c.stages[0].detail}</p>
-            <div class="cp-inspector-grid">
-              <div>
-                <p class="cp-field">{t.tech}</p>
-                <ul class="cp-chips" data-inspector-tech>
-                  {c.stages[0].tech.map((tech) => <li>{tech}</li>)}
-                </ul>
-              </div>
-              <div class="cp-io">
-                <p><span class="cp-field">{t.input}</span><span data-inspector-in>{t.source}</span></p>
-                <p><span class="cp-field">{t.output}</span><span data-inspector-out>{c.stages[1]?.name ?? t.sink}</span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ EXPERIENCE: CHANGELOG ============ -->
-      <section class="cp-section" id="experience" aria-labelledby="work-title" data-reveal>
-        <header class="cp-head">
-          <p class="cp-kicker"><span>02</span>{t.workKicker}</p>
-          <h2 id="work-title">{t.workTitle}</h2>
-          <p>{t.workIntro}</p>
-        </header>
-        <ol class="cp-log">
+      <!-- ============ CAPABILITIES ============ -->
+      <section class="cp-section cp-caps-section" id="capabilities" aria-labelledby="capabilities-title" data-reveal>
+        <h2 id="capabilities-title" class="cp-sr">{t.capabilitiesTitle}</h2>
+        <ul class="cp-caps">
           {
-            work.map((job, index) => (
-              <li class="cp-release" id={`job-${index}`}>
-                <details open={index === 0} data-release>
-                  <summary>
-                    <span class="cp-release-ver">{releaseOf(index)}</span>
-                    <span class="cp-release-main">
-                      <span class="cp-release-role">{job.role}</span>
-                      <span class="cp-release-org">{job.organisation}</span>
-                    </span>
-                    <span class="cp-release-side">
-                      {index === 0 && <span class="cp-tag cp-tag-live">{t.latest}</span>}
-                      <time>{job.period}</time>
-                      <span class="cp-release-toggle" aria-hidden="true"></span>
-                    </span>
-                  </summary>
-                  <div class="cp-release-body">
-                    {job.summary && <p class="cp-release-summary">{job.summary}</p>}
-                    {job.highlights.length > 0 && (
-                      <>
-                        <p class="cp-field">{t.changes}</p>
-                        <ul class="cp-diff">
-                          {job.highlights.map((item) => (
-                            <li>{item}</li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                    {job.tech.length > 0 && (
-                      <>
-                        <p class="cp-field">{t.stack}</p>
-                        <ul class="cp-chips">
-                          {job.tech.map((tech) => (
-                            <li>{tech}</li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                </details>
+            t.capabilities.map((card, index) => (
+              <li class="cp-cap" style={`--i:${index}`}>
+                <p class="cp-cap-label">
+                  <span class="cp-cap-key" aria-hidden="true">{['be', 'da', 'pl'][index]}</span>
+                  {card.label}
+                </p>
+                <h3>{card.heading}</h3>
+                <p>{card.description}</p>
               </li>
             ))
           }
-        </ol>
-        <div class="cp-edu">
-          <h3><Icon name="cap" />{t.educationTitle}</h3>
-          <ul>
-            {
-              education.map((item) => (
-                <li>
-                  <time>{item.period}</time>
-                  <span class="cp-edu-role">{item.role}</span>
-                  <span class="cp-edu-org">{item.organisation}</span>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
+        </ul>
       </section>
 
-      <!-- ============ PROJECTS: REPOSITORIES ============ -->
-      <section class="cp-section" id="projects" aria-labelledby="projects-title" data-projects data-reveal>
+      <!-- ============ PORTFOLIO: REPOSITORIES ============ -->
+      <section class="cp-section" id="portfolio" aria-labelledby="portfolio-title" data-projects data-reveal>
         <header class="cp-head">
-          <p class="cp-kicker"><span>03</span>{t.projectsKicker}</p>
-          <h2 id="projects-title">{t.projectsTitle}</h2>
+          <p class="cp-kicker"><span aria-hidden="true">01</span>{t.portfolioKicker}</p>
+          <h2 id="portfolio-title">{t.portfolioTitle}</h2>
           <p>{t.projectsIntro}</p>
         </header>
         <div class="cp-filter" role="group" aria-label={t.filterLabel}>
@@ -687,15 +665,142 @@ const groups: CommandGroup[] = [
         <p class="cp-empty-state" hidden data-empty>{t.empty}</p>
       </section>
 
+      <!-- ============ SYSTEM DESIGN: PIPELINE ============ -->
+      <section class="cp-section" id="system-design" aria-labelledby="system-design-title" data-reveal>
+        <header class="cp-head">
+          <p class="cp-kicker"><span aria-hidden="true">02</span>{t.systemKicker}</p>
+          <h2 id="system-design-title">{t.systemTitle}</h2>
+          <p>{t.methodIntro}</p>
+        </header>
+        <div class="cp-run" data-run>
+          <div class="cp-run-bar">
+            <span class="cp-run-name"><span class="cp-check" aria-hidden="true"></span>{t.run} · data-platform</span>
+            <span class="cp-run-meta" aria-hidden="true">{c.stages.length}/{c.stages.length}</span>
+          </div>
+          <div class="cp-graph" role="tablist" aria-label={t.systemTitle} aria-orientation="horizontal" data-graph>
+            {
+              c.stages.map((stage, index) => (
+                <button
+                  type="button"
+                  class="cp-node"
+                  role="tab"
+                  id={`stage-tab-${index}`}
+                  aria-selected={index === 0 ? 'true' : 'false'}
+                  aria-controls="stage-panel"
+                  tabindex={index === 0 ? 0 : -1}
+                  style={`--i:${index}`}
+                  data-stage={index}
+                >
+                  <span class="cp-node-top">
+                    <span class="cp-node-status" aria-hidden="true"></span>
+                    <span class="cp-node-index">{pad(index + 1)}</span>
+                  </span>
+                  <span class="cp-node-name">{stage.name}</span>
+                  <span class="cp-node-tech">{stage.tech.slice(0, 2).join(' · ')}</span>
+                </button>
+              ))
+            }
+          </div>
+          <div class="cp-inspector" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-0" tabindex="0" data-inspector>
+            <div class="cp-inspector-head">
+              <span class="cp-inspector-label">{t.inspector}</span>
+              <span class="cp-inspector-step" data-inspector-step>{t.stage(1, c.stages.length)}</span>
+            </div>
+            <h3 data-inspector-name>{c.stages[0].name}</h3>
+            <p data-inspector-detail>{c.stages[0].detail}</p>
+            <div class="cp-inspector-grid">
+              <div>
+                <p class="cp-field">{t.tech}</p>
+                <ul class="cp-chips" data-inspector-tech>
+                  {c.stages[0].tech.map((tech) => <li>{tech}</li>)}
+                </ul>
+              </div>
+              <div class="cp-io">
+                <p><span class="cp-field">{t.input}</span><span data-inspector-in>{t.source}</span></p>
+                <p><span class="cp-field">{t.output}</span><span data-inspector-out>{c.stages[1]?.name ?? t.sink}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXPERIENCE: RELEASES ============ -->
+      <section class="cp-section" id="experience" aria-labelledby="experience-title" data-reveal>
+        <header class="cp-head">
+          <p class="cp-kicker"><span aria-hidden="true">03</span>{t.timelineKicker}</p>
+          <h2 id="experience-title">{t.timelineTitle}</h2>
+          <p>{t.workIntro}</p>
+        </header>
+        <ol class="cp-log">
+          {
+            work.map((job, index) => (
+              <li class="cp-release" id={`job-${index}`}>
+                <details open={index === 0} data-release>
+                  <summary>
+                    <span class="cp-release-ver">{releaseOf(index)}</span>
+                    <span class="cp-release-main">
+                      <span class="cp-release-role">{job.role}</span>
+                      <span class="cp-release-org">{job.organisation}</span>
+                    </span>
+                    <span class="cp-release-side">
+                      {index === 0 && <span class="cp-tag cp-tag-live">{t.latest}</span>}
+                      <time>{job.period}</time>
+                      <span class="cp-release-toggle" aria-hidden="true"></span>
+                    </span>
+                  </summary>
+                  <div class="cp-release-body">
+                    {job.summary && <p class="cp-release-summary">{job.summary}</p>}
+                    {job.highlights.length > 0 && (
+                      <>
+                        <p class="cp-field">{t.changes}</p>
+                        <ul class="cp-diff">
+                          {job.highlights.map((item) => (
+                            <li>{item}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    {job.tech.length > 0 && (
+                      <>
+                        <p class="cp-field">{t.stack}</p>
+                        <ul class="cp-chips">
+                          {job.tech.map((tech) => (
+                            <li>{tech}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                </details>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="cp-edu">
+          <h3><Icon name="cap" />{t.educationTitle}</h3>
+          <ul>
+            {
+              education.map((item) => (
+                <li>
+                  <time>{item.period}</time>
+                  <span class="cp-edu-role">{item.role}</span>
+                  <span class="cp-edu-org">{item.organisation}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+
       <!-- ============ SKILLS: SETTINGS ============ -->
       <section class="cp-section" id="skills" aria-labelledby="skills-title" data-reveal>
         <header class="cp-head">
-          <p class="cp-kicker"><span>04</span>{t.skillsKicker}</p>
+          <p class="cp-kicker"><span aria-hidden="true">04</span>{t.skillsKicker}</p>
           <h2 id="skills-title">{t.skillsTitle}</h2>
           <p>{t.skillsIntro}</p>
         </header>
         <div class="cp-settings">
-          <div class="cp-tabs" role="tablist" aria-label={t.skillsTitle} aria-orientation="vertical" data-tabs>
+          <div class="cp-tabs" role="tablist" aria-label={t.skillsKicker} aria-orientation="vertical" data-tabs>
             {
               c.skillGroups.map((group, index) => (
                 <button
@@ -799,7 +904,7 @@ const groups: CommandGroup[] = [
       <!-- ============ CONTACT ============ -->
       <section class="cp-section cp-contact" id="contact" aria-labelledby="contact-title" data-reveal>
         <div class="cp-contact-card">
-          <p class="cp-kicker"><span>05</span>{t.contactKicker}</p>
+          <p class="cp-kicker"><span aria-hidden="true">05</span>{t.contactKicker}</p>
           <h2 id="contact-title">{t.contactTitle}</h2>
           <p>{t.contactText}</p>
           <div class="cp-mailbox">
