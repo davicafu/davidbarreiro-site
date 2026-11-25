@@ -7,6 +7,7 @@
     "build:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --minify",
     "build:d3": "node ./scripts/build-d3-lite.mjs",
     "sync:astro-public": "node ./scripts/sync-astro-public.mjs",
+    "cv": "node ./scripts/generate-cv.mjs",
     "dev": "astro dev",
     "dev:css": "tailwindcss -c tailwind.config.js -i ./src/input.css -o ./dist/styles.css --watch",
     "predev": "corepack pnpm run sync:astro-public",
