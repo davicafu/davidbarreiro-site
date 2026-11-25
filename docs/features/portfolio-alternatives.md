@@ -31,9 +31,9 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T11 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
 | T12 | S2, S4, S5 | delegated (parallel writers) | done | L15, L16 |
 | T13 | S6, S7     | inline | done | L17 |
-| T14 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
-| T15 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
-| T16 | S6, S7, S8 | delegated (parallel writers) | in progress | L17 |
+| T14 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
+| T15 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
+| T16 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
 
 ## Non-goals
 
@@ -82,3 +82,22 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - L17 (2026-11-24, owner request, verbatim): "vale, quedate con la paleta de comandos, el cartel suizo y la infrastrucutra isometrica, generame las versiones con todo eso y vamos ajustando, el orden de las secciones y el nombre debe ser las mimas que la actual, y me gustaria tener una forma de cambiar de theme en la parte superior del menú. ademas desde octubre de este año deje sdg y estoy en Factorial. mis tareas que hago son estas: [Factorial role description] para que añadas a resumen.json de cada uno de ellos".
   - T13 (inline): Factorial (2026-10, current) added to both resumes, with SDG ending 2026-10. Assumption: the position is "Senior Software Engineer". v4, v5, v8 and v10 and their fonts are removed. The shared ThemeSwitch is added and `/v3/` now lists 3 themes.
   - T14–T16: align v6, v7 and v9 to the main site's section order and names, and add the theme switch.
+- L18 (T14–T16): v6, v7 and v9 now follow the main site's section order:
+  - hero
+  - `#capabilities`
+  - `#portfolio`
+  - `#system-design`
+  - `#experience`
+  - `#skills`
+  - `#contact`
+  - footer
+
+  Kickers and titles are exact, EN from `index.astro` and ES from `i18n.js`. The nav reads Portfolio, Experience, Skills, Contact. Each theme has ThemeSwitch in its top bar, and the switch carries the section in view across themes. v9 also exposes theme commands in the palette.
+
+  Parent integration:
+  - build OK; lint clean; BaseLayout CSS identical
+  - v6, v7 and v9 probes pass against 4329 with no errors
+  - vshots at 1440 and 390 show no errors, at widths 1440 and 390
+  - fixed the "dieñadas" typo in `resume.es.json`
+
+  Open items: the contact description "Available for…" is the main site's copy and close to the availability claim the owner rejected; v6 and v7 show "David Barreiro" and "12", while v9 and the main site show the full name and "12+".
