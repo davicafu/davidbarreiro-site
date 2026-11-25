@@ -1,104 +1,273 @@
 ---
 /**
- * Theme switcher shared by the redesigns (/v6/, /v7/, /v9/). Each theme is its own page,
- * so switching is a link that keeps the locale and the section the visitor is reading.
- * Pages style it through the --ts-* custom properties; the defaults are neutral.
+ * Theme menu shared by the redesigns (/v6/, /v7/, /v9/). Each theme is its own page, so
+ * switching is a link that keeps the locale and the section the visitor is reading.
+ * It renders as a "Theme" menu button with a popover listing the themes plus the current
+ * site. Pages style it through the --ts-* custom properties; the defaults are neutral.
  */
-export type ThemeId = 'poster' | 'infra' | 'command';
+export type ThemeId = 'poster' | 'infra' | 'command' | 'current';
 
 interface Props {
   locale: 'en' | 'es';
-  current: ThemeId;
+  current: Exclude<ThemeId, 'current'>;
 }
 
 const { locale, current } = Astro.props;
 const prefix = locale === 'es' ? '/es' : '';
 
-const themes: { id: ThemeId; path: string; swatch: string; label: Record<'en' | 'es', string> }[] = [
-  { id: 'poster', path: '/v6/', swatch: '#e0251b', label: { en: 'Poster', es: 'Cartel' } },
-  { id: 'infra', path: '/v7/', swatch: '#c6f432', label: { en: 'Infra', es: 'Infra' } },
-  { id: 'command', path: '/v9/', swatch: '#8f9dff', label: { en: 'Command', es: 'Comandos' } }
+const themes: {
+  id: ThemeId;
+  path: string;
+  colors: [string, string, string];
+  label: Record<'en' | 'es', string>;
+  hint: Record<'en' | 'es', string>;
+}[] = [
+  {
+    id: 'poster',
+    path: '/v6/',
+    colors: ['#f2efe6', '#e0251b', '#1e43c8'],
+    label: { en: 'Poster', es: 'Cartel' },
+    hint: { en: 'Light, editorial', es: 'Claro, editorial' }
+  },
+  {
+    id: 'infra',
+    path: '/v7/',
+    colors: ['#0a0d13', '#c6f432', '#5cc8ff'],
+    label: { en: 'Infra', es: 'Infra' },
+    hint: { en: 'Isometric topology', es: 'Topología isométrica' }
+  },
+  {
+    id: 'command',
+    path: '/v9/',
+    colors: ['#0a0b0d', '#d4ff3a', '#8f9dff'],
+    label: { en: 'Dev', es: 'Dev' },
+    hint: { en: '⌘K command palette', es: 'Paleta de comandos ⌘K' }
+  },
+  {
+    id: 'current',
+    path: '/',
+    colors: ['#020617', '#0f172a', '#67e8f9'],
+    label: { en: 'Current', es: 'Actual' },
+    hint: { en: 'Current site', es: 'Web actual' }
+  }
 ];
 
+const active = themes.find((theme) => theme.id === current)!;
 const groupLabel = locale === 'es' ? 'Tema' : 'Theme';
+const menuId = `ts-menu-${current}`;
 ---
 
-<div class="ts" role="group" aria-label={groupLabel} data-theme-switch>
-  <span class="ts-label" aria-hidden="true">{groupLabel}</span>
-  {
-    themes.map((theme) => (
-      <a
-        class="ts-option"
-        href={`${prefix}${theme.path}`}
-        data-theme-id={theme.id}
-        aria-current={theme.id === current ? 'true' : undefined}
-        title={theme.label[locale]}
-      >
-        <span class="ts-swatch" style={`--swatch:${theme.swatch}`} aria-hidden="true" />
-        <span class="ts-name">{theme.label[locale]}</span>
-      </a>
-    ))
-  }
+<div class="ts" data-theme-switch>
+  <button
+    class="ts-trigger"
+    type="button"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls={menuId}
+    aria-label={`${groupLabel}: ${active.label[locale]}`}
+  >
+    <span class="ts-chip" aria-hidden="true">
+      {active.colors.map((color) => <span style={`background:${color}`} />)}
+    </span>
+    <span class="ts-label">{groupLabel}</span>
+    <span class="ts-current">{active.label[locale]}</span>
+    <svg class="ts-caret" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" /></svg>
+  </button>
+  <div class="ts-menu" id={menuId} hidden>
+    <p class="ts-menu-title">{groupLabel}</p>
+    <ul>
+      {
+        themes.map((theme) => (
+          <li>
+            <a
+              class="ts-option"
+              href={theme.id === 'current' ? `${prefix}/` : `${prefix}${theme.path}`}
+              data-theme-id={theme.id}
+              aria-current={theme.id === current ? 'true' : undefined}
+            >
+              <span class="ts-preview" aria-hidden="true">
+                <span style={`background:${theme.colors[0]}`} />
+                <span style={`background:${theme.colors[1]}`} />
+                <span style={`background:${theme.colors[2]}`} />
+              </span>
+              <span class="ts-text">
+                <span class="ts-name">{theme.label[locale]}</span>
+                <span class="ts-hint">{theme.hint[locale]}</span>
+              </span>
+              <svg class="ts-check" viewBox="0 0 12 10" aria-hidden="true"><path d="M1 5l3.5 3.5L11 1" /></svg>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </div>
 
 <style>
   .ts {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 3px;
-    border: 1px solid var(--ts-border, currentColor);
-    border-radius: var(--ts-radius, 999px);
-    background: var(--ts-bg, transparent);
+    position: relative;
+    display: inline-block;
     color: var(--ts-fg, inherit);
     font: var(--ts-font, inherit);
     font-size: var(--ts-size, 0.75rem);
     line-height: 1;
-    white-space: nowrap;
   }
-  .ts-label {
-    padding: 0 0.45em 0 0.55em;
-    opacity: 0.65;
-    text-transform: var(--ts-transform, none);
-    letter-spacing: var(--ts-tracking, normal);
-  }
-  .ts-option {
+  .ts-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.4em;
-    min-height: 28px;
-    padding: 0 0.65em;
-    border-radius: calc(var(--ts-radius, 999px) - 2px);
+    gap: 0.5em;
+    min-height: 32px;
+    padding: 0 0.7em 0 0.45em;
+    border: 1px solid var(--ts-border, currentColor);
+    border-radius: var(--ts-radius, 999px);
+    background: var(--ts-bg, transparent);
     color: inherit;
-    text-decoration: none;
-    text-transform: var(--ts-transform, none);
-    letter-spacing: var(--ts-tracking, normal);
-    transition:
-      background-color 160ms ease,
-      color 160ms ease;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 160ms ease;
   }
-  .ts-option:hover {
+  .ts-trigger:hover,
+  .ts-trigger[aria-expanded='true'] {
     background: var(--ts-hover, rgba(127, 127, 127, 0.16));
   }
+  .ts-trigger:focus-visible,
   .ts-option:focus-visible {
     outline: 2px solid var(--ts-focus, currentColor);
     outline-offset: 2px;
   }
-  .ts-option[aria-current='true'] {
-    background: var(--ts-active-bg, currentColor);
-    color: var(--ts-active-fg, #fff);
-  }
-  .ts-swatch {
-    width: 0.6em;
-    height: 0.6em;
-    border-radius: 50%;
-    background: var(--swatch);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  .ts-chip {
+    display: inline-flex;
+    width: 1.35em;
+    height: 1.35em;
+    overflow: hidden;
+    border-radius: calc(var(--ts-radius, 999px) / 2);
+    box-shadow: 0 0 0 1px rgba(127, 127, 127, 0.45);
     flex: none;
+  }
+  .ts-chip span {
+    flex: 1;
+  }
+  .ts-label {
+    opacity: 0.6;
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+  }
+  .ts-current {
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+  }
+  .ts-caret {
+    width: 0.65em;
+    height: 0.4em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    transition: transform 160ms ease;
+  }
+  .ts-trigger[aria-expanded='true'] .ts-caret {
+    transform: rotate(180deg);
+  }
+  .ts-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 60;
+    width: max-content;
+    min-width: 15rem;
+    padding: 6px;
+    border: 1px solid var(--ts-border, currentColor);
+    border-radius: var(--ts-radius, 12px);
+    background: var(--ts-menu-bg, var(--ts-bg, #fff));
+    color: var(--ts-menu-fg, inherit);
+    box-shadow: var(--ts-shadow, 0 18px 40px -18px rgba(0, 0, 0, 0.45));
+    animation: ts-in 140ms ease-out;
+  }
+  .ts-menu[hidden] {
+    display: none;
+  }
+  @keyframes ts-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+  .ts-menu-title {
+    margin: 0;
+    padding: 0.5em 0.6em 0.6em;
+    opacity: 0.6;
+    font-size: 0.9em;
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+  }
+  .ts-menu ul {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ts-option {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8em;
+    padding: 0.55em 0.6em;
+    border-radius: calc(var(--ts-radius, 12px) - 4px);
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 140ms ease;
+  }
+  .ts-option:hover {
+    background: var(--ts-hover, rgba(127, 127, 127, 0.16));
+  }
+  .ts-option[aria-current='true'] {
+    background: var(--ts-active-bg, rgba(127, 127, 127, 0.2));
+    color: var(--ts-active-fg, inherit);
+  }
+  .ts-preview {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    width: 2.6em;
+    height: 1.9em;
+    overflow: hidden;
+    border-radius: calc(var(--ts-radius, 12px) / 3);
+    box-shadow: 0 0 0 1px rgba(127, 127, 127, 0.45);
+  }
+  .ts-preview span:first-child {
+    grid-row: span 2;
+  }
+  .ts-text {
+    display: grid;
+    gap: 0.35em;
+  }
+  .ts-name {
+    font-weight: 600;
+    text-transform: var(--ts-transform, none);
+    letter-spacing: var(--ts-tracking, normal);
+  }
+  .ts-hint {
+    opacity: 0.6;
+    font-size: 0.92em;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 400;
+  }
+  .ts-check {
+    width: 0.9em;
+    height: 0.75em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    visibility: hidden;
+  }
+  .ts-option[aria-current='true'] .ts-check {
+    visibility: visible;
   }
   @media (max-width: 560px) {
     .ts-label,
-    .ts-name {
+    .ts-current {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -106,15 +275,25 @@ const groupLabel = locale === 'es' ? 'Tema' : 'Theme';
       clip-path: inset(50%);
       white-space: nowrap;
     }
-    .ts-option {
-      min-width: 32px;
-      min-height: 32px;
+    .ts-trigger {
+      min-width: 40px;
+      min-height: 36px;
       justify-content: center;
-      padding: 0;
+      padding: 0 0.5em;
     }
-    .ts-swatch {
-      width: 0.75rem;
-      height: 0.75rem;
+    .ts-menu {
+      position: fixed;
+      top: auto;
+      right: 12px;
+      left: 12px;
+      bottom: 12px;
+      width: auto;
+      min-width: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ts-menu {
+      animation: none;
     }
   }
 </style>
@@ -132,8 +311,46 @@ const groupLabel = locale === 'es' ? 'Tema' : 'Theme';
     return last && window.scrollY > 40 ? `#${last.id}` : '';
   };
 
-  document.querySelectorAll<HTMLElement>('[data-theme-switch]').forEach((group) => {
-    group.querySelectorAll<HTMLAnchorElement>('a[data-theme-id]').forEach((link) => {
+  document.querySelectorAll<HTMLElement>('[data-theme-switch]').forEach((root) => {
+    const trigger = root.querySelector<HTMLButtonElement>('.ts-trigger');
+    const menu = root.querySelector<HTMLElement>('.ts-menu');
+    if (!trigger || !menu) return;
+    const options = [...menu.querySelectorAll<HTMLAnchorElement>('a[data-theme-id]')];
+
+    const setOpen = (open: boolean, focusFirst = false) => {
+      trigger.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+      if (open && focusFirst) {
+        (options.find((option) => option.getAttribute('aria-current') === 'true') ?? options[0])?.focus();
+      }
+    };
+
+    trigger.addEventListener('click', () => setOpen(menu.hidden, true));
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setOpen(true, true);
+      }
+    });
+    menu.addEventListener('keydown', (event) => {
+      const index = options.indexOf(document.activeElement as HTMLAnchorElement);
+      if (event.key === 'Escape') {
+        setOpen(false);
+        trigger.focus();
+      } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        const step = event.key === 'ArrowDown' ? 1 : -1;
+        options[(index + step + options.length) % options.length]?.focus();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!menu.hidden && !root.contains(event.target as Node)) setOpen(false);
+    });
+    root.addEventListener('focusout', (event) => {
+      if (!menu.hidden && !root.contains(event.relatedTarget as Node | null) && event.relatedTarget) setOpen(false);
+    });
+
+    options.forEach((link) => {
       link.addEventListener('click', () => {
         try {
           localStorage.setItem(STORAGE_KEY, link.dataset.themeId || '');

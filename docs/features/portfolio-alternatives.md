@@ -12,6 +12,11 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - S6 (L17): "quedate con la paleta de comandos, el cartel suizo y la infrastrucutra isometrica, generame las versiones con todo eso y vamos ajustando". Only `/v6/`, `/v7/` and `/v9/` remain.
 - S7 (L17): "el orden de las secciones y el nombre debe ser las mimas que la actual". Section order and kicker/title strings must match the main site (EN from `src/pages/index.astro`, ES from `src/js/i18n.js`).
 - S8 (L17): "me gustaria tener una forma de cambiar de theme en la parte superior del menú". Shared `src/components/v3/ThemeSwitch.astro` in each theme's top bar.
+- S9 (L19): "la portada te dejo que me la varies en funcion del tema". Each theme gets its own hero composition; the long four-paragraph summary is no longer shown in full by default.
+- S10 (L19): "el selector de tema estaria bien que fuera un poco diferente. la de comandos me gustaria que se llamara dev". The switcher becomes a "Tema"/"Theme" menu item with a popover; the command theme is labelled "Dev". The current site is offered as a fourth option ("Actual"/"Current") while the owner decides whether to keep it (assumption).
+- S11 (L19): "lo de contacto no me gusta ninguda de las formas, tampoco la actual, quiero algo mejor pero que no parezca que estoy buscando trabajo, no queda bien para mi empresa." New contact title and text in the three themes; no availability or hiring wording. The main site is not changed (S4).
+- S12 (L19): "en cuanto a las carateristicas a mostrar igual el numero de skill y años aportan mucho, me gustaria explorar otras opcoines." Each theme shows a different set of hero facts (no years or skill count) so the owner can compare them.
+- S13 (L19): "quiero que me revises los 3 pdf que ya regeneré para si tiene sentido mantenerlos o dejar solo 1 y cual seria mejor." Read-only review; recommendation reported to the owner.
 - S5 (assumption): alternative routes are `noindex` and point their canonical at the main pages, so search engines do not see duplicate content.
 
 ## Tasks
@@ -34,6 +39,11 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T14 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
 | T15 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
 | T16 | S6, S7, S8 | delegated (parallel writers) | done | L17, L18 |
+| T17 | S10, S11   | inline | in progress | L19 |
+| T18 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
+| T19 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
+| T20 | S9, S12    | delegated (parallel writers, disjoint surfaces) | pending | L19 |
+| T21 | S13        | inline (read-only) | done | L19 |
 
 ## Non-goals
 
@@ -101,3 +111,6 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - fixed the "dieñadas" typo in `resume.es.json`
 
   Open items: the contact description "Available for…" is the main site's copy and close to the availability claim the owner rejected; v6 and v7 show "David Barreiro" and "12", while v9 and the main site show the full name and "12+".
+
+- L19 (2026-11-25, owner): "el mismo orden y menu si, faltaria añadir para el tema. la portada te dejo que me la varies en funcion del tema y quiero que me revises los 3 pdf que ya regeneré para si tiene sentido mantenerlos o dejar solo 1 y cual seria mejor. el selector de tema estaria bien que fuera un poco diferente. la de comandos me gustaria que se llamara dev, las otras dos no se bien aun como, ni si mantender tambien la actual. lo de contacto no me gusta ninguda de las formas, tampoco la actual, quiero algo mejor pero que no parezca que estoy buscando trabajo, no queda bien para mi empresa. para el nombre biem pero en cuanto a las carateristicas a mostrar igual el numero de skill y años aportan mucho, me gustaria explorar otras opcoines."
+  PDF review (T21): `cv-jsonresume.pdf` was not regenerated (still shows SDG as current, no Factorial) and is a rasterised copy of the professional template; `cv-one-page.pdf` runs to 4 pages, omits company names and certificates, and prints each project description twice; `cv-professional.pdf` is complete and text-based but has an overlapping CI/CD and Cloud column on page 1 and runs to 4 pages. Recommendation: keep only the professional one.
