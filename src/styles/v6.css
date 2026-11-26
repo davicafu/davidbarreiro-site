@@ -168,11 +168,13 @@
   padding: 0 1.1rem;
   font-size: 0.95rem;
 }
-.sp .sp-btn-line {
+/* Outline button on paper. `a.` matches the specificity of `.sp a.sp-btn`, which would
+   otherwise paint the label white on the transparent fill. */
+.sp a.sp-btn-line {
   background: transparent;
   color: var(--ink);
 }
-.sp .sp-btn-line:hover {
+.sp a.sp-btn-line:hover {
   background: var(--ink);
   border-color: var(--ink);
   color: #fff;
@@ -187,8 +189,10 @@
   border-color: #fff;
   color: var(--ink);
 }
+/* Secondary button on the red contact field: a paper fill keeps the ink label at AA contrast
+   (ink on red alone is about 4:1). */
 .sp a.sp-btn-ghost {
-  background: transparent;
+  background: var(--paper);
   border-color: var(--ink);
   color: var(--ink);
 }
@@ -576,6 +580,19 @@
   color: var(--red);
 }
 
+/* GitHub / LinkedIn glyphs: flat, sized to the text, drawn in the link colour */
+.sp-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+.sp-icon {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+
 /* Theme menu (shared component, styled through its --ts-* properties) */
 .sp-bar-end {
   --ts-border: var(--ink);
@@ -857,7 +874,6 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.8;
 }
 .sp-stage.is-swapping :is(.sp-stage-num, .sp-stage-name, .sp-stage-detail, .sp-stage-tech) {
   animation: sp-swap 0.45s var(--ease) both;
