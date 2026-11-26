@@ -108,15 +108,16 @@
       "name": "Factorial",
       "position": "Senior Software Engineer",
       "startDate": "2026-10",
-      "summary": "I keep the data platform behind Factorial's reporting and analytics reliable and fast: the event pipeline (Kafka → ClickHouse), the data quality checks, and the analytics query engine.",
-      "tech": ["Kafka", "ClickHouse", "CubeQL", "MySQL", "Datadog"],
+      "summary": "I keep the data platform behind Factorial's reporting and analytics reliable and fast: the event pipeline (MySQL → Kafka → ClickHouse), the data quality checks, and the analytics query engine.",
+      "tech": ["MySQL", "Kafka", "ClickHouse", "Go"],
       "highlights": [
-        "Data quality: I trace discrepancies between MySQL, the data lake and ClickHouse to their root cause and fix them at the source. I also extended the automated repair process so it fixes more cases without manual work.",
-        "Analytics performance: I optimized our query engine's SQL generation (CubeQL) and the ClickHouse views behind it, with narrow views that read only the columns needed, one query per dashboard instead of one per widget, and fewer redundant reads. Some views now read about 6x fewer rows.",
-        "Reliability: I diagnosed and fixed production issues in multi-region Kafka consumers and materialized views, and I maintain Datadog monitors and observability dashboards.",
-        "Approach: I validate every change by replaying real production queries before shipping, then check the result once it is live.",
-        "Data visualization: I design and build internal dashboards (data quality, ClickHouse lineage and performance) that show teams the health and cost of the platform, and I work on the engine behind the analytics dashboards our customers use.",
-        "Customer-facing: I work with Account Managers to understand what customers need from their reports and turn it into concrete data and performance improvements."
+        "Maintain and improve the reliability and performance of Factorial's data platform and analytics infrastructure.",
+        "Ensure data quality and consistency across data sources, identifying and resolving discrepancies and automating data correction processes.",
+        "Optimize analytics query engines and data models to improve query performance and scalability.",
+        "Troubleshoot production issues across distributed data pipelines and maintain platform observability and monitoring.",
+        "Design and develop internal dashboards to monitor data quality, platform performance and infrastructure costs.",
+        "Develop and improve customer-facing analytics and reporting capabilities in collaboration with Account Managers, translating customer needs into technical solutions.",
+        "Ship features through AI-agent workflows (Claude Code) with adaptive spec-driven development and human review of every change."
       ]
     },
     {
@@ -179,7 +180,7 @@
         "Implemented ingestion processes from DB2, AS/400 and SQL Server systems.",
         "Optimized data processing workflows based on MapReduce paradigms.",
         "Improved platform stability, performance and operational efficiency.",
-        "Collaboration in the management of a SLURM cluster (Simple Linux Utiliy for Resource Management)"
+        "Collaboration in the management of a SLURM cluster (Simple Linux Utility for Resource Management)"
       ]
     }
   ],
@@ -269,7 +270,7 @@
           "logo": "./assets/logos/clickhouse.svg"
         },
         {
-          "name": "MariaDb",
+          "name": "MariaDB",
           "level": "Advanced",
           "notes": "",
           "logo": "./assets/logos/mariadb.svg"
@@ -300,7 +301,7 @@
       "keywords": [
         {
           "name": "Kafka",
-          "level": "Advanced",
+          "level": "Expert",
           "notes": "",
           "logo": "./assets/logos/kafka.svg"
         },
@@ -320,7 +321,7 @@
         },
         {
           "name": "Flink",
-          "level": "Intemediate",
+          "level": "Intermediate",
           "notes": "",
           "logo": "./assets/logos/flink.svg"
         },
@@ -332,17 +333,17 @@
         },
         {
           "name": "RabbitMQ",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/rabbitmq.svg"
         },
         {
           "name": "DBT",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/dbt.svg"
         },
         {
           "name": "Airflow",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/airflow.svg"
         }
       ]
@@ -353,7 +354,7 @@
       "keywords": [
         {
           "name": "Agentic Systems",
-          "level": "Intermediate",
+          "level": "Advanced",
           "notes": "Designing autonomous workflows where AI agents execute tasks under structured control and goals",
           "logo": "Agentic"
         },
@@ -364,14 +365,14 @@
           "logo": "Context"
         },
         {
-          "name": "LLM Integration",
-          "level": "Intermediate",
-          "notes": "Integrating LLMs into backend systems, APIs and workflows for real-world applications",
-          "logo": "LLM"
+          "name": "Adaptive Spec-Driven Development",
+          "level": "Expert",
+          "notes": "Specs, tasks and verification scaled to each change: a small fix goes straight in, a larger feature gets tracked specs, tasks and tests",
+          "logo": "SDD"
         },
         {
           "name": "Human-in-the-Loop Development",
-          "level": "Intermediate",
+          "level": "Expert",
           "notes": "AI-accelerated development guided by human architecture, decisions and validation",
           "logo": "Human + IA"
         }
@@ -394,7 +395,7 @@
         },
         {
           "name": "Docker",
-          "level": "Expert",
+          "level": "Advanced",
           "notes": "",
           "logo": "./assets/logos/docker.svg"
         },
@@ -418,17 +419,17 @@
       "keywords": [
         {
           "name": "AWS",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/aws.svg"
         },
         {
           "name": "Azure",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/azure.svg"
         },
         {
           "name": "Google Cloud",
-          "level": "intermediate",
+          "level": "Intermediate",
           "logo": "./assets/logos/gcp.svg"
         }
       ]
