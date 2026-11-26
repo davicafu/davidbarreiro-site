@@ -64,6 +64,30 @@ function link(url, text) {
   return url ? `<a href="${escapeHtml(url)}">${escapeHtml(text)}</a>` : escapeHtml(text);
 }
 
+// Decorative 24x24 monochrome glyphs for the header contacts; they inherit the text colour.
+const ICON_PATHS = {
+  web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
+  email: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>',
+  phone:
+    '<path d="M6.6 3.5h2.6l1.4 4.2-2 1.5a12 12 0 0 0 6.2 6.2l1.5-2 4.2 1.4v2.6a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/>',
+  location: '<path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  linkedin:
+    '<rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M8 10.5V16M8 7.6v.1M11.5 16v-5.5M11.5 13c0-1.6 1-2.6 2.3-2.6S16 11.2 16 13v3"/>',
+  github:
+    '<path d="M9 19c-4 1.3-4-2-5.5-2.5M14.5 21v-3.4c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.3 4.3 0 0 0-.1-3.2s-1-.3-3.4 1.3a11.6 11.6 0 0 0-6 0C6.3 2.9 5.3 3.2 5.3 3.2a4.3 4.3 0 0 0-.1 3.2A4.6 4.6 0 0 0 3.9 9.6c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/>'
+};
+
+function icon(name) {
+  const paths = ICON_PATHS[name];
+  return paths
+    ? `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths}</svg>`
+    : '';
+}
+
+function contact(iconName, url, text) {
+  return `<span class="contact">${icon(iconName)}${link(url, text)}</span>`;
+}
+
 // "2026-10" -> "Oct 2026"; "2008" -> "2008"; missing -> "Current".
 function formatDate(value) {
   if (!value) return 'Current';
@@ -82,10 +106,12 @@ function section(title, body) {
 function renderHeader(basics, photoUrl) {
   const location = [basics.location?.city, basics.location?.countryCode].filter(Boolean).join(', ');
   const contacts = [
-    link(SITE_URL, displayUrl(SITE_URL)),
-    basics.email && link(`mailto:${basics.email}`, basics.email),
-    basics.phone && link(`tel:${basics.phone.replace(/\s+/g, '')}`, basics.phone),
-    ...(basics.profiles || []).map((profile) => link(profile.url, displayUrl(profile.url)))
+    contact('web', SITE_URL, displayUrl(SITE_URL)),
+    basics.email && contact('email', `mailto:${basics.email}`, basics.email),
+    basics.phone && contact('phone', `tel:${basics.phone.replace(/\s+/g, '')}`, basics.phone),
+    ...(basics.profiles || []).map((profile) =>
+      contact(String(profile.network || '').toLowerCase(), profile.url, displayUrl(profile.url))
+    )
   ].filter(Boolean);
   const summary = String(basics.summary || '')
     .split(/\n+/)
@@ -97,7 +123,7 @@ function renderHeader(basics, photoUrl) {
     <div class="identity">
       <h1>${escapeHtml(basics.name)}</h1>
       <p class="label">${escapeHtml(basics.label)}</p>
-      <p class="location">${escapeHtml(location)}</p>
+      <p class="location">${location ? `<span class="contact">${icon('location')}${escapeHtml(location)}</span>` : ''}</p>
       <p class="contacts">${contacts.join('<span class="sep">·</span>')}</p>
     </div>
     ${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="">` : ''}
@@ -191,6 +217,9 @@ const STYLES = `
   .location { color: var(--muted); margin-top: 0.6mm; }
   .contacts { margin-top: 1.4mm; display: flex; flex-wrap: wrap; }
   .contacts a { white-space: nowrap; }
+  .contact { display: inline-flex; align-items: center; gap: 1mm; white-space: nowrap; }
+  .icon { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.8;
+          stroke-linecap: round; stroke-linejoin: round; }
   .sep { color: var(--muted); margin: 0 1.6mm; }
   .photo { width: 26mm; height: 26mm; object-fit: cover; border-radius: 1.5mm; flex: none; }
   .summary { margin-top: 2.6mm; }
