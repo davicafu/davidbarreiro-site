@@ -66,10 +66,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T25 | S17        | inline | done | L22, faa46cf |
 | T26 | S18        | inline | done | L22, f8e9901 |
 | T27 | S20, S21, S22 | inline | done | L23, 5b43db6 |
-| T28 | S19        | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
-| T29 | S20, S26, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
-| T30 | S20, S27, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
-| T31 | S20, S23, S24, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
+| T28 | S19        | delegated (parallel writers, disjoint surfaces) | done | L23, ca91d1d, 9ebbaa6 |
+| T29 | S20, S26, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, da18f56 |
+| T30 | S20, S27, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 9ad7367 |
+| T31 | S20, S23, S24, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 236ce4c |
 
 ## Non-goals
 
@@ -157,3 +157,8 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - `/editorial/` and `/live/` are the theme routes, and `/v6/` and `/v7/` redirect to them.
   - The AI skills get the `ai-*.svg` icons.
   - Tests: 7/7.
+  T28–T31 integrated:
+  - build OK; `node --test tests/astro-parity/*.test.js tests/*.test.js`: 7/7
+  - v9 probe ALL PASS (147 checks, including Meta+K and Ctrl+K typing, the held-key repeat and per-OS labels); v7 and v6 probes report `errors []`
+  - Root cause of the ⌘K report: keyboard auto-repeat toggled the palette closed, so typing fell back into the hero palette. Repeated keydown events are now ignored.
+  - Open: S25 (playable retro games, proposed as a separate `/play/` page with Go→WASM) and S29 (capability metrics need the owner's numbers). "LLM Integration" vs "Spec-Driven Development" is waiting for the owner's answer.
