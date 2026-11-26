@@ -22,6 +22,17 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - S16 (L22): "si, solo un pdf en descargar pdf y si prefieres otro texto mejor para el boton tambien me vale." Every theme links only `/cv-professional.pdf`, with the label "Download CV" / "Descargar CV".
 - S17 (L22): "dale a las capabiliete cards otra opcion". Each card states a claim and lists concrete evidence with where it was done, taken from `resume.json`.
 - S18 (L22): "si, por defecto dev para / y /es". `/` and `/es/` render Dev and are indexable. The old site is no longer routed, the theme menu drops "Actual", and `/v9/` and `/es/v9/` redirect home.
+- S19 (L23, CV): "en el cv, podrías meter los icons en la cabecera donde haga referencia y tenga sentido linkedinm github, sitio web etc"
+- S20 (L23, data): "no se si tiene sentido en factorial poner ruby ya que yo lo estoy haciendo todo con claude a traves de ai egineer". "la parte de kafka clickhouse en dodne salga deberia ser Mysql kafka clickhouse, en el now por ejemplo". Factorial tech is now `MySQL, Kafka, ClickHouse, Go`; `nowPipeline` in previewContent is the shared hero pipeline.
+- S21 (L23, skills): "en los iconos de ai de skills no salen, deberian asginarles unos que peguen con lo que ientente rerepesentar, ademas revisa eso sconceptos si casan con lo que stoy haciendo"
+- S22 (L23, routes): "los themes estan sobre v7 y v9 deberain estar mejor sobre otros enpoints no? y que no afecten a los enlaces esperiencias o demas". Routes are now `/editorial/` and `/live/`, and the old ones redirect.
+- S23 (L23, Dev): "no se podria aprovechar mi logo actual aunque sea cambiando los tonos? me gustaria conservar el verde y amarillo aun fuera otra tonalidad (crea una copia, el actual no borres el archvio)"
+- S24 (L23, Dev): "si pulso comandoK me sale lo de buscar pero no escribe nada, por otro lado realmente actua como un buscador global solamente no? pero deberia funcionar biem y si es linux o windows deberia ser control k, lo puedes configurar para que aparezca segun sistema? ademas la ayuda tal como esta no ayuda mucho ni es clara,"
+- S25 (L23, Dev, question): "se podria intregar sin problemas aqui mi repo retro-games-collection para que se pudiera jugar? o no seria viable?"
+- S26 (L23, Editorial): "en la parte de como planfiica datos deberias cambiar los colores igual que hiciste en los proyectos y el boton de descargar cv con la letra en blanco y ese fondo apenas se ve"
+- S27 (L23, Live): "el icono de la web que sale arriba no me gusta, busca algo mejor. y el pipeline de ruby go kafka tampoco, no creo que ruby deba reportarlo tan alegremente. los iconos de los proyectos que les pones tampoco me gustan mucho, me gustaria que fueran algo relacionado con el tema del repo, en la parte de como diseño me gusta mucho pero en la parte de simulated telemetry siempre sale lo mismo, tendria sentido que se cambiaran segun la seccion que se esta diseñando?"
+- S28 (L23, all themes): "en donde haya linkendni o github no estaria mejor tambien poner su icono? con como corresponda mejor con el estilo del tema de la web?"
+- S29 (L23, question): "como se podrian generar la capabilities mejor para que aportasen valor?"
 - S5 (assumption): alternative routes are `noindex` and point their canonical at the main pages, so search engines do not see duplicate content.
 
 ## Tasks
@@ -54,6 +65,11 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T24 | S16        | inline | done | L22, 5898ba1 |
 | T25 | S17        | inline | done | L22, faa46cf |
 | T26 | S18        | inline | done | L22, f8e9901 |
+| T27 | S20, S21, S22 | inline | done | L23, 5b43db6 |
+| T28 | S19        | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
+| T29 | S20, S26, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
+| T30 | S20, S27, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
+| T31 | S20, S23, S24, S28 | delegated (parallel writers, disjoint surfaces) | in progress | L23 |
 
 ## Non-goals
 
@@ -135,3 +151,9 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - v6, v7 and v9 probes pass with no errors.
 
   Old site components (`src/components/sections`, `BaseLayout`, `src/js`, Tailwind) are no longer routed. Deleting them is a pending follow-up for the owner to approve. The other two PDFs are still copied to `public/` so old links keep working.
+- L23 (2026-11-26, owner): "vale en español, vayamos por partes: en el cv, podrías meter los icons en la cabecera donde haga referencia y tenga sentido linkedinm github, sitio web etc / no se si tiene sentido en factorial poner ruby ya que yo lo estoy haciendo todo con claude a traves de ai egineer / en los iconos de ai de skills no salen, deberian asginarles unos que peguen con lo que ientente rerepesentar, ademas revisa eso sconceptos si casan con lo que stoy haciendo / los themes estan sobre v7 y v9 deberain estar mejor sobre otros enpoints no? y que no afecten a los enlaces esperiencias o demas / en dev: - no se podria aprovechar mi logo actual aunque sea cambiando los tonos? me gustaria conservar el verde y amarillo aun fuera otra tonalidad (crea una copia, el actual no borres el archvio) - si pulso comandoK me sale lo de buscar pero no escribe nada, por otro lado realmente actua como un buscador global solamente no? pero deberia funcionar biem y si es linux o windows deberia ser control k, lo puedes configurar para que aparezca segun sistema? ademas la ayuda tal como esta no ayuda mucho ni es clara, -se podria intregar sin problemas aqui mi repo retro-games-collection para que se pudiera jugar? o no seria viable? / en la de editorial, en la parte de como planfiica datos deberias cambiar los colores igual que hiciste en los proyectos y el boton de descargar cv con la letra en blanco y ese fondo apenas se ve / en la de infra, el icono de la web que sale arriba no me gusta, busca algo mejor. y el pipeline de ruby go kafka tampoco, no creo que ruby deba reportarlo tan alegremente los iconos de los proyectos que les pones tampoco me gustan mucho, me gustaria que fueran algo relacionado con el tema del repo, en la parte de como diseño me gusta mucho pero en la parte de simulated telemetry siempre sale lo mismo, tendria sentido que se cambiaran segun la seccion que se esta diseñando? / en general ya, como se podrian generar la capabilities mejor para que aportasen valor? ahora creo que estan algo mejor eso si, en donde haya linkendni o github no estaria mejor tambien poner su icono? con como corresponda mejor con el estilo del tema de la web? / la parte de kafka clickhouse en dodne salga deberia ser Mysql kafka clickhouse, en el now por ejemplo"
+  T27 (inline, 5b43db6):
+  - Ruby is dropped from the Factorial tech. This is in `resume.json` too, which stays unstaged because the owner has edits there.
+  - `/editorial/` and `/live/` are the theme routes, and `/v6/` and `/v7/` redirect to them.
+  - The AI skills get the `ai-*.svg` icons.
+  - Tests: 7/7.
