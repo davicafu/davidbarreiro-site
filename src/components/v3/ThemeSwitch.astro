@@ -1,6 +1,6 @@
 ---
 /**
- * Theme menu shared by the themes: Dev (/, the default), Editorial (/editorial/) and Live (/live/).
+ * Theme menu shared by the themes, in this order: Dev (/, the default), Live (/live/) and Editorial (/editorial/).
  * Each theme is its own page, so switching is a link that keeps the locale and the section
  * the visitor is reading. It renders as a "Theme" menu button with a popover listing the
  * themes. Pages style it through the --ts-* custom properties; the defaults are neutral.
@@ -23,11 +23,11 @@ const themes: {
   hint: Record<'en' | 'es', string>;
 }[] = [
   {
-    id: 'poster',
-    path: '/editorial/',
-    colors: ['#f2efe6', '#e0251b', '#1e43c8'],
-    label: { en: 'Editorial', es: 'Editorial' },
-    hint: { en: 'Typographic, light', es: 'Tipográfico, claro' }
+    id: 'command',
+    path: '/',
+    colors: ['#0a0b0d', '#d4ff3a', '#8f9dff'],
+    label: { en: 'Dev', es: 'Dev' },
+    hint: { en: '⌘K command palette', es: 'Paleta de comandos ⌘K' }
   },
   {
     id: 'infra',
@@ -37,11 +37,11 @@ const themes: {
     hint: { en: 'Live telemetry, dark', es: 'Telemetría en directo, oscuro' }
   },
   {
-    id: 'command',
-    path: '/',
-    colors: ['#0a0b0d', '#d4ff3a', '#8f9dff'],
-    label: { en: 'Dev', es: 'Dev' },
-    hint: { en: '⌘K command palette', es: 'Paleta de comandos ⌘K' }
+    id: 'poster',
+    path: '/editorial/',
+    colors: ['#f2efe6', '#e0251b', '#1e43c8'],
+    label: { en: 'Editorial', es: 'Editorial' },
+    hint: { en: 'Typographic, light', es: 'Tipográfico, claro' }
   }
 ];
 

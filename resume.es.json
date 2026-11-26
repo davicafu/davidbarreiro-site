@@ -303,7 +303,7 @@
       "keywords": [
         {
           "name": "Kafka",
-          "level": "Avanzado",
+          "level": "Experto",
           "notes": "",
           "logo": "./assets/logos/kafka.svg"
         },
@@ -356,7 +356,7 @@
       "keywords": [
         {
           "name": "Agentic Systems",
-          "level": "Intermedio",
+          "level": "Avanzado",
           "notes": "Diseño de flujos autónomos donde agentes de IA ejecutan tareas bajo control estructurado y objetivos definidos",
           "logo": "Agentic"
         },
@@ -368,13 +368,13 @@
         },
         {
           "name": "Adaptive Spec-Driven Development",
-          "level": "Intermedio",
+          "level": "Experto",
           "notes": "Especificaciones, tareas y verificación proporcionales a cada cambio: un ajuste pequeño se hace directamente y una funcionalidad grande lleva especificaciones, tareas y tests trazados",
           "logo": "SDD"
         },
         {
           "name": "Human-in-the-Loop Development",
-          "level": "Intermedio",
+          "level": "Experto",
           "notes": "Desarrollo acelerado por IA guiado por arquitectura, decisiones y validación humana",
           "logo": "Humano + IA"
         }
@@ -397,7 +397,7 @@
         },
         {
           "name": "Docker",
-          "level": "Experto",
+          "level": "Avanzado",
           "notes": "",
           "logo": "./assets/logos/docker.svg"
         },
