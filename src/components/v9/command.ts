@@ -453,20 +453,6 @@ function setupPipeline(payload: Payload) {
   }
 }
 
-/* ---------------- CV menu ---------------- */
-function setupCvMenu() {
-  document.querySelectorAll<HTMLDetailsElement>('[data-cv]').forEach((menu) => {
-    document.addEventListener('click', (event) => {
-      if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
-    });
-    menu.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && menu.open) {
-        menu.open = false;
-        menu.querySelector('summary')?.focus();
-      }
-    });
-  });
-}
 
 /* ---------------- Copy buttons ---------------- */
 function setupCopyButtons() {
@@ -599,7 +585,6 @@ setupHeroPalette();
 setupDialog();
 setupHelp();
 if (data) setupPipeline(data);
-setupCvMenu();
 setupCopyButtons();
 setupFilter(data?.labels.showing ?? '{n} / {n}');
 setupReveal();

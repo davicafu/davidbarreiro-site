@@ -226,7 +226,7 @@ export function getPreviewContent(locale: Locale) {
     githubUrl,
     linkedinUrl,
     copy,
-    cvUrl: '/cv-one-page.pdf',
+    cvUrl: '/cv-professional.pdf',
     work,
     education,
     timeline: [...work, ...education].sort((a, b) => b.start - a.start),
@@ -235,12 +235,7 @@ export function getPreviewContent(locale: Locale) {
     skills,
     skillGroups,
     certificates: (resume.certificates || []).map((cert) => cert.name),
-    certificateDetails: (resume.certificates || []).map(toCertificate),
-    cvOptions: [
-      { href: '/cv-one-page.pdf', key: 'onePage' },
-      { href: '/cv-professional.pdf', key: 'professional' },
-      { href: '/cv-jsonresume.pdf', key: 'jsonresume' }
-    ] as const
+    certificateDetails: (resume.certificates || []).map(toCertificate)
   };
 }
 

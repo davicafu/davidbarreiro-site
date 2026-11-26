@@ -31,12 +31,7 @@ const t = {
     langLabel: 'Language',
     skip: 'Skip to content',
     contact: 'Contact',
-    cv: 'Download PDF',
-    cvOptions: {
-      onePage: ['One Page', 'Compact'],
-      professional: ['Professional', 'Formal'],
-      jsonresume: ['JSONResume', 'Structured']
-    },
+    cv: 'Download CV',
     facts: { label: 'At a glance', now: 'Now', certified: 'Certified', projects: 'Personal projects' },
     moreSummary: 'Read the full summary',
     lessSummary: 'Hide the full summary',
@@ -99,12 +94,7 @@ const t = {
     langLabel: 'Idioma',
     skip: 'Saltar al contenido',
     contact: 'Contacto',
-    cv: 'Descargar PDF',
-    cvOptions: {
-      onePage: ['Una página', 'Compacto'],
-      professional: ['Profesional', 'Formal'],
-      jsonresume: ['JSONResume', 'Estructurado']
-    },
+    cv: 'Descargar CV',
     facts: { label: 'En resumen', now: 'Ahora', certified: 'Certificaciones', projects: 'Proyectos personales' },
     moreSummary: 'Leer el resumen completo',
     lessSummary: 'Ocultar el resumen completo',
@@ -265,21 +255,7 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
           <div class="sp-hero-cta">
           <div class="sp-actions">
             <a class="sp-btn" href={`mailto:${c.email}`}>{t.contact}</a>
-            <details class="sp-cv" data-cv>
-              <summary class="sp-btn sp-btn-line">{t.cv}</summary>
-              <ul>
-                {
-                  c.cvOptions.map((option) => (
-                    <li>
-                      <a href={option.href} target="_blank" rel="noopener noreferrer">
-                        <strong>{t.cvOptions[option.key][0]}</strong>
-                        <span>{t.cvOptions[option.key][1]}</span>
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </details>
+            <a class="sp-btn sp-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.cv}</a>
           </div>
           <p class="sp-links">
             <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>

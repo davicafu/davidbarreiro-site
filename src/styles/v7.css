@@ -652,59 +652,6 @@
   flex-wrap: wrap;
   gap: 0.75rem;
 }
-.cy-cv {
-  position: relative;
-}
-.cy-cv summary {
-  list-style: none;
-}
-.cy-cv summary::-webkit-details-marker {
-  display: none;
-}
-.cy-cv summary::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  margin: -3px 0 0 0.2rem;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  transition: transform 0.2s;
-}
-.cy-cv[open] summary::after {
-  transform: rotate(-135deg) translate(-2px, -2px);
-}
-.cy-cv ul {
-  position: absolute;
-  z-index: 30;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  width: min(17rem, calc(100vw - 2rem));
-  margin: 0;
-  padding: 0.35rem;
-  list-style: none;
-  background: var(--panel);
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius);
-  box-shadow: 0 20px 50px rgb(0 0 0 / 0.5);
-}
-.cy-cv a {
-  display: grid;
-  gap: 0.15rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 7px;
-  text-decoration: none;
-}
-.cy-cv a:hover {
-  background: var(--panel-2);
-}
-.cy-cv strong {
-  font-weight: 600;
-}
-.cy-cv span {
-  color: var(--text-3);
-  font-size: 0.82rem;
-}
 .cy-links {
   display: flex;
   gap: 1.25rem;
@@ -2070,10 +2017,6 @@
 @media (max-width: 480px) {
   .cy-node-verb {
     display: none;
-  }
-  .cy-cv ul {
-    left: auto;
-    right: 0;
   }
   .cy-brand span {
     display: none;

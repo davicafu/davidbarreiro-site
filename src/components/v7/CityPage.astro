@@ -28,12 +28,7 @@ const t = {
     sections: 'Sections',
     langLabel: 'Language selector',
     heroContact: 'Contact',
-    downloadPdf: 'Download PDF',
-    cvOptions: {
-      onePage: ['One Page', 'Compact'],
-      professional: ['Professional', 'Formal'],
-      jsonresume: ['JSONResume', 'Structured']
-    },
+    downloadPdf: 'Download CV',
     fullSummary: 'Read the full summary',
     ready: 'Ready',
     facts: {
@@ -115,12 +110,7 @@ const t = {
     sections: 'Secciones',
     langLabel: 'Selector de idioma',
     heroContact: 'Contacto',
-    downloadPdf: 'Descargar PDF',
-    cvOptions: {
-      onePage: ['Una página', 'Compacto'],
-      professional: ['Profesional', 'Formal'],
-      jsonresume: ['JSONResume', 'Estructurado']
-    },
+    downloadPdf: 'Descargar CV',
     fullSummary: 'Leer el resumen completo',
     ready: 'Operativo',
     facts: {
@@ -569,21 +559,7 @@ const heroRack = [0, 1, 2].map((k) => {
             <a class="cy-btn" href={`mailto:${c.email}`}>{t.heroContact}</a>
             <a class="cy-btn cy-btn-line" href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub</a>
             <a class="cy-btn cy-btn-line" href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <details class="cy-cv" data-cv>
-              <summary class="cy-btn cy-btn-line">{t.downloadPdf}</summary>
-              <ul>
-                {
-                  c.cvOptions.map((option) => (
-                    <li>
-                      <a href={option.href} target="_blank" rel="noopener noreferrer">
-                        <strong>{t.cvOptions[option.key][0]}</strong>
-                        <span>{t.cvOptions[option.key][1]}</span>
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </details>
+            <a class="cy-btn cy-btn-line" href={c.cvUrl} target="_blank" rel="noopener noreferrer">{t.downloadPdf}</a>
           </div>
         </div>
 

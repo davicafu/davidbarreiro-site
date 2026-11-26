@@ -40,12 +40,7 @@ const t = {
     readMore: 'Read more',
     readLess: 'Read less',
     contact: 'Contact',
-    cv: 'Download PDF',
-    cvOptions: {
-      onePage: ['One Page', 'Compact'],
-      professional: ['Professional', 'Formal'],
-      jsonresume: ['JSONResume', 'Structured']
-    },
+    cv: 'Download CV',
     searchAll: 'Search everything',
     readout: {
       title: 'Profile',
@@ -105,7 +100,7 @@ const t = {
     },
     cmd: {
       section: 'Section',
-      cv: 'Download PDF',
+      cv: 'Download CV',
       copy: 'Copy email address',
       mail: 'Send an email',
       lang: 'Switch to Spanish',
@@ -204,12 +199,7 @@ const t = {
     readMore: 'Leer más',
     readLess: 'Leer menos',
     contact: 'Contacto',
-    cv: 'Descargar PDF',
-    cvOptions: {
-      onePage: ['Una página', 'Compacto'],
-      professional: ['Profesional', 'Formal'],
-      jsonresume: ['JSONResume', 'Estructurado']
-    },
+    cv: 'Descargar CV',
     searchAll: 'Buscar en todo',
     readout: {
       title: 'Perfil',
@@ -269,7 +259,7 @@ const t = {
     },
     cmd: {
       section: 'Sección',
-      cv: 'Descargar PDF',
+      cv: 'Descargar CV',
       copy: 'Copiar el email',
       mail: 'Enviar un email',
       lang: 'Cambiar a inglés',
@@ -426,16 +416,16 @@ const groups: CommandGroup[] = [
     key: 'actions',
     label: t.groups.actions,
     items: [
-      ...c.cvOptions.map((option) => ({
-        id: `cv-${option.key}`,
-        label: `${t.cmd.cv} · ${t.cvOptions[option.key][0]}`,
+      {
+        id: 'cv',
+        label: t.cmd.cv,
         meta: 'PDF',
         keywords: 'cv resume curriculum pdf',
         icon: 'download' as const,
-        href: option.href,
+        href: c.cvUrl,
         action: 'go' as const,
         external: true
-      })),
+      },
       { id: 'copy-email', label: t.cmd.copy, meta: c.email, keywords: 'email mail contact', icon: 'copy', href: `mailto:${c.email}`, action: 'copy', value: c.email },
       { id: 'mail', label: t.cmd.mail, meta: c.email, keywords: 'email mail contact', icon: 'mail', href: `mailto:${c.email}`, action: 'go' },
       { id: 'lang', label: t.cmd.lang, meta: t.other.code, keywords: 'language idioma english español', icon: 'globe', href: t.other.href, action: 'go' },
@@ -599,23 +589,9 @@ const groups: CommandGroup[] = [
             <a class="cp-btn" href={`mailto:${c.email}`}>
               <Icon name="mail" />{t.contact}
             </a>
-            <details class="cp-cv" data-cv>
-              <summary class="cp-btn">
-                <Icon name="download" />{t.cv}
-              </summary>
-              <ul>
-                {
-                  c.cvOptions.map((option) => (
-                    <li>
-                      <a href={option.href} target="_blank" rel="noopener noreferrer">
-                        <strong>{t.cvOptions[option.key][0]}</strong>
-                        <span>{t.cvOptions[option.key][1]}</span>
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </details>
+            <a class="cp-btn" href={c.cvUrl} target="_blank" rel="noopener noreferrer">
+              <Icon name="download" />{t.cv}
+            </a>
           </div>
           <p class="cp-links">
             <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub<Icon name="external" /></a>

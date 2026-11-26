@@ -576,55 +576,6 @@
   color: var(--red);
 }
 
-/* CV menu */
-.sp-cv {
-  position: relative;
-}
-.sp-cv summary {
-  list-style: none;
-}
-.sp-cv summary::-webkit-details-marker {
-  display: none;
-}
-.sp-cv summary::after {
-  content: '';
-  width: 0.45rem;
-  height: 0.45rem;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  transform: translateY(-2px) rotate(45deg);
-  transition: transform 0.2s var(--ease);
-}
-.sp-cv[open] summary::after {
-  transform: translateY(2px) rotate(-135deg);
-}
-.sp-cv ul {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  width: min(19rem, 80vw);
-  background: var(--card);
-  border: 2px solid var(--ink);
-  box-shadow: 8px 8px 0 var(--ink);
-  animation: sp-pop 0.18s var(--ease);
-}
-.sp-cv li + li {
-  border-top: 1px solid var(--rule);
-}
-.sp-cv li a {
-  display: grid;
-  padding: 0.75rem 0.9rem;
-  text-decoration: none;
-}
-.sp-cv li a:hover {
-  background: var(--ochre);
-}
-.sp-cv li span {
-  font-size: 0.88rem;
-  color: var(--ink-2);
-}
-
 /* Theme menu (shared component, styled through its --ts-* properties) */
 .sp-bar-end {
   --ts-border: var(--ink);
@@ -1744,9 +1695,5 @@
 @media (max-width: 480px) {
   .sp-brand-text {
     display: none;
-  }
-  .sp-cv ul {
-    left: auto;
-    right: 0;
   }
 }

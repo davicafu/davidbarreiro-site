@@ -183,20 +183,6 @@ function setupFlow(stopTour: (() => void) | undefined, setTelemetry: (running: b
   apply();
 }
 
-/* ---------------- CV menu ---------------- */
-function setupCvMenus() {
-  document.querySelectorAll<HTMLDetailsElement>('[data-cv]').forEach((menu) => {
-    document.addEventListener('click', (event) => {
-      if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
-    });
-    menu.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && menu.open) {
-        menu.open = false;
-        menu.querySelector('summary')?.focus();
-      }
-    });
-  });
-}
 
 /* ---------------- Project filter ---------------- */
 function setupFilter(showingTemplate: string) {
@@ -286,7 +272,6 @@ function setupTabs() {
 
 const stopTour = payload ? setupCard(payload) : undefined;
 setupFlow(stopTour, setupTelemetry());
-setupCvMenus();
 setupFilter(payload?.labels.showing ?? '{n} / {n}');
 setupTabs();
 
