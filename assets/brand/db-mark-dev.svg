@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 48" width="80" height="48" role="img" aria-label="DB">
+  <!-- Vector copy of favicon/logo-clear.png for the Dev theme: the DB monogram with the
+       code brackets inside the D, green to warm yellow in Dev's tones, no glow. -->
+  <defs>
+    <linearGradient id="db-dev" x1="4" y1="44" x2="76" y2="4" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2fd47a"/>
+      <stop offset="0.52" stop-color="#b6ef3c"/>
+      <stop offset="1" stop-color="#ffcb2e"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#db-dev)" stroke-width="7">
+    <path d="M2 6.5H20a17.5 17.5 0 0 1 0 35H9.5V18"/>
+    <path d="M50 3v42M46.5 6.5H63.5a8.5 8.5 0 0 1 0 17H50M50 23.5H65a9 9 0 0 1 0 18H46.5"/>
+  </g>
+  <path d="M18.5 19.5 14.5 24l4 4.5M27.5 19.5l4 4.5-4 4.5M24.5 18.5l-3 11" fill="none" stroke="#7fe45a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -28,7 +28,16 @@ interface Payload {
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const payloadNode = document.getElementById('cp-data');
 const data: Payload | null = payloadNode ? JSON.parse(payloadNode.textContent || 'null') : null;
-const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+// The head script sets data-os before first paint; this fallback only covers its absence.
+const isMac = document.documentElement.dataset.os
+  ? document.documentElement.dataset.os === 'mac'
+  : /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+/** Lowercase without accents, so "ingles" finds "inglés". */
+const fold = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 const fill = (template: string, ...values: (string | number)[]) =>
   values.reduce<string>((text, value) => text.replace('{n}', String(value)), template);
 
@@ -57,7 +66,7 @@ function reveal(target: HTMLElement) {
 }
 
 let selectSkill: ((index: number) => void) | undefined;
-let openPalette: (() => void) | undefined;
+let openPalette: ((query?: string) => void) | undefined;
 let openHelp: (() => void) | undefined;
 
 /** Runs a palette option that is not a plain link. Returns true when it handled the option. */
@@ -110,6 +119,40 @@ function setupPalette(root: HTMLElement, onDone: () => void, onEscape: () => voi
   let visible: HTMLElement[] = options;
   let active = -1;
 
+  // Ranking data: the option's own label weighs more than its meta, keywords and group.
+  const entries = new Map(
+    options.map((option, index) => [
+      option,
+      {
+        index,
+        label: fold(option.querySelector('.cp-option-label')?.textContent || ''),
+        words: fold(option.dataset.search || '').split(/[^\p{L}\p{N}?#+]+/u).filter(Boolean),
+        text: fold(option.dataset.search || '')
+      }
+    ])
+  );
+  const scoreToken = (option: HTMLElement, token: string) => {
+    const entry = entries.get(option);
+    if (!entry) return 0;
+    if (entry.label === token) return 100;
+    if (entry.label.startsWith(token)) return 80;
+    if (entry.label.split(/[^\p{L}\p{N}?#+]+/u).some((word) => word.startsWith(token))) return 60;
+    if (entry.words.some((word) => word.startsWith(token))) return 40;
+    return entry.text.includes(token) ? 20 : 0;
+  };
+  /** Every token must match; exact and prefix matches on the label rank first. */
+  const score = (option: HTMLElement, tokens: string[]) => {
+    let total = 0;
+    for (const token of tokens) {
+      const value = scoreToken(option, token);
+      if (!value) return 0;
+      total += value;
+    }
+    return total;
+  };
+  const byRank = (scores: Map<HTMLElement, number>) => (a: HTMLElement, b: HTMLElement) =>
+    (scores.get(b) ?? 0) - (scores.get(a) ?? 0) || (entries.get(a)?.index ?? 0) - (entries.get(b)?.index ?? 0);
+
   const setActive = (index: number, scroll: boolean) => {
     options.forEach((option) => option.setAttribute('aria-selected', 'false'));
     active = visible.length ? (index + visible.length) % visible.length : -1;
@@ -131,17 +174,27 @@ function setupPalette(root: HTMLElement, onDone: () => void, onEscape: () => voi
   };
 
   const filter = (query: string, announce: boolean) => {
-    const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    visible = [];
+    const tokens = fold(query.trim()).split(/\s+/).filter(Boolean);
+    const scores = new Map<HTMLElement, number>();
     options.forEach((option) => {
-      const text = option.dataset.search || '';
-      const match = tokens.every((token) => text.includes(token));
-      option.hidden = !match;
-      if (match) visible.push(option);
+      const value = tokens.length ? score(option, tokens) : 1;
+      scores.set(option, value);
+      option.hidden = value === 0;
     });
-    groups.forEach((group) => {
-      group.hidden = !group.querySelector('[data-option]:not([hidden])');
-    });
+    // Reorder: best group first, best option first inside each group. No query restores
+    // the original order, because every score is then equal.
+    const best = (group: HTMLElement) =>
+      Math.max(0, ...[...group.querySelectorAll<HTMLElement>('[data-option]')].map((o) => scores.get(o) ?? 0));
+    const firstIndex = (group: HTMLElement) => groups.indexOf(group);
+    [...groups]
+      .sort((a, b) => best(b) - best(a) || firstIndex(a) - firstIndex(b))
+      .forEach((group) => {
+        const groupOptions = [...group.querySelectorAll<HTMLElement>('[data-option]')].sort(byRank(scores));
+        groupOptions.forEach((option) => group.append(option));
+        group.hidden = groupOptions.every((option) => option.hidden);
+        list.insertBefore(group, empty && empty.parentElement === list ? empty : null);
+      });
+    visible = [...list.querySelectorAll<HTMLElement>('[data-option]:not([hidden])')];
     if (empty) empty.hidden = visible.length > 0;
     if (emptyQuery) emptyQuery.textContent = query.trim();
     const message = fill(data?.labels.results ?? '{n}', visible.length);
@@ -218,19 +271,29 @@ function setupDialog() {
   const palette = setupPalette(root, close, close);
   if (!palette) return;
 
-  const open = () => {
-    if (dialog.open) return;
+  const focusInput = () => {
+    palette.input.focus({ preventScroll: true });
+    // The modal input also has `autofocus`; re-check on the next frame so focus ends there.
+    requestAnimationFrame(() => {
+      if (dialog.open && document.activeElement !== palette.input) palette.input.focus({ preventScroll: true });
+    });
+  };
+  const open = (query = '') => {
+    if (dialog.open) {
+      focusInput();
+      return;
+    }
     const help = document.querySelector<HTMLDialogElement>('[data-help]');
     if (help?.open) help.close();
-    palette.input.value = '';
-    palette.filter('', false);
+    palette.input.value = query;
+    palette.filter(query, Boolean(query));
     dialog.showModal();
-    palette.input.focus();
+    focusInput();
   };
 
   openPalette = open;
   document.querySelectorAll<HTMLElement>('[data-open-palette]').forEach((button) =>
-    button.addEventListener('click', open)
+    button.addEventListener('click', () => open())
   );
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) close();
@@ -239,8 +302,13 @@ function setupDialog() {
     const target = event.target as HTMLElement | null;
     const typing =
       !!target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+    // ⌘K and Ctrl+K both work on every OS. event.code keeps it working on non-Latin layouts.
+    const isK = event.key.toLowerCase() === 'k' || event.code === 'KeyK';
+    if ((event.metaKey || event.ctrlKey) && !event.altKey && isK) {
       event.preventDefault();
+      // Holding the keys auto-repeats keydown; toggling on each repeat closed the palette
+      // again and sent the typing back to the page, so only the first press counts.
+      if (event.repeat) return;
       if (dialog.open) close();
       else open();
     } else if (event.key === '/' && !typing && !dialog.open && !document.querySelector('[data-help][open]')) {
@@ -270,6 +338,15 @@ function setupHelp() {
   };
 
   closeButton?.addEventListener('click', () => help.close());
+  // "Try" examples: close the help and run the query in the ⌘K palette.
+  help.querySelectorAll<HTMLElement>('[data-try]').forEach((button) =>
+    button.addEventListener('click', () => {
+      backToPalette = false;
+      returnTo = null;
+      help.close();
+      openPalette?.(button.dataset.try || '');
+    })
+  );
   help.addEventListener('click', (event) => {
     if (event.target === help) help.close();
   });
@@ -364,9 +441,9 @@ function setupHeroPalette() {
 
 /* ---------------- Shortcut labels ---------------- */
 function setupShortcutLabels() {
-  if (isMac) return;
+  // Both labels are rendered and CSS shows the right one before paint; keep only that one.
   document.querySelectorAll<HTMLElement>('[data-shortcut]').forEach((node) => {
-    node.textContent = 'Ctrl K';
+    node.textContent = isMac ? '⌘K' : 'Ctrl K';
   });
 }
 

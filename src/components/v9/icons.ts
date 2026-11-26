@@ -1,4 +1,7 @@
-/** 16px stroke icons for the Dev theme (/ and /es/). Paths only; the markup sets the stroke. */
+/**
+ * 16px stroke icons for the Dev theme (/ and /es/). Paths only; the markup sets the stroke.
+ * The github path is Feather's "github" icon (MIT), rescaled to this 16px grid.
+ */
 export const ICONS = {
   search: 'M7 12.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11ZM11 11l3.5 3.5',
   hash: 'M6 2 4.5 14M11.5 2 10 14M2.5 5.5h11M2 10.5h11',
@@ -16,7 +19,12 @@ export const ICONS = {
   enter: 'M13 3v5.5H3.5M6.5 5.5l-3 3 3 3',
   cap: 'M1 6 8 2.5 15 6 8 9.5 1 6ZM4 7.5v3.5c1.2 1.3 6.8 1.3 8 0V7.5',
   swatch: 'M8 14.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM8 1.5v13M8 1.5a6.5 6.5 0 0 1 0 13',
-  help: 'M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13ZM6.1 6.3a1.95 1.95 0 1 1 2.7 1.8c-.5.2-.8.7-.8 1.2v.4M8 11.4v.1'
+  help: 'M8 14.5a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13ZM6.1 6.3a1.95 1.95 0 1 1 2.7 1.8c-.5.2-.8.7-.8 1.2v.4M8 11.4v.1',
+  // Brand glyphs, drawn in the same 1.4px stroke as the rest of the set.
+  github:
+    'M6.13 12.68c-3.1.93-3.1-1.55-4.34-1.86m8.68 3.72v-2.4a2.09 2.09 0 0 0-.58-1.62c1.95-.22 3.99-.95 3.99-4.34A3.37 3.37 0 0 0 12.95 3.86 3.14 3.14 0 0 0 12.89 1.52S12.16 1.3 10.47 2.44a8.3 8.3 0 0 0-4.34 0C4.44 1.3 3.71 1.52 3.71 1.52A3.14 3.14 0 0 0 3.65 3.86a3.37 3.37 0 0 0-.93 2.34c0 3.36 2.05 4.1 3.99 4.34A2.09 2.09 0 0 0 6.13 12.14V14.54',
+  linkedin:
+    'M3 1.75h10c.69 0 1.25.56 1.25 1.25v10c0 .69-.56 1.25-1.25 1.25H3c-.69 0-1.25-.56-1.25-1.25V3c0-.69.56-1.25 1.25-1.25ZM5 7.1v4.4M5 4.75v.1M7.9 11.5V7.1M7.9 9.1a2 2 0 0 1 4 0v2.4'
 } as const;
 
 export type IconName = keyof typeof ICONS;

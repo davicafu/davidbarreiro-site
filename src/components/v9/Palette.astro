@@ -1,7 +1,9 @@
 ---
 /**
  * One command palette instance. The page renders it twice: inline in the hero and inside
- * the ⌘K dialog. Every option is a real link, so without JS each one still works.
+ * the ⌘K / Ctrl K dialog. It searches the page and runs actions; every option is a real
+ * link, so without JS each one still works. The modal input carries `autofocus`, so
+ * showModal() itself moves focus into it.
  */
 import Icon from './Icon.astro';
 import type { IconName } from './icons';
@@ -39,7 +41,6 @@ interface Props {
     close: string;
     clear: string;
     results: string;
-    shortcut: string;
     help: string;
   };
 }
@@ -65,6 +66,7 @@ const total = groups.reduce((sum, group) => sum + group.items.length, 0);
       autocomplete="off"
       autocapitalize="off"
       spellcheck="false"
+      autofocus={variant === 'modal'}
       data-input
     />
     {
@@ -72,7 +74,7 @@ const total = groups.reduce((sum, group) => sum + group.items.length, 0);
         <kbd class="cp-kbd">esc</kbd>
       ) : (
         <kbd class="cp-kbd" data-shortcut>
-          {labels.shortcut}
+          <span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span>
         </kbd>
       )
     }

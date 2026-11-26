@@ -286,17 +286,12 @@ body.cp {
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
+/* The DB monogram: a vector copy of the site logo in Dev's green and warm yellow. */
 .cp-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #0b0d06;
-  font: 700 14px/1 var(--display);
-  letter-spacing: -0.04em;
-  box-shadow: 0 0 22px -4px rgba(212, 255, 58, 0.6);
+  display: block;
+  width: 40px;
+  height: 24px;
+  flex: none;
 }
 .cp-trigger {
   display: inline-flex;
@@ -510,6 +505,17 @@ body.cp {
 .cp-links .cp-icon {
   width: 13px;
   height: 13px;
+}
+.cp-links .cp-brand-glyph {
+  width: 15px;
+  height: 15px;
+  margin-right: 1px;
+}
+
+/* Shortcut labels: both are rendered, the head script's data-os picks one before paint. */
+:root[data-os='mac'] [data-shortcut] [data-os='other'],
+:root:not([data-os='mac']) [data-shortcut] [data-os='mac'] {
+  display: none;
 }
 
 /* Hero palette window */
@@ -896,7 +902,7 @@ body.cp {
 }
 .cp-help-keys > div {
   display: grid;
-  grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
   gap: 12px;
   align-items: center;
   padding: 8px 0;
@@ -945,6 +951,71 @@ body.cp {
   font: 400 12px/1.4 var(--mono);
   text-align: right;
   overflow-wrap: anywhere;
+}
+/* Help: example queries and the collapsed command list */
+.cp-help-try li {
+  display: grid;
+  grid-template-columns: minmax(0, 9.5rem) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.cp-help-query {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 7px;
+  max-width: 100%;
+  padding: 5px 10px 5px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--accent);
+  font: 400 12.5px/1 var(--mono);
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+.cp-help-query .cp-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--muted);
+}
+.cp-help-query:hover {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+.cp-help-all {
+  margin-top: 6px;
+}
+.cp-help-all > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.cp-help-all > summary::-webkit-details-marker {
+  display: none;
+}
+.cp-help-all > summary > span:first-child::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 10px 2px 2px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: rotate(-45deg);
+  transition: transform 160ms var(--ease);
+}
+.cp-help-all[open] > summary > span:first-child::before {
+  transform: rotate(45deg);
+}
+.cp-help-all > summary:hover {
+  color: var(--accent);
 }
 @keyframes cp-pop {
   from {
@@ -2018,6 +2089,18 @@ a.cp-tag-cert:hover {
 .cp-actions .cp-btn {
   padding: 0 15px;
 }
+/* "Search or run a command" is long: it takes the first row, the other two share the next. */
+@media (min-width: 481px) {
+  .cp-actions::before {
+    content: '';
+    flex-basis: 100%;
+    order: 1;
+    margin-bottom: -8px;
+  }
+  .cp-actions > :not(.cp-btn-search) {
+    order: 2;
+  }
+}
 .cp-btn-search .cp-kbd {
   margin-left: 4px;
   border-color: rgba(11, 13, 6, 0.25);
@@ -2439,6 +2522,10 @@ a.cp-tag-cert:hover {
     margin: auto 0 0;
   }
   .cp-help-keys > div {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 10px;
+  }
+  .cp-help-try li {
     grid-template-columns: 6.5rem minmax(0, 1fr);
     gap: 10px;
   }

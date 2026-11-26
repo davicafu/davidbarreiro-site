@@ -36,12 +36,12 @@ const t = {
     langLabel: 'Language',
     skip: 'Skip to content',
     search: 'Search',
-    searchLong: 'Search or jump to…',
+    searchLong: 'Search or run a command…',
     readMore: 'Read more',
     readLess: 'Read less',
     contact: 'Contact',
     cv: 'Download CV',
-    searchAll: 'Search everything',
+    searchAll: 'Search or run a command',
     readout: {
       title: 'Profile',
       at: 'at',
@@ -49,8 +49,8 @@ const t = {
       credential: 'View credential'
     },
     palette: {
-      placeholder: 'Try “kafka”, “go” or “cv”…',
-      input: 'Search the portfolio',
+      placeholder: 'Search or run a command…',
+      input: 'Search the portfolio or run a command',
       list: 'Commands and content',
       empty: 'No results for',
       navigate: 'navigate',
@@ -58,15 +58,23 @@ const t = {
       close: 'close',
       clear: 'clear',
       results: '{n} results',
-      shortcut: '⌘K',
       help: 'for help'
     },
     help: {
       title: 'Help',
-      intro: 'Every command in the palette, and the keys that work on this page.',
+      intro: 'Type in the palette to search this page or run an action, then press ↵ to open the first result.',
       close: 'Close help',
-      keysTitle: 'Keyboard shortcuts',
-      commandsTitle: 'Commands',
+      tryTitle: 'Try',
+      tryHint: 'click to run',
+      examples: [
+        { query: 'kafka', text: 'Any technology finds the roles, projects and skills that use it' },
+        { query: 'copy', text: 'Copies my email address' },
+        { query: 'cv', text: 'Opens the CV as a PDF' },
+        { query: 'spanish', text: 'Switches the site to Spanish' },
+        { query: 'theme', text: 'Lists the other themes of this site' }
+      ],
+      keysTitle: 'Keyboard',
+      commandsTitle: 'All commands',
       count: '{n} commands',
       does: {
         help: 'Shows this help',
@@ -79,13 +87,10 @@ const t = {
         page: 'Loads {href}'
       },
       keys: [
-        { keys: ['⌘K', 'Ctrl K'], text: 'Open or close the palette' },
-        { keys: ['/'], text: 'Open the palette (outside text fields)' },
-        { keys: ['↑', '↓'], text: 'Move through the results' },
-        { keys: ['↵'], text: 'Run the selected command, or the first result' },
-        { keys: ['esc'], text: 'Clear the search, then close the palette, this help or the PDF menu' },
-        { keys: ['?'], text: 'Type it in the palette to show this help' },
-        { keys: ['←', '→', 'Home', 'End'], text: 'Switch pipeline stage or skill group when a tab has focus' }
+        { keys: ['mod+k', '/'], text: 'Open the palette from anywhere on the page' },
+        { keys: ['↑', '↓', '↵'], text: 'Pick a result and run it' },
+        { keys: ['esc'], text: 'Clear the search, then close' },
+        { keys: ['?'], text: 'Typed in the palette, opens this help' }
       ]
     },
     paletteCaption: 'Everything on this page, one keystroke away.',
@@ -163,7 +168,7 @@ const t = {
     copy: 'Copy',
     send: 'Send email',
     footerHint: 'Press',
-    footerHint2: 'anywhere to search.',
+    footerHint2: 'anywhere to search or run a command.',
     footerRole: 'Software Engineer'
   },
   es: {
@@ -174,12 +179,12 @@ const t = {
     langLabel: 'Idioma',
     skip: 'Saltar al contenido',
     search: 'Buscar',
-    searchLong: 'Buscar o ir a…',
+    searchLong: 'Busca o ejecuta un comando…',
     readMore: 'Leer más',
     readLess: 'Leer menos',
     contact: 'Contacto',
     cv: 'Descargar CV',
-    searchAll: 'Buscar en todo',
+    searchAll: 'Busca o ejecuta un comando',
     readout: {
       title: 'Perfil',
       at: 'en',
@@ -187,8 +192,8 @@ const t = {
       credential: 'Ver credencial'
     },
     palette: {
-      placeholder: 'Prueba «kafka», «go» o «cv»…',
-      input: 'Buscar en el portfolio',
+      placeholder: 'Busca o ejecuta un comando…',
+      input: 'Buscar en el portfolio o ejecutar un comando',
       list: 'Comandos y contenido',
       empty: 'Sin resultados para',
       navigate: 'moverse',
@@ -196,15 +201,23 @@ const t = {
       close: 'cerrar',
       clear: 'borrar',
       results: '{n} resultados',
-      shortcut: '⌘K',
       help: 'para ayuda'
     },
     help: {
       title: 'Ayuda',
-      intro: 'Todos los comandos de la paleta y las teclas que funcionan en esta página.',
+      intro: 'Escribe en la paleta para buscar en esta página o ejecutar una acción y pulsa ↵ para abrir el primer resultado.',
       close: 'Cerrar la ayuda',
-      keysTitle: 'Atajos de teclado',
-      commandsTitle: 'Comandos',
+      tryTitle: 'Prueba',
+      tryHint: 'haz clic para ejecutar',
+      examples: [
+        { query: 'kafka', text: 'Cualquier tecnología muestra los puestos, proyectos y habilidades que la usan' },
+        { query: 'copiar', text: 'Copia mi dirección de email' },
+        { query: 'cv', text: 'Abre el CV en PDF' },
+        { query: 'inglés', text: 'Cambia la web a inglés' },
+        { query: 'tema', text: 'Muestra los otros temas de la web' }
+      ],
+      keysTitle: 'Teclado',
+      commandsTitle: 'Todos los comandos',
       count: '{n} comandos',
       does: {
         help: 'Muestra esta ayuda',
@@ -217,13 +230,10 @@ const t = {
         page: 'Carga {href}'
       },
       keys: [
-        { keys: ['⌘K', 'Ctrl K'], text: 'Abrir o cerrar la paleta' },
-        { keys: ['/'], text: 'Abrir la paleta (fuera de campos de texto)' },
-        { keys: ['↑', '↓'], text: 'Moverse por los resultados' },
-        { keys: ['↵'], text: 'Ejecutar el comando seleccionado o el primer resultado' },
-        { keys: ['esc'], text: 'Borrar la búsqueda y después cerrar la paleta, esta ayuda o el menú de PDF' },
-        { keys: ['?'], text: 'Escríbelo en la paleta para ver esta ayuda' },
-        { keys: ['←', '→', 'Home', 'End'], text: 'Cambiar de etapa del pipeline o de grupo de habilidades con una pestaña enfocada' }
+        { keys: ['mod+k', '/'], text: 'Abre la paleta desde cualquier parte de la página' },
+        { keys: ['↑', '↓', '↵'], text: 'Elige un resultado y lo ejecuta' },
+        { keys: ['esc'], text: 'Borra la búsqueda y después cierra' },
+        { keys: ['?'], text: 'Escrito en la paleta, abre esta ayuda' }
       ]
     },
     paletteCaption: 'Todo lo de esta página, a una tecla.',
@@ -301,7 +311,7 @@ const t = {
     copy: 'Copiar',
     send: 'Enviar email',
     footerHint: 'Pulsa',
-    footerHint2: 'en cualquier parte para buscar.',
+    footerHint2: 'en cualquier parte para buscar o ejecutar un comando.',
     footerRole: 'Ingeniero de Software'
   }
 }[locale];
@@ -322,7 +332,7 @@ const summary = String(basics.summary || '')
 
 /* ---- Hero readout: every value derived from the resume ---- */
 const currentJob = c.work[0];
-const readoutStack = (currentJob?.tech ?? []).slice(0, 4);
+const readoutStack = c.nowPipeline;
 // Only certifications with a public credential; short name is the issuer (or the name).
 const readoutCerts = c.certificateDetails
   .filter((cert) => cert.url)
@@ -388,9 +398,9 @@ const groups: CommandGroup[] = [
       },
       { id: 'copy-email', label: t.cmd.copy, meta: c.email, keywords: 'email mail contact', icon: 'copy', href: `mailto:${c.email}`, action: 'copy', value: c.email },
       { id: 'mail', label: t.cmd.mail, meta: c.email, keywords: 'email mail contact', icon: 'mail', href: `mailto:${c.email}`, action: 'go' },
-      { id: 'lang', label: t.cmd.lang, meta: t.other.code, keywords: 'language idioma english español', icon: 'globe', href: t.other.href, action: 'go' },
-      { id: 'github', label: 'GitHub', meta: c.githubUrl.replace(/^https?:\/\//, ''), keywords: 'code repos', icon: 'link', href: c.githubUrl, action: 'go', external: true },
-      { id: 'linkedin', label: 'LinkedIn', meta: c.linkedinUrl.replace(/^https?:\/\/(www\.)?/, ''), keywords: 'profile', icon: 'link', href: c.linkedinUrl, action: 'go', external: true },
+      { id: 'lang', label: t.cmd.lang, meta: t.other.code, keywords: 'language idioma english inglés spanish español', icon: 'globe', href: t.other.href, action: 'go' },
+      { id: 'github', label: 'GitHub', meta: c.githubUrl.replace(/^https?:\/\//, ''), keywords: 'code repos', icon: 'github', href: c.githubUrl, action: 'go', external: true },
+      { id: 'linkedin', label: 'LinkedIn', meta: c.linkedinUrl.replace(/^https?:\/\/(www\.)?/, ''), keywords: 'profile', icon: 'linkedin', href: c.linkedinUrl, action: 'go', external: true },
       { id: 'help', label: t.help.title, meta: '?', keywords: 'help ayuda ? commands comandos shortcuts atajos keys teclas', icon: 'help', href: '#cp-help', action: 'help' }
     ]
   },
@@ -478,7 +488,14 @@ const groups: CommandGroup[] = [
     <link rel="preload" href="/assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#0a0b0d" />
     <script is:inline>
-      document.documentElement.classList.add('cp-js');
+      (function () {
+        var root = document.documentElement;
+        var nav = navigator;
+        var platform = (nav.userAgentData && nav.userAgentData.platform) || nav.platform || nav.userAgent || '';
+        root.classList.add('cp-js');
+        // Shortcut labels read ⌘K on Apple devices and Ctrl K elsewhere, set before first paint.
+        root.dataset.os = /mac|iphone|ipad|ipod|ios/i.test(platform) ? 'mac' : 'other';
+      })();
     </script>
   </head>
   <body class="cp">
@@ -487,14 +504,14 @@ const groups: CommandGroup[] = [
     <header class="cp-bar">
       <div class="cp-bar-inner">
         <a class="cp-brand" href={t.home} aria-label="David Barreiro">
-          <span class="cp-brand-mark" aria-hidden="true">db</span>
+          <img class="cp-brand-mark" src="/assets/brand/db-mark-dev.svg" alt="" width="40" height="24" />
           <span class="cp-brand-text">David Barreiro</span>
         </a>
         <button type="button" class="cp-trigger" data-open-palette aria-haspopup="dialog">
           <Icon name="search" />
           <span class="cp-trigger-text">{t.searchLong}</span>
           <span class="cp-sr">{t.search}</span>
-          <kbd class="cp-kbd" data-shortcut>⌘K</kbd>
+          <kbd class="cp-kbd" data-shortcut><span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span></kbd>
         </button>
         <nav class="cp-nav" aria-label={t.sections}>
           <a href="#portfolio">{t.nav.portfolio}</a>
@@ -542,7 +559,7 @@ const groups: CommandGroup[] = [
           <div class="cp-actions">
             <button type="button" class="cp-btn cp-btn-primary cp-btn-search" data-open-palette aria-haspopup="dialog">
               <Icon name="search" />{t.searchAll}
-              <kbd class="cp-kbd" data-shortcut>⌘K</kbd>
+              <kbd class="cp-kbd" data-shortcut><span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span></kbd>
             </button>
             <a class="cp-btn" href={`mailto:${c.email}`}>
               <Icon name="mail" />{t.contact}
@@ -552,8 +569,8 @@ const groups: CommandGroup[] = [
             </a>
           </div>
           <p class="cp-links">
-            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub<Icon name="external" /></a>
-            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn<Icon name="external" /></a>
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer"><Icon name="github" class="cp-brand-glyph" />GitHub<Icon name="external" /></a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer"><Icon name="linkedin" class="cp-brand-glyph" />LinkedIn<Icon name="external" /></a>
           </p>
         </div>
 
@@ -581,7 +598,7 @@ const groups: CommandGroup[] = [
                   readoutStack.length > 0 && (
                     <div>
                       <dt>stack</dt>
-                      <dd>{readoutStack.join(' · ')}</dd>
+                      <dd>{readoutStack.join(' → ')}</dd>
                     </div>
                   )
                 }
@@ -983,8 +1000,8 @@ const groups: CommandGroup[] = [
             </a>
           </div>
           <p class="cp-links">
-            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer">GitHub<Icon name="external" /></a>
-            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer">LinkedIn<Icon name="external" /></a>
+            <a href={c.githubUrl} target="_blank" rel="noopener noreferrer"><Icon name="github" class="cp-brand-glyph" />GitHub<Icon name="external" /></a>
+            <a href={c.linkedinUrl} target="_blank" rel="noopener noreferrer"><Icon name="linkedin" class="cp-brand-glyph" />LinkedIn<Icon name="external" /></a>
             <a href={t.other.href} hreflang={locale === 'en' ? 'es' : 'en'}>{t.other.label}</a>
           </p>
         </div>
@@ -994,7 +1011,7 @@ const groups: CommandGroup[] = [
     <footer class="cp-footer">
       <p>© {nowYear} {c.name} · {t.footerRole}</p>
       <p class="cp-footer-hint">
-        {t.footerHint} <kbd class="cp-kbd" data-shortcut>⌘K</kbd>
+        {t.footerHint} <kbd class="cp-kbd" data-shortcut><span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span></kbd>
         {t.footerHint2}
       </p>
     </footer>
