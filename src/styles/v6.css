@@ -99,7 +99,7 @@
   top: 1rem;
 }
 
-/* Flat colour fields shared by stages, panel and tiles */
+/* Flat colour fields shared by stages and tiles */
 .sp-f-red {
   --f: var(--red);
   --f-ink: #fff;
@@ -743,149 +743,127 @@
   transition-delay: 0.16s;
 }
 
-/* Method */
-.sp-method {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(1rem, 2vw, 1.5rem);
-}
+/* Method: stages expand in place. Desktop: one row whose open stage takes the wide track
+   (the track list comes from --cols, set by the page and poster.ts). Narrow: an accordion. */
 .sp-blocks {
-  grid-column: 1 / span 7;
+  --open-w: 3.6fr;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: var(--cols);
   gap: 0.6rem;
-  align-content: start;
+  min-height: clamp(22rem, 30vw, 26rem);
+  transition: grid-template-columns 0.5s var(--ease);
 }
 .sp-block {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-  aspect-ratio: 1;
-  padding: 0.9rem;
+  min-width: 0;
   border: 2px solid var(--ink);
   background: var(--card);
-  text-align: left;
-  cursor: pointer;
   overflow: hidden;
   isolation: isolate;
   transition: color 0.25s;
 }
+/* The stage colour: a band along the bottom edge while closed, the whole block once open. */
 .sp-block::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
   background: var(--f);
-  transform: translateY(101%);
-  transition: transform 0.35s var(--ease);
+  transform: translateY(calc(100% - 0.6rem));
+  transition: transform 0.4s var(--ease);
 }
-.sp-block:hover::before {
-  transform: translateY(86%);
+.sp-block:not(.is-open):hover::before {
+  transform: translateY(calc(100% - 1.6rem));
 }
-.sp-block[aria-pressed='true'] {
+.sp-block.is-open {
   color: var(--f-ink);
 }
-.sp-block[aria-pressed='true']::before {
+.sp-block.is-open::before {
   transform: none;
 }
+.sp-block-head {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.sp-block-btn {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.9rem 0.9rem 1.5rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.sp-block-btn:focus-visible {
+  outline-color: currentColor;
+  outline-offset: -7px;
+}
 .sp-block-num {
-  font-size: clamp(1.8rem, 3.2vw, 3rem);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
   font-weight: 900;
   line-height: 0.85;
   letter-spacing: -0.05em;
   font-variant-numeric: tabular-nums;
 }
 .sp-block-name {
-  font-size: clamp(0.82rem, 1.05vw, 0.98rem);
+  font-size: clamp(0.88rem, 1.05vw, 1rem);
   font-weight: 800;
   line-height: 1.15;
-  hyphens: auto;
+  overflow-wrap: anywhere;
 }
-.sp-block-deco {
-  position: relative;
-  aspect-ratio: 1;
-  background: var(--ochre);
-  overflow: hidden;
+/* Closed stages are narrow columns: the name runs up the block like a poster spine. */
+.sp-block:not(.is-open) .sp-block-name {
+  align-self: flex-start;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
 }
-.sp-block-deco::before {
-  content: '';
-  position: absolute;
-  left: -50%;
-  bottom: -50%;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--ink);
-}
-.sp-block-deco::after {
-  content: '';
-  position: absolute;
-  right: 12%;
-  top: 12%;
-  width: 22%;
-  aspect-ratio: 1;
-  background: var(--red);
-}
-.sp-stage {
-  grid-column: 8 / span 5;
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-height: 100%;
-  padding: clamp(1.25rem, 2.5vw, 2rem);
-  background: var(--f);
-  color: var(--f-ink);
-  transition: background-color 0.35s;
-}
-.sp-stage-meta {
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.sp-stage-num {
-  font-size: clamp(5rem, 11vw, 9.5rem);
-  font-weight: 900;
-  line-height: 0.8;
+.sp-block.is-open .sp-block-num {
+  font-size: clamp(4rem, 7vw, 6.5rem);
   letter-spacing: -0.06em;
-  font-variant-numeric: tabular-nums;
 }
-.sp-stage-name {
-  margin-top: auto;
-  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+.sp-block.is-open .sp-block-name {
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
   font-weight: 900;
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
-.sp-stage-detail {
+.sp-block.is-open .sp-block-btn {
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1rem, 2vw, 1.5rem) 0.9rem;
+  cursor: default;
+}
+.sp-block-body {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0 clamp(1rem, 2vw, 1.5rem) clamp(1rem, 2vw, 1.5rem);
+}
+.sp-block-body[hidden] {
+  display: none;
+}
+.sp-block-body:not([hidden]) {
+  animation: sp-swap 0.45s var(--ease) 0.12s both;
+}
+.sp-block-detail {
   font-size: 1.05rem;
 }
-.sp-stage-tech {
+.sp-block-tech {
   display: grid;
   gap: 0.15rem;
   padding-top: 0.9rem;
   border-top: 2px solid currentColor;
   font-weight: 700;
 }
-.sp-stage-tech span:first-child {
+.sp-block-tech span:first-child {
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-.sp-stage.is-swapping :is(.sp-stage-num, .sp-stage-name, .sp-stage-detail, .sp-stage-tech) {
-  animation: sp-swap 0.45s var(--ease) both;
-}
-.sp-stage.is-swapping .sp-stage-name {
-  animation-delay: 0.05s;
-}
-.sp-stage.is-swapping .sp-stage-detail {
-  animation-delay: 0.09s;
-}
-.sp-stage.is-swapping .sp-stage-tech {
-  animation-delay: 0.13s;
 }
 
 /* Experience: big-year index */
@@ -1569,18 +1547,11 @@
   .sp-hero-disc {
     right: calc(var(--gutter) + 6%);
   }
-  .sp-blocks,
-  .sp-stage {
-    grid-column: 1 / span 12;
-  }
   .sp-caps-grid {
     grid-template-columns: minmax(0, 1fr);
   }
   .sp-cap {
     min-height: 0;
-  }
-  .sp-stage {
-    min-height: 20rem;
   }
   .sp-tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1588,6 +1559,54 @@
 }
 
 @media (max-width: 860px) {
+  /* Stages become an accordion: full-width rows, the open one unfolds below its header. */
+  .sp-blocks {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    min-height: 0;
+  }
+  .sp-block::before {
+    transform: translateX(calc(-100% + 0.6rem));
+  }
+  .sp-block:not(.is-open):hover::before {
+    transform: translateX(calc(-100% + 1.2rem));
+  }
+  .sp-block-btn,
+  .sp-block.is-open .sp-block-btn {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem 0.9rem 1.5rem;
+  }
+  .sp-block:not(.is-open) .sp-block-name {
+    writing-mode: horizontal-tb;
+    transform: none;
+    align-self: auto;
+  }
+  .sp-block-num,
+  .sp-block.is-open .sp-block-num {
+    flex: none;
+    font-size: 2rem;
+  }
+  .sp-block.is-open .sp-block-name {
+    font-size: 1.35rem;
+  }
+  /* Open/closed cue on the right of each header. */
+  .sp-block-btn::after {
+    content: '+';
+    margin-left: auto;
+    padding-left: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .sp-block.is-open .sp-block-btn::after {
+    content: '\2212';
+  }
+  .sp-block-body {
+    padding: 0 1rem 1.1rem 1.5rem;
+  }
   .sp-bar {
     grid-template-columns: auto minmax(0, 1fr);
     row-gap: 0.4rem;
@@ -1643,17 +1662,6 @@
 }
 
 @media (max-width: 640px) {
-  .sp-blocks {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .sp-block {
-    aspect-ratio: auto;
-    min-height: 7.5rem;
-  }
-  .sp-block-deco {
-    aspect-ratio: auto;
-    min-height: 7.5rem;
-  }
   .sp-tile.is-wide {
     grid-template-columns: minmax(0, 1fr);
   }

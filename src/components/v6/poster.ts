@@ -4,16 +4,8 @@
  * script every section stays readable (reveals only hide content once JS is on).
  */
 
-interface Stage {
-  name: string;
-  detail: string;
-  tech: string[];
-}
-
 interface PosterPayload {
-  stages: Stage[];
-  fields: string[];
-  labels: { stage: string; showing: string };
+  labels: { showing: string };
 }
 
 const payloadNode = document.getElementById('sp-data');
@@ -24,53 +16,45 @@ const fill = (template: string, ...values: number[]) =>
   values.reduce((text, value) => text.replace('{n}', String(value)), template);
 
 /* ---------------- Method blocks ---------------- */
-function setupMethod(data: PosterPayload) {
+// Each stage is an accordion header: opening one expands it in place and closes the rest,
+// so exactly one is open. Arrow keys, Home and End move focus between stage headers.
+function setupMethod() {
   const root = document.querySelector<HTMLElement>('[data-method]');
-  const panel = document.querySelector<HTMLElement>('[data-stage-panel]');
-  if (!root || !panel) return;
-  const blocks = [...root.querySelectorAll<HTMLButtonElement>('[data-stage]')];
-  const meta = panel.querySelector<HTMLElement>('[data-stage-meta]');
-  const num = panel.querySelector<HTMLElement>('[data-stage-num]');
-  const name = panel.querySelector<HTMLElement>('[data-stage-name]');
-  const detail = panel.querySelector<HTMLElement>('[data-stage-detail]');
-  const tech = panel.querySelector<HTMLElement>('[data-stage-tech]');
+  if (!root) return;
+  const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-stage]')];
 
-  const select = (index: number) => {
-    const stage = data.stages[index];
-    if (!stage) return;
-    blocks.forEach((block, i) => block.setAttribute('aria-pressed', String(i === index)));
-    data.fields.forEach((field) => panel.classList.remove(`sp-f-${field}`));
-    panel.classList.add(`sp-f-${data.fields[index % data.fields.length]}`);
-    if (meta) meta.textContent = fill(data.labels.stage, index + 1, data.stages.length);
-    if (num) num.textContent = String(index + 1).padStart(2, '0');
-    if (name) name.textContent = stage.name;
-    if (detail) detail.textContent = stage.detail;
-    if (tech) tech.textContent = stage.tech.join(' · ');
-    panel.classList.remove('is-swapping');
-    void panel.offsetWidth; // restart the swap animation
-    panel.classList.add('is-swapping');
+  const open = (index: number) => {
+    buttons.forEach((button, i) => {
+      const active = i === index;
+      button.setAttribute('aria-expanded', String(active));
+      button.closest('.sp-block')?.classList.toggle('is-open', active);
+      const region = document.getElementById(button.getAttribute('aria-controls') || '');
+      if (region) region.hidden = !active;
+    });
+    // Same track list the page renders: the open stage takes the wide track.
+    root.style.setProperty(
+      '--cols',
+      buttons.map((_, i) => (i === index ? 'var(--open-w)' : '1fr')).join(' ')
+    );
   };
 
-  blocks.forEach((block, index) => {
-    block.addEventListener('click', () => select(index));
-    block.addEventListener('keydown', (event) => {
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => open(index));
+    button.addEventListener('keydown', (event) => {
       const moves: Record<string, number> = {
         ArrowRight: index + 1,
         ArrowDown: index + 1,
         ArrowLeft: index - 1,
         ArrowUp: index - 1,
         Home: 0,
-        End: blocks.length - 1
+        End: buttons.length - 1
       };
       if (!(event.key in moves)) return;
       event.preventDefault();
-      const next = (moves[event.key] + blocks.length) % blocks.length;
-      blocks[next].focus();
-      select(next);
+      buttons[(moves[event.key] + buttons.length) % buttons.length].focus();
     });
   });
 }
-
 
 /* ---------------- Project filter ---------------- */
 function setupFilter(showingTemplate: string) {
@@ -185,7 +169,7 @@ function setupReveals() {
   window.addEventListener('hashchange', () => targets.forEach((target) => target.classList.add('is-in')));
 }
 
-if (payload) setupMethod(payload);
+setupMethod();
 setupFilter(payload?.labels.showing ?? '{n} / {n}');
 setupTabs();
 setupReveals();

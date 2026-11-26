@@ -48,7 +48,6 @@ const t = {
     systemKicker: 'System Design',
     systemTitle: 'How I design data platforms',
     systemIntro: 'Seven stages, from the systems that produce data to the people who use it. Select one.',
-    stage: (n: number, total: number) => `Stage ${n} / ${total}`,
     tech: 'Tech',
     timelineKicker: 'Timeline',
     timelineTitle: 'Professional experience',
@@ -91,7 +90,6 @@ const t = {
     systemKicker: 'Diseño de Sistemas',
     systemTitle: 'Diseño de plataformas de datos',
     systemIntro: 'Siete etapas, de los sistemas que producen datos a las personas que los usan. Elige una.',
-    stage: (n: number, total: number) => `Etapa ${n} / ${total}`,
     tech: 'Tecnologías',
     timelineKicker: 'Trayectoria',
     timelineTitle: 'Experiencia profesional',
@@ -139,7 +137,10 @@ const allTags = [...tagCounts.entries()]
 
 const levelDots = (level: string) => t.levels[level] ?? 0;
 const pad = (n: number) => String(n).padStart(2, '0');
-const firstStage = c.stages[0];
+// Desktop track list for the stage row: the open stage takes the wide track. poster.ts
+// rebuilds the same list when another stage opens.
+const stageColumns = (open: number) =>
+  c.stages.map((_, index) => (index === open ? 'var(--open-w)' : '1fr')).join(' ');
 const summary = basics.summary.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
 
 // Hero facts, all derived from the resume. "Now": the current employer plus the shared
@@ -360,41 +361,44 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
           </div>
           <p class="sp-head-intro">{t.systemIntro}</p>
         </header>
-        <div class="sp-method" data-method>
-          <div class="sp-blocks" role="group" aria-label={t.systemTitle}>
-            {
-              c.stages.map((stage, index) => (
-                <button
-                  type="button"
-                  class:list={['sp-block', `sp-f-${FIELDS[index % FIELDS.length]}`]}
-                  data-stage={index}
-                  aria-pressed={index === 0 ? 'true' : 'false'}
-                  aria-controls="sp-stage-panel"
+        <!-- Stages expand in place: the open one widens within the row on desktop and unfolds
+             below its header on narrow screens. One is always open; the first by default. -->
+        <ol class="sp-blocks" data-method style={`--cols: ${stageColumns(0)}`}>
+          {
+            c.stages.map((stage, index) => (
+              <li class:list={['sp-block', `sp-f-${FIELDS[index % FIELDS.length]}`, { 'is-open': index === 0 }]}>
+                <h3 class="sp-block-head">
+                  <button
+                    type="button"
+                    class="sp-block-btn"
+                    id={`sp-stage-btn-${index}`}
+                    aria-expanded={index === 0 ? 'true' : 'false'}
+                    aria-controls={`sp-stage-${index}`}
+                    data-stage={index}
+                  >
+                    <span class="sp-block-num" aria-hidden="true">
+                      {pad(index + 1)}
+                    </span>
+                    <span class="sp-block-name">{stage.name}</span>
+                  </button>
+                </h3>
+                <div
+                  class="sp-block-body"
+                  id={`sp-stage-${index}`}
+                  role="region"
+                  aria-labelledby={`sp-stage-btn-${index}`}
+                  hidden={index !== 0}
                 >
-                  <span class="sp-block-num">{pad(index + 1)}</span>
-                  <span class="sp-block-name">{stage.name}</span>
-                </button>
-              ))
-            }
-            {c.stages.length % 4 !== 0 && <span class="sp-block-deco" aria-hidden="true" />}
-          </div>
-          <div
-            class:list={['sp-stage', `sp-f-${FIELDS[0]}`]}
-            id="sp-stage-panel"
-            aria-live="polite"
-            data-stage-panel
-            data-fields={JSON.stringify(FIELDS)}
-          >
-            <p class="sp-stage-meta" data-stage-meta>{t.stage(1, c.stages.length)}</p>
-            <p class="sp-stage-num" data-stage-num aria-hidden="true">01</p>
-            <h3 class="sp-stage-name" data-stage-name>{firstStage.name}</h3>
-            <p class="sp-stage-detail" data-stage-detail>{firstStage.detail}</p>
-            <p class="sp-stage-tech">
-              <span>{t.tech}</span>
-              <span data-stage-tech>{firstStage.tech.join(' · ')}</span>
-            </p>
-          </div>
-        </div>
+                  <p class="sp-block-detail">{stage.detail}</p>
+                  <p class="sp-block-tech">
+                    <span>{t.tech}</span>
+                    <span>{stage.tech.join(' · ')}</span>
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
       </section>
 
       <!-- ============ EXPERIENCE ============ -->
@@ -609,10 +613,7 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
       type="application/json"
       id="sp-data"
       set:html={JSON.stringify({
-        stages: c.stages,
-        fields: FIELDS,
         labels: {
-          stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
           showing: t.showing(0, 0).replace(/\d+/g, '{n}')
         }
       })}
