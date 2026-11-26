@@ -29,6 +29,8 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const payloadNode = document.getElementById('cy-data');
 const payload: CityPayload | null = payloadNode ? JSON.parse(payloadNode.textContent || 'null') : null;
 const pad = (n: number) => String(n).padStart(2, '0');
+// True while the model is on screen and the tab is visible; nothing in it animates otherwise.
+let sceneLive = true;
 
 /* ---------------- Layer card ---------------- */
 function setupCard(data: CityPayload, onShow: (index: number) => void) {
@@ -107,6 +109,7 @@ function setupCard(data: CityPayload, onShow: (index: number) => void) {
   // A short guided tour through the model until the visitor takes over.
   if (!reducedMotion.matches) {
     tourTimer = window.setInterval(() => {
+      if (!sceneLive) return;
       tourIndex = (tourIndex + 1) % total;
       show(tourIndex);
     }, 4200);
@@ -191,6 +194,8 @@ function setupTelemetry(stagesInfo: StageInfo[]) {
 }
 
 /* ---------------- Packet flow (SMIL + CSS) ---------------- */
+// Packets, link dashes, LEDs and the telemetry ticker all stop when the visitor pauses, when the
+// model scrolls out of view and when the tab is hidden.
 function setupFlow(stopTour: (() => void) | undefined, setTelemetry: (running: boolean) => void) {
   const scene = document.querySelector<SVGSVGElement>('[data-scene]');
   const button = document.querySelector<HTMLButtonElement>('[data-pause]');
@@ -200,7 +205,8 @@ function setupFlow(stopTour: (() => void) | undefined, setTelemetry: (running: b
   let visible = true;
 
   const apply = () => {
-    const running = !userPaused && visible;
+    sceneLive = visible && !document.hidden;
+    const running = !userPaused && sceneLive;
     if (running) scene.unpauseAnimations();
     else scene.pauseAnimations();
     scene.classList.toggle('is-paused', !running);
@@ -222,6 +228,7 @@ function setupFlow(stopTour: (() => void) | undefined, setTelemetry: (running: b
       apply();
     }).observe(scene);
   }
+  document.addEventListener('visibilitychange', apply);
   apply();
 }
 

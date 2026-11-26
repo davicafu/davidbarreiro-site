@@ -36,7 +36,7 @@ const t = {
     facts: {
       title: 'Node status',
       now: 'Now',
-      pipeline: 'Pipeline',
+      region: 'Region',
       certified: 'Certified',
       credential: (issuer: string) => `${issuer} credential`,
       projects: 'Projects',
@@ -108,7 +108,7 @@ const t = {
     facts: {
       title: 'Estado del nodo',
       now: 'Ahora',
-      pipeline: 'Pipeline',
+      region: 'Región',
       certified: 'Certificado',
       credential: (issuer: string) => `Credencial de ${issuer}`,
       projects: 'Proyectos',
@@ -511,9 +511,10 @@ const LINKEDIN_GLYPH =
 
 const levelDots = (level: string) => t.levels[level] ?? 0;
 
-// Hero facts, all derived from the resume: current release, its data path, credentials and services.
+// Hero facts, all derived from the resume: current release, where the node runs, credentials and services.
 const currentJob = c.work[0];
-const pipeline = c.nowPipeline;
+const place = resume.basics.location;
+const region = [place?.city, place?.countryCode].filter(Boolean).join(', ');
 const credentials = c.certificateDetails
   .filter((cert) => cert.url && cert.issuer)
   .filter((cert, index, list) => list.findIndex((other) => other.issuer === cert.issuer) === index);
@@ -550,20 +551,11 @@ const heroRack = [0, 1, 2].map((k) => {
 
     <header class="cy-bar">
       <a class="cy-brand" href={t.home} aria-label="David Barreiro">
-        <!-- The owner's "DB" monogram (the D holds a small </>), redrawn as strokes in Live's palette. -->
+        <!-- Live signal: a telemetry trace ending in its latest reading. Flat fills, no gradient. -->
         <svg class="cy-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
-          <defs>
-            <linearGradient id="cy-mark-ink" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stop-color="#5cc8ff"></stop>
-              <stop offset="0.6" stop-color="#c6f432"></stop>
-            </linearGradient>
-          </defs>
           <rect class="cy-mark-frame" x="0.75" y="0.75" width="30.5" height="30.5" rx="7"></rect>
-          <g class="cy-mark-ink" stroke="url(#cy-mark-ink)">
-            <path d="M5 8.5 H9.5 A6.5 7.5 0 0 1 9.5 23.5 H5 Z"></path>
-            <path d="M18.5 8.5 V23.5 M18.5 8.5 H23.2 A3.5 3.75 0 0 1 23.2 16 H18.5 M18.5 16 H24 A3.75 3.75 0 0 1 24 23.5 H18.5"></path>
-          </g>
-          <path class="cy-mark-code" d="M8.9 13.6 L7.4 16 L8.9 18.4 M11.6 13.6 L13.1 16 L11.6 18.4 M10.8 13.2 L9.7 18.8"></path>
+          <path class="cy-mark-trace" d="M6 17.5 H10.5 L13.5 10 L17.5 23 L20.2 16.5 H22.5"></path>
+          <circle class="cy-mark-dot" cx="25.2" cy="16.5" r="2.4"></circle>
         </svg>
         <span>david<b>/</b>barreiro</span>
       </a>
@@ -650,19 +642,10 @@ const heroRack = [0, 1, 2].map((k) => {
               )
             }
             {
-              pipeline.length > 0 && (
+              region && (
                 <div>
-                  <dt>{t.facts.pipeline}</dt>
-                  <dd>
-                    <span class="cy-flow">
-                      {pipeline.map((tech, index) => (
-                        <>
-                          {index > 0 && <span class="cy-flow-arrow"> → </span>}
-                          {tech}
-                        </>
-                      ))}
-                    </span>
-                  </dd>
+                  <dt>{t.facts.region}</dt>
+                  <dd class="cy-region">{region}</dd>
                 </div>
               )
             }
@@ -835,7 +818,11 @@ const heroRack = [0, 1, 2].map((k) => {
             </button>
             </div>
 
-          <svg class="cy-scene" viewBox={viewBox} role="group" aria-label={t.systemTitle} data-scene>
+          <!-- Two stacked layers with the same view box. The backdrop holds everything static,
+               including both blur filters, so it is rasterised once; only the live layer above it
+               (link dashes, packets, LEDs) repaints while traffic runs. -->
+          <div class="cy-scene-stack">
+          <svg class="cy-scene cy-scene-back" viewBox={viewBox} aria-hidden="true" focusable="false">
             <defs>
               <filter id="cy-soft" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="9"></feGaussianBlur>
@@ -846,17 +833,6 @@ const heroRack = [0, 1, 2].map((k) => {
               <clipPath id="cy-zone-clip">
                 {platform.map((zone) => <polygon points={zone.top} />)}
               </clipPath>
-              <linearGradient id="cy-disc" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#2c3850"></stop>
-                <stop offset="0.55" stop-color="#1d2738"></stop>
-                <stop offset="1" stop-color="#121925"></stop>
-              </linearGradient>
-              <linearGradient id="cy-disc-active" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#d9ff6b"></stop>
-                <stop offset="0.55" stop-color="#a9d21f"></stop>
-                <stop offset="1" stop-color="#7a9a12"></stop>
-              </linearGradient>
-              <path id="cy-route" d={link}></path>
             </defs>
 
             <!-- platform glow and zones -->
@@ -877,17 +853,42 @@ const heroRack = [0, 1, 2].map((k) => {
             <g class="cy-grid" clip-path="url(#cy-zone-clip)">
               {gridLines.map((points) => <polyline points={points} />)}
             </g>
-            <g class="cy-zone-labels" aria-hidden="true">
+            <g class="cy-zone-labels">
               {zoneLabels.map((zone) => <text transform={zone.transform}>{zone.label}</text>)}
             </g>
 
-            <!-- data link with moving packets -->
+            <!-- data link bed and its glow -->
             <path class="cy-link-bed" d={link}></path>
             <path class="cy-link-glow" d={link} filter="url(#cy-glow)"></path>
+          </svg>
+
+          <svg class="cy-scene cy-scene-live" viewBox={viewBox} role="group" aria-label={t.systemTitle} data-scene>
+            <defs>
+              <linearGradient id="cy-disc" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#2c3850"></stop>
+                <stop offset="0.55" stop-color="#1d2738"></stop>
+                <stop offset="1" stop-color="#121925"></stop>
+              </linearGradient>
+              <linearGradient id="cy-disc-active" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#d9ff6b"></stop>
+                <stop offset="0.55" stop-color="#a9d21f"></stop>
+                <stop offset="1" stop-color="#7a9a12"></stop>
+              </linearGradient>
+              <!-- A soft halo drawn as a radial gradient: the old drop-shadow filter re-ran per packet per frame. -->
+              <radialGradient id="cy-packet-glow">
+                <stop offset="0" stop-color="#c6f432" stop-opacity="0.75"></stop>
+                <stop offset="0.45" stop-color="#c6f432" stop-opacity="0.3"></stop>
+                <stop offset="1" stop-color="#c6f432" stop-opacity="0"></stop>
+              </radialGradient>
+              <path id="cy-route" d={link}></path>
+            </defs>
+
+            <!-- moving packets on the data link -->
             <path class="cy-link" d={link}></path>
             {
               [0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
                 <g class="cy-packet">
+                  <circle class="cy-packet-glow" cx="0" cy="-4" r="11" />
                   <polygon class="cy-packet-l" points={packet.left} />
                   <polygon class="cy-packet-r" points={packet.right} />
                   <polygon class="cy-packet-t" points={packet.top} />
@@ -968,6 +969,7 @@ const heroRack = [0, 1, 2].map((k) => {
               })
             }
           </svg>
+          </div>
 
           <div class="cy-model-foot">
             <div class="cy-card" aria-live="off" data-card>
