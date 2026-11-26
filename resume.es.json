@@ -367,10 +367,10 @@
           "logo": "Context"
         },
         {
-          "name": "LLM Integration",
+          "name": "Adaptive Spec-Driven Development",
           "level": "Intermedio",
-          "notes": "Integración de LLMs en sistemas backend, APIs y workflows para casos de uso reales",
-          "logo": "LLM"
+          "notes": "Especificaciones, tareas y verificación proporcionales a cada cambio: un ajuste pequeño se hace directamente y una funcionalidad grande lleva especificaciones, tareas y tests trazados",
+          "logo": "SDD"
         },
         {
           "name": "Human-in-the-Loop Development",

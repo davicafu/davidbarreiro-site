@@ -66,7 +66,7 @@ const toPublicPath = (value: unknown) => (typeof value === 'string' ? value.repl
 const AI_SKILL_ICONS: Record<string, string> = {
   'Agentic Systems': '/assets/logos/ai-agentic.svg',
   'Context Engineering': '/assets/logos/ai-context.svg',
-  'LLM Integration': '/assets/logos/ai-llm.svg',
+  'Adaptive Spec-Driven Development': '/assets/logos/ai-spec.svg',
   'Human-in-the-Loop Development': '/assets/logos/ai-human-loop.svg'
 };
 const skillLogo = (name: string, logo: unknown) =>
