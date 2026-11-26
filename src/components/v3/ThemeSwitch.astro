@@ -1,15 +1,15 @@
 ---
 /**
- * Theme menu shared by the redesigns (/v6/, /v7/, /v9/). Each theme is its own page, so
- * switching is a link that keeps the locale and the section the visitor is reading.
- * It renders as a "Theme" menu button with a popover listing the themes plus the current
- * site. Pages style it through the --ts-* custom properties; the defaults are neutral.
+ * Theme menu shared by the themes: Dev (/, the default), Editorial (/v6/) and Live (/v7/).
+ * Each theme is its own page, so switching is a link that keeps the locale and the section
+ * the visitor is reading. It renders as a "Theme" menu button with a popover listing the
+ * themes. Pages style it through the --ts-* custom properties; the defaults are neutral.
  */
-export type ThemeId = 'poster' | 'infra' | 'command' | 'current';
+export type ThemeId = 'poster' | 'infra' | 'command';
 
 interface Props {
   locale: 'en' | 'es';
-  current: Exclude<ThemeId, 'current'>;
+  current: ThemeId;
 }
 
 const { locale, current } = Astro.props;
@@ -38,17 +38,10 @@ const themes: {
   },
   {
     id: 'command',
-    path: '/v9/',
+    path: '/',
     colors: ['#0a0b0d', '#d4ff3a', '#8f9dff'],
     label: { en: 'Dev', es: 'Dev' },
     hint: { en: '⌘K command palette', es: 'Paleta de comandos ⌘K' }
-  },
-  {
-    id: 'current',
-    path: '/',
-    colors: ['#020617', '#0f172a', '#67e8f9'],
-    label: { en: 'Current', es: 'Actual' },
-    hint: { en: 'Current site', es: 'Web actual' }
   }
 ];
 
@@ -81,7 +74,7 @@ const menuId = `ts-menu-${current}`;
           <li>
             <a
               class="ts-option"
-              href={theme.id === 'current' ? `${prefix}/` : `${prefix}${theme.path}`}
+              href={`${prefix}${theme.path}`}
               data-theme-id={theme.id}
               aria-current={theme.id === current ? 'true' : undefined}
             >

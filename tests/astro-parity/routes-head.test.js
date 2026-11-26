@@ -25,10 +25,18 @@ test('built routes expose expected lang/canonical/hreflang contracts', async () 
       html,
       /<link rel="alternate" hreflang="x-default" href="https:\/\/davidbarreiro\.dev\/"\s*>/i
     );
-    assert.match(html, /id="resume-data"/i);
-    assert.match(html, /href="\/cv-one-page\.pdf"/i);
+    assert.match(html, /<meta name="robots" content="index, follow/i);
     assert.match(html, /href="\/cv-professional\.pdf"/i);
-    assert.match(html, /href="\/cv-jsonresume\.pdf"/i);
+    assert.doesNotMatch(html, /href="\/cv-one-page\.pdf"/i);
+    assert.doesNotMatch(html, /href="\/cv-jsonresume\.pdf"/i);
     assert.doesNotMatch(html, /dist\/styles\.css/i);
   }
+});
+
+test('theme alternatives stay out of search and the old Dev preview route redirects home', async () => {
+  for (const route of ['v6/index.html', 'v7/index.html', 'es/v6/index.html', 'es/v7/index.html']) {
+    assert.match(await readBuiltPage(route), /<meta name="robots" content="noindex, follow"/i, route);
+  }
+  assert.match(await readBuiltPage('v9/index.html'), /http-equiv="refresh" content="0;url=\/"/i);
+  assert.match(await readBuiltPage('es/v9/index.html'), /http-equiv="refresh" content="0;url=\/es\/"/i);
 });

@@ -1,4 +1,4 @@
-/** 16px stroke icons for the command palette redesign (/v9/). Paths only; the markup sets the stroke. */
+/** 16px stroke icons for the Dev theme (/ and /es/). Paths only; the markup sets the stroke. */
 export const ICONS = {
   search: 'M7 12.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11ZM11 11l3.5 3.5',
   hash: 'M6 2 4.5 14M11.5 2 10 14M2.5 5.5h11M2 10.5h11',

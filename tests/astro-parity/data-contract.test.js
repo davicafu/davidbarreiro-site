@@ -9,35 +9,28 @@ async function readProjectFile(relativePath) {
   return readFile(path.join(projectRoot, relativePath), 'utf8');
 }
 
-function getEmbeddedResumeData(html) {
-  const scriptMatch = html.match(/<script[^>]*id="resume-data"[^>]*>([\s\S]*?)<\/script>/i);
-  assert.ok(scriptMatch, 'Embedded resume-data script was not found');
-  return JSON.parse(scriptMatch[1]);
-}
-
 function parseJsonWithOptionalBom(raw) {
-  return JSON.parse(raw.replace(/^\uFEFF/, ''));
+  return JSON.parse(raw.replace(/^﻿/, ''));
 }
 
-test('embedded resume payload matches source JSON essentials for EN and ES', async () => {
-  const [enHtml, esHtml, enSourceRaw, esSourceRaw] = await Promise.all([
-    readProjectFile('_site/index.html'),
-    readProjectFile('_site/es/index.html'),
-    readProjectFile('resume.json'),
-    readProjectFile('resume.es.json')
-  ]);
+const escapeHtml = (value) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-  const enPayload = getEmbeddedResumeData(enHtml);
-  const esPayload = getEmbeddedResumeData(esHtml);
-  const enSource = parseJsonWithOptionalBom(enSourceRaw);
-  const esSource = parseJsonWithOptionalBom(esSourceRaw);
+test('home pages render the resume essentials for EN and ES', async () => {
+  for (const [page, source] of [
+    ['_site/index.html', 'resume.json'],
+    ['_site/es/index.html', 'resume.es.json']
+  ]) {
+    const [html, raw] = await Promise.all([readProjectFile(page), readProjectFile(source)]);
+    const resume = parseJsonWithOptionalBom(raw);
 
-  assert.equal(enPayload.basics?.email, enSource.basics?.email);
-  assert.equal(esPayload.basics?.email, esSource.basics?.email);
-  assert.equal(enPayload.basics?.label, enSource.basics?.label);
-  assert.equal(esPayload.basics?.label, esSource.basics?.label);
-  assert.equal(Array.isArray(enPayload.portfolio), true);
-  assert.equal(Array.isArray(esPayload.portfolio), true);
-  assert.ok(enPayload.portfolio.length > 0, 'EN portfolio should not be empty');
-  assert.ok(esPayload.portfolio.length > 0, 'ES portfolio should not be empty');
+    assert.ok(html.includes(`mailto:${resume.basics.email}`), `${page} contact email missing`);
+    assert.ok(resume.portfolio.length > 0, `${source} portfolio should not be empty`);
+    for (const project of resume.portfolio) {
+      assert.ok(html.includes(escapeHtml(project.name)), `${page} project missing: ${project.name}`);
+    }
+    for (const job of resume.work) {
+      assert.ok(html.includes(escapeHtml(job.name)), `${page} job missing: ${job.name}`);
+    }
+  }
 });

@@ -18,33 +18,26 @@ function assertIncludesInOrder(html, markers) {
   }
 }
 
-test('critical section and visual mount order remains stable', async () => {
+test('home sections keep the site order and the menu reaches every section', async () => {
   const [enHtml, esHtml] = await Promise.all([readBuiltPage('index.html'), readBuiltPage('es/index.html')]);
 
-  const routes = [
-    { name: 'en', html: enHtml },
-    { name: 'es', html: esHtml }
-  ];
-
-  for (const { name, html } of routes) {
+  for (const [name, html] of [
+    ['en', enHtml],
+    ['es', esHtml]
+  ]) {
     assertIncludesInOrder(html, [
-      'id="experience"',
-      'id="timeline-tip"',
-      'id="timeline"',
-      'id="skills"',
-      'id="legend"',
-      'id="bubbles"',
-      'id="flow-tip"',
-      'id="flow"',
+      'id="capabilities"',
       'id="portfolio"',
+      'id="system-design"',
+      'id="experience"',
+      'id="skills"',
       'id="contact"'
     ]);
 
-    assert.match(html, /id="nav-experience"/i, `${name} nav experience missing`);
-    assert.match(html, /id="nav-skills"/i, `${name} nav skills missing`);
-    assert.match(html, /id="nav-portfolio"/i, `${name} nav portfolio missing`);
-    assert.match(html, /id="nav-contact"/i, `${name} nav contact missing`);
-    assert.match(html, /id="lang-en-link" href="\/"/i, `${name} EN link mismatch`);
-    assert.match(html, /id="lang-es-link" href="\/es\/"/i, `${name} ES link mismatch`);
+    for (const section of ['portfolio', 'experience', 'skills', 'contact']) {
+      assert.match(html, new RegExp(`href="#${section}"`), `${name} menu link to #${section} missing`);
+    }
+    assert.match(html, /<a href="\/" hreflang="en"/i, `${name} EN link mismatch`);
+    assert.match(html, /<a href="\/es\/" hreflang="es"/i, `${name} ES link mismatch`);
   }
 });

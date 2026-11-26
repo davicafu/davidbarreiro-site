@@ -1,5 +1,5 @@
 /**
- * Client behaviour for the command palette redesign (/v9/): the inline and ⌘K palettes,
+ * Client behaviour for the Dev theme (/ and /es/): the inline and ⌘K palettes,
  * the scripted demo, the help dialog, the pipeline inspector, the CV menu, the release list, the project
  * filter and the skill tabs. No dependencies; without this script every palette option is
  * still a plain link and every section is readable.
