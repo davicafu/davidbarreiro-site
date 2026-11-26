@@ -75,9 +75,9 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T30 | S20, S27, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 9ad7367 |
 | T31 | S20, S23, S24, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 236ce4c |
 | T32 | S30        | inline | done | L24, 0dea34b |
-| T33 | S31        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
-| T34 | S32        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
-| T35 | S33        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
+| T33 | S31        | delegated (parallel writers, disjoint surfaces) | done | L24, c2b4529 |
+| T34 | S32        | delegated (parallel writers, disjoint surfaces) | done | L24, 324c1f2 |
+| T35 | S33        | delegated (parallel writers, disjoint surfaces) | done | L24, 05b75f7 |
 
 ## Non-goals
 
@@ -177,3 +177,7 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - The manifest icon paths are fixed.
   - The theme order is Dev, Live, Editorial in the switch, the palette and `/v3/`.
   - Tests: 7/7; v9 probe ALL PASS.
+  T33–T35 integrated:
+  - build OK; tests 7/7; v9 probe ALL PASS (162 checks); v7 and v6 probes report `errors []`
+  - The Live stutter was GPU raster work: the blurred SVG backdrop was re-rasterised under the moving packets. With static and live layers split, GPU time is about 4x lower and p95 is 16.7 ms with no throttling.
+  - Open: the owner's decision on adding the AI-workflow line to Factorial, and on the Editorial accordion breakpoint (860px chosen instead of 560px).
