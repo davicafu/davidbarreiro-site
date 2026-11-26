@@ -118,26 +118,6 @@ const t = {
     copied: 'Email copied to the clipboard',
     copyFailed: 'Could not copy. Use the email link instead.',
     capabilitiesTitle: 'Capabilities',
-    capabilities: [
-      {
-        label: 'Backend',
-        heading: 'Hexagonal · DDD · Event-Driven',
-        description:
-          'Domain-centric design, decoupled architectures and scalable distributed systems focused on long-term maintainability.'
-      },
-      {
-        label: 'Data',
-        heading: 'Batch & Stream · High Throughput · Scalability',
-        description:
-          'Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.'
-      },
-      {
-        label: 'Platform',
-        heading: 'High Availability · Automation · Observability',
-        description:
-          'Building resilient infrastructure, streamlining operations and providing deep insights into system performance.'
-      }
-    ],
     portfolioKicker: 'Portfolio',
     portfolioTitle: 'Personal projects & technical work',
     projectsIntro: 'Filter by topic; a project shows if it has any selected topic.',
@@ -277,24 +257,6 @@ const t = {
     copied: 'Email copiado al portapapeles',
     copyFailed: 'No se pudo copiar. Usa el enlace de email.',
     capabilitiesTitle: 'Capacidades',
-    capabilities: [
-      {
-        label: 'Backend',
-        heading: 'Hexagonal · DDD · Event-Driven',
-        description:
-          'Diseño orientado al dominio, arquitecturas desacopladas y sistemas distribuidos escalables mantenibles.'
-      },
-      {
-        label: 'Data',
-        heading: 'Batch y Stream · Alto Throughput · Escalabilidad',
-        description: 'Pipelines robustos capaces de procesar grandes volúmenes, con baja latencia y escalado fluido.'
-      },
-      {
-        label: 'Plataforma',
-        heading: 'Alta Disponibilidad · Automatización · Observabilidad',
-        description: 'Infraestructura resiliente, operaciones automatizadas y observabilidad profunda del rendimiento.'
-      }
-    ],
     portfolioKicker: 'Portfolio',
     portfolioTitle: 'Proyectos personales y trabajo técnico',
     projectsIntro: 'Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
@@ -670,14 +632,21 @@ const groups: CommandGroup[] = [
         <h2 id="capabilities-title" class="cp-sr">{t.capabilitiesTitle}</h2>
         <ul class="cp-caps">
           {
-            t.capabilities.map((card, index) => (
+            c.capabilities.map((card, index) => (
               <li class="cp-cap" style={`--i:${index}`}>
                 <p class="cp-cap-label">
                   <span class="cp-cap-key" aria-hidden="true">{['be', 'da', 'pl'][index]}</span>
                   {card.label}
                 </p>
                 <h3>{card.heading}</h3>
-                <p>{card.description}</p>
+                <ul class="cp-cap-proof">
+                  {card.proof.map((item) => (
+                    <li>
+                      {item.text}
+                      <span>{item.where}</span>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))
           }

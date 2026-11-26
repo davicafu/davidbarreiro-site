@@ -36,26 +36,6 @@ const t = {
     moreSummary: 'Read the full summary',
     lessSummary: 'Hide the full summary',
     capabilitiesTitle: 'Capabilities',
-    capabilities: [
-      {
-        label: 'Backend',
-        heading: 'Hexagonal · DDD · Event-Driven',
-        description:
-          'Domain-centric design, decoupled architectures and scalable distributed systems focused on long-term maintainability.'
-      },
-      {
-        label: 'Data',
-        heading: 'Batch & Stream · High Throughput · Scalability',
-        description:
-          'Robust data pipelines capable of handling massive volumes, ensuring low latency and seamless scaling for complex workloads.'
-      },
-      {
-        label: 'Platform',
-        heading: 'High Availability · Automation · Observability',
-        description:
-          'Building resilient infrastructure, streamlining operations and providing deep insights into system performance.'
-      }
-    ],
     portfolioKicker: 'Portfolio',
     portfolioTitle: 'Personal projects & technical work',
     portfolioIntro: 'Filter by topic; a project shows if it has any selected topic.',
@@ -99,26 +79,6 @@ const t = {
     moreSummary: 'Leer el resumen completo',
     lessSummary: 'Ocultar el resumen completo',
     capabilitiesTitle: 'Capacidades',
-    capabilities: [
-      {
-        label: 'Backend',
-        heading: 'Hexagonal · DDD · Event-Driven',
-        description:
-          'Diseño orientado al dominio, arquitecturas desacopladas y sistemas distribuidos escalables mantenibles.'
-      },
-      {
-        label: 'Data',
-        heading: 'Batch y Stream · Alto Throughput · Escalabilidad',
-        description:
-          'Pipelines robustos capaces de procesar grandes volúmenes, con baja latencia y escalado fluido.'
-      },
-      {
-        label: 'Plataforma',
-        heading: 'Alta Disponibilidad · Automatización · Observabilidad',
-        description:
-          'Infraestructura resiliente, operaciones automatizadas y observabilidad profunda del rendimiento.'
-      }
-    ],
     portfolioKicker: 'Portfolio',
     portfolioTitle: 'Proyectos personales y trabajo técnico',
     portfolioIntro: 'Filtra por tema; un proyecto aparece si tiene alguno de los temas elegidos.',
@@ -305,11 +265,18 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
         <h2 id="capabilities-title" class="sp-sr">{t.capabilitiesTitle}</h2>
         <ul class="sp-caps-grid">
           {
-            t.capabilities.map((card, index) => (
+            c.capabilities.map((card, index) => (
               <li class:list={['sp-cap', `sp-f-${['red', 'cobalt', 'ochre'][index]}`]}>
                 <p class="sp-cap-label">{card.label}</p>
                 <h3>{card.heading}</h3>
-                <p class="sp-cap-desc">{card.description}</p>
+                <ul class="sp-cap-proof">
+                  {card.proof.map((item) => (
+                    <li>
+                      {item.text}
+                      <span>{item.where}</span>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))
           }

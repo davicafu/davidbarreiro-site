@@ -96,6 +96,68 @@ const PROJECT_ONE_LINERS: Record<Locale, Record<string, string>> = {
   }
 };
 
+/** Capability cards: each claim is backed by where it was done (jobs or personal projects). */
+const CAPABILITIES: Record<Locale, { label: string; heading: string; proof: { text: string; where: string }[] }[]> = {
+  en: [
+    {
+      label: 'Backend',
+      heading: 'Services designed around the domain',
+      proof: [
+        { text: 'Microservices and APIs in Java and Spring Boot', where: 'Altia' },
+        { text: 'Backend services and internal tools in Go', where: 'SDG Group' },
+        { text: 'Authentication module and gRPC + REST services', where: 'go-auth-kit · Go Microservice Suite' }
+      ]
+    },
+    {
+      label: 'Data',
+      heading: 'Pipelines from ingestion to analytics',
+      proof: [
+        { text: 'Reliability and performance of the analytics platform on Kafka and ClickHouse', where: 'Factorial' },
+        { text: 'Spark, Kafka Connect, Debezium, dbt and Airflow', where: 'SDG Group' },
+        { text: 'Near real-time pipelines with Kafka Streams', where: 'Altia' }
+      ]
+    },
+    {
+      label: 'Platform',
+      heading: 'Systems that stay up and can be observed',
+      proof: [
+        { text: 'Clusters of 100–200 servers for data processing', where: 'Indra' },
+        { text: 'Monitoring with Prometheus and Grafana, automated deployments', where: 'Altia · SDG Group' },
+        { text: 'Tracing with OpenTelemetry, metrics and SLO views', where: 'observekit' }
+      ]
+    }
+  ],
+  es: [
+    {
+      label: 'Backend',
+      heading: 'Servicios diseñados alrededor del dominio',
+      proof: [
+        { text: 'Microservicios y APIs en Java y Spring Boot', where: 'Altia' },
+        { text: 'Servicios backend y herramientas internas en Go', where: 'SDG Group' },
+        { text: 'Módulo de autenticación y servicios gRPC + REST', where: 'go-auth-kit · Go Microservice Suite' }
+      ]
+    },
+    {
+      label: 'Datos',
+      heading: 'Pipelines desde la ingesta hasta la analítica',
+      proof: [
+        { text: 'Fiabilidad y rendimiento de la plataforma analítica sobre Kafka y ClickHouse', where: 'Factorial' },
+        { text: 'Spark, Kafka Connect, Debezium, dbt y Airflow', where: 'SDG Group' },
+        { text: 'Pipelines casi en tiempo real con Kafka Streams', where: 'Altia' }
+      ]
+    },
+    {
+      label: 'Plataforma',
+      heading: 'Sistemas que se mantienen en pie y se pueden observar',
+      proof: [
+        { text: 'Clústeres de 100–200 servidores para procesamiento de datos', where: 'Indra' },
+        { text: 'Monitorización con Prometheus y Grafana, despliegues automatizados', where: 'Altia · SDG Group' },
+        { text: 'Trazas con OpenTelemetry, métricas y vistas de SLO', where: 'observekit' }
+      ]
+    }
+  ]
+};
+
 const COPY = {
   en: {
     role: 'Senior Software Engineer',
@@ -227,6 +289,7 @@ export function getPreviewContent(locale: Locale) {
     linkedinUrl,
     copy,
     cvUrl: '/cv-professional.pdf',
+    capabilities: CAPABILITIES[locale],
     work,
     education,
     timeline: [...work, ...education].sort((a, b) => b.start - a.start),

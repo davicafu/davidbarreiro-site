@@ -688,11 +688,27 @@
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
-.sp-cap-desc {
+.sp-cap-proof {
+  display: grid;
+  gap: 0.7rem;
   margin-top: auto;
+  padding: 0;
+  list-style: none;
   font-weight: 500;
-  line-height: 1.45;
-  opacity: 0.92;
+  line-height: 1.35;
+}
+.sp-cap-proof li {
+  display: grid;
+  gap: 0.25rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+}
+.sp-cap-proof span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
 }
 .sp-js .sp-caps[data-reveal]:not(.is-in) .sp-cap {
   opacity: 0;

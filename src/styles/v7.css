@@ -581,7 +581,7 @@
   margin: 0 auto;
   padding: 0 var(--gutter) clamp(3rem, 6vw, 5rem);
 }
-.cy-capabilities ul {
+.cy-capabilities > ul {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1px;
@@ -593,12 +593,12 @@
   border-radius: 14px;
   overflow: hidden;
 }
-.cy-capabilities li {
+.cy-capabilities > ul > li {
   padding: clamp(1.25rem, 2.2vw, 1.75rem);
   background: var(--bg-2);
   transition: background 0.2s;
 }
-.cy-capabilities li:hover {
+.cy-capabilities > ul > li:hover {
   background: var(--panel);
 }
 .cy-cap-label {
@@ -619,10 +619,23 @@
   line-height: 1.25;
   letter-spacing: -0.015em;
 }
-.cy-capabilities li p:last-child {
-  margin: 0;
+.cy-cap-proof {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.cy-cap-proof li {
+  display: grid;
+  gap: 0.25rem;
   color: var(--text-2);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.cy-cap-proof span {
+  color: var(--text-3);
+  font: 500 0.74rem/1.3 var(--mono);
 }
 
 /* The topology sits in its own section now; only the pause control stays in its head. */
@@ -1894,7 +1907,7 @@
   .cy-section-head {
     position: static;
   }
-  .cy-capabilities ul {
+  .cy-capabilities > ul {
     grid-template-columns: minmax(0, 1fr);
   }
   .cy-model-foot {
