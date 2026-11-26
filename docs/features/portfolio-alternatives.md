@@ -33,6 +33,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 - S27 (L23, Live): "el icono de la web que sale arriba no me gusta, busca algo mejor. y el pipeline de ruby go kafka tampoco, no creo que ruby deba reportarlo tan alegremente. los iconos de los proyectos que les pones tampoco me gustan mucho, me gustaria que fueran algo relacionado con el tema del repo, en la parte de como diseño me gusta mucho pero en la parte de simulated telemetry siempre sale lo mismo, tendria sentido que se cambiaran segun la seccion que se esta diseñando?"
 - S28 (L23, all themes): "en donde haya linkendni o github no estaria mejor tambien poner su icono? con como corresponda mejor con el estilo del tema de la web?"
 - S29 (L23, question): "como se podrian generar la capabilities mejor para que aportasen valor?"
+- S30 (L24, data): "skills, docker pasa a avanzado, no experto. kafka a experto. agentic systems avanzado, adaptative sdd y human in the loop experto." "el favicon lo podrias mejorar? tiene las esquinas blancas y queda feo, deberia ser negras". "en el selectot de tema, dev, live y editorial quiero que sea el orden"
+- S31 (L24, Dev): "no me acaba de convecer el diseño, a dejado de ser dev/hacker, cambialo, los logos de los poryectos tambien podrian ser de la tematica del proyecto el como diseño esta un poco mejor, pero todas tienen el check, ya de inicio, deberian tener un cargando o similar, ademas revisa los estilos porque alguna letra sale del vorde del cuadro. estaria bien que esta parte fuese un poco mas dinamica ya que es estilo dev"
+- S32 (L24, Live): "lo de pipeline aportar realmente ahi? el icono es terriblemente horrible, espero que hagas lago mejor, no tiene proque ser con mi logo, me vale cualqueir cosa para ese en la animacion de como diseño me encanta, pero afece se atranca, es cuulpa de esta patata de portatil o se podria hacer mas eficiente sin perder lo que tenemos?"
+- S33 (L24, Editorial): "en la parte de como diseño, los cuadro se fueran engrandciendo segun calcas en ellos y no en uno al lado? porque asi tambien facilita la vista en mobil"
 - S5 (assumption): alternative routes are `noindex` and point their canonical at the main pages, so search engines do not see duplicate content.
 
 ## Tasks
@@ -70,6 +74,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
 | T29 | S20, S26, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, da18f56 |
 | T30 | S20, S27, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 9ad7367 |
 | T31 | S20, S23, S24, S28 | delegated (parallel writers, disjoint surfaces) | done | L23, 236ce4c |
+| T32 | S30        | inline | done | L24, 0dea34b |
+| T33 | S31        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
+| T34 | S32        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
+| T35 | S33        | delegated (parallel writers, disjoint surfaces) | in progress | L24 |
 
 ## Non-goals
 
@@ -162,3 +170,10 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - v9 probe ALL PASS (147 checks, including Meta+K and Ctrl+K typing, the held-key repeat and per-OS labels); v7 and v6 probes report `errors []`
   - Root cause of the ⌘K report: keyboard auto-repeat toggled the palette closed, so typing fell back into the hero palette. Repeated keydown events are now ignored.
   - Open: S25 (playable retro games, proposed as a separate `/play/` page with Go→WASM) and S29 (capability metrics need the owner's numbers). "LLM Integration" vs "Spec-Driven Development" is waiting for the owner's answer.
+- L24 (2026-11-26, owner): "vale el cv del pdf ya perfecto, vamos a tocar cositas ya a nivel general: skills, docker pasa a avanzado, no experto. kafka a experto. agentic systems avanzado, adaptative sdd y human in the loop experto. se deberia poner en factorial que se trabaja con esto para refundar esto o con mis poryectos basta? ai assisted engenering deberia cambiarlo por ai engenerring¿? el favicon lo podrias mejorar? tiene las esquinas blancas y queda feo, deberia ser negras temas: dev: no me acaba de convecer el diseño, a dejado de ser dev/hacker, cambialo, los logos de los poryectos tambien podrian ser de la tematica del proyecto el como diseño esta un poco mejor, pero todas tienen el check, ya de inicio, deberian tener un cargando o similar, ademas revisa los estilos porque alguna letra sale del vorde del cuadro. estaria bien que esta parte fuese un poco mas dinamica ya que es estilo dev en el de live: lo de pipeline aportar realmente ahi? el icono es terriblemente horrible, espero que hagas lago mejor, no tiene proque ser con mi logo, me vale cualqueir cosa para ese en la animacion de como diseño me encanta, pero afece se atranca, es cuulpa de esta patata de portatil o se podria hacer mas eficiente sin perder lo que tenemos? en el de editoiral podria ser que en la parte de como diseño, los cuadro se fueran engrandciendo segun calcas en ellos y no en uno al lado? porque asi tambien facilita la vista en mobil en el selectot de tema, dev, live y editorial quiero que sea el orden"
+  T32 (inline, 0dea34b):
+  - Skill levels are updated in both JSON files.
+  - The favicon PNGs were redrawn on black and the ICO rebuilt from them; originals are in `favicon/original/`.
+  - The manifest icon paths are fixed.
+  - The theme order is Dev, Live, Editorial in the switch, the palette and `/v3/`.
+  - Tests: 7/7; v9 probe ALL PASS.
