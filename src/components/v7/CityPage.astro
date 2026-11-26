@@ -37,6 +37,7 @@ const t = {
       title: 'Node status',
       now: 'Now',
       region: 'Region',
+      remote: 'Remote',
       certified: 'Certified',
       credential: (issuer: string) => `${issuer} credential`,
       projects: 'Projects',
@@ -109,6 +110,7 @@ const t = {
       title: 'Estado del nodo',
       now: 'Ahora',
       region: 'Región',
+      remote: 'Remoto',
       certified: 'Certificado',
       credential: (issuer: string) => `Credencial de ${issuer}`,
       projects: 'Proyectos',
@@ -514,7 +516,7 @@ const levelDots = (level: string) => t.levels[level] ?? 0;
 // Hero facts, all derived from the resume: current release, where the node runs, credentials and services.
 const currentJob = c.work[0];
 const place = resume.basics.location;
-const region = [place?.city, place?.countryCode].filter(Boolean).join(', ');
+const region = [place?.city, t.facts.remote].filter(Boolean).join(' / ');
 const credentials = c.certificateDetails
   .filter((cert) => cert.url && cert.issuer)
   .filter((cert, index, list) => list.findIndex((other) => other.issuer === cert.issuer) === index);

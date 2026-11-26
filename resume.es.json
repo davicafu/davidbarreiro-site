@@ -119,7 +119,8 @@
         "Optimizar los motores de consultas analíticas y los modelos de datos para mejorar el rendimiento y la escalabilidad de las consultas.",
         "Resolver incidencias en producción en pipelines de datos distribuidos y mantener la observabilidad y la monitorización de la plataforma.",
         "Diseñar y desarrollar dashboards internos para monitorizar la calidad de los datos, el rendimiento de la plataforma y los costes de infraestructura.",
-        "Desarrollar y mejorar las capacidades de analítica e informes para clientes junto con los Account Managers, traduciendo las necesidades de los clientes en soluciones técnicas."
+        "Desarrollar y mejorar las capacidades de analítica e informes para clientes junto con los Account Managers, traduciendo las necesidades de los clientes en soluciones técnicas.",
+        "Desarrollar funcionalidades con flujos de agentes de IA (Claude Code), especificaciones adaptadas al tamaño de cada cambio y revisión humana de todo lo que se entrega."
       ]
     },
     {
