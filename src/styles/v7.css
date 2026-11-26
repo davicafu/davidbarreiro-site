@@ -227,6 +227,37 @@
   color: var(--accent);
   font-weight: 500;
 }
+.cy-mark {
+  flex: none;
+  display: block;
+}
+.cy-mark-frame {
+  fill: var(--panel);
+  stroke: var(--line-2);
+  stroke-width: 1;
+}
+.cy-mark-ink,
+.cy-mark-code {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cy-mark-ink {
+  stroke-width: 2.2;
+}
+.cy-mark-code {
+  stroke: var(--link);
+  stroke-width: 1.1;
+}
+.cy-brand:hover .cy-mark-frame {
+  stroke: var(--accent);
+}
+/* Brand glyphs next to the GitHub and LinkedIn links. */
+.cy-social {
+  flex: none;
+  fill: currentColor;
+  opacity: 0.85;
+}
 .cy-nav {
   display: flex;
   gap: 0.25rem;
@@ -523,23 +554,10 @@
   color: var(--text-3);
 }
 .cy-flow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.cy-flow li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
   color: var(--text);
-  font: 500 0.82rem/1 var(--mono);
+  font: 500 0.82rem/1.4 var(--mono);
 }
-.cy-flow li + li::before {
-  content: '→' / '';
+.cy-flow-arrow {
   color: var(--accent);
 }
 .cy-spec-links {
@@ -672,6 +690,9 @@
   font: 500 0.85rem/1 var(--mono);
 }
 .cy-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   color: var(--text-2);
   text-decoration: none;
   border-bottom: 1px solid var(--line-2);
@@ -1125,6 +1146,7 @@
 }
 .cy-telemetry-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin: 0 0 0.9rem;
@@ -1132,6 +1154,12 @@
   font: 400 0.72rem/1 var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+.cy-telemetry-scope {
+  margin-left: auto;
+  color: var(--link);
+  text-transform: none;
+  letter-spacing: 0;
 }
 .cy-telemetry dl {
   display: grid;
@@ -1571,14 +1599,23 @@
   gap: 0.75rem;
   margin-bottom: 0.9rem;
 }
-.cy-service-icon .cy-face-top {
-  fill: var(--accent);
+.cy-service-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--accent);
 }
-.cy-service-icon .cy-face-left {
-  fill: #8fb31b;
-}
-.cy-service-icon .cy-face-right {
-  fill: #6a8613;
+.cy-service-icon svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .cy-service-id {
   min-width: 0;

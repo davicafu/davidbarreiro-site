@@ -1,14 +1,23 @@
 /**
  * Client behaviour for the isometric-infrastructure redesign (/live/): layer detail card with a
- * guided tour, traffic pause with simulated telemetry, CV menu, project filter and skill tabs.
+ * guided tour, traffic pause with per-layer simulated telemetry, CV menu, project filter and skill tabs.
  * No dependencies; every feature degrades to readable static content when this script does not run.
  */
+
+interface Probe {
+  label: string;
+  base: number;
+  spread: number;
+  dp: number;
+  unit: string;
+}
 
 interface StageInfo {
   name: string;
   detail: string;
   tech: string[];
   service: string;
+  telemetry: Probe[];
 }
 
 interface CityPayload {
@@ -22,7 +31,7 @@ const payload: CityPayload | null = payloadNode ? JSON.parse(payloadNode.textCon
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /* ---------------- Layer card ---------------- */
-function setupCard(data: CityPayload) {
+function setupCard(data: CityPayload, onShow: (index: number) => void) {
   const card = document.querySelector<HTMLElement>('[data-card]');
   if (!card) return undefined;
   const num = card.querySelector<HTMLElement>('[data-card-num]');
@@ -46,6 +55,7 @@ function setupCard(data: CityPayload) {
     if (num) num.textContent = pad(index + 1);
     if (meta) meta.textContent = data.labels.stage.replace('{n}', String(index + 1)).replace('{n}', String(total));
     if (name) name.textContent = info.name;
+    onShow(index);
     if (detail) detail.textContent = info.detail;
     if (service) service.textContent = info.service;
     if (tech) {
@@ -105,45 +115,77 @@ function setupCard(data: CityPayload) {
 }
 
 /* ---------------- Simulated telemetry ---------------- */
-// Illustrative numbers only (the panel says so): a bounded random walk that ticks while traffic runs.
-function setupTelemetry() {
+// Illustrative numbers only (the panel says so). Each layer has its own metrics; every one is a
+// bounded random walk around its base value that ticks while traffic runs. The chart follows the first.
+function setupTelemetry(stagesInfo: StageInfo[]) {
   const root = document.querySelector<HTMLElement>('[data-telemetry]');
-  if (!root) return (_running: boolean) => {};
-  const eps = root.querySelector<HTMLElement>('[data-metric="eps"]');
-  const p99 = root.querySelector<HTMLElement>('[data-metric="p99"]');
-  const lag = root.querySelector<HTMLElement>('[data-metric="lag"]');
+  if (!root) return { select: (_index: number) => {}, setRunning: (_running: boolean) => {} };
+  const values = [...root.querySelectorAll<HTMLElement>('[data-metric]')];
+  const labels = [...root.querySelectorAll<HTMLElement>('[data-metric-label]')];
+  const scope = root.querySelector<HTMLElement>('[data-telemetry-scope]');
   const chart = root.querySelector<SVGPolylineElement>('[data-chart]');
   const SAMPLES = 32;
-  const history: number[] = [];
-  let rate = 48.2;
-  let timer: number | undefined;
   const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+  const range = (probe: Probe) => {
+    const lo = Math.max(0, probe.base - probe.spread);
+    const hi = probe.unit === '%' ? Math.min(100, probe.base + probe.spread) : probe.base + probe.spread;
+    return [lo, hi] as const;
+  };
+
+  let probes: Probe[] = [];
+  let current: number[] = [];
+  let history: number[] = [];
+  let selected = -1;
+  let timer: number | undefined;
 
   const tick = () => {
-    rate = clamp(rate + (Math.random() - 0.5) * 3.2, 38, 61);
-    history.push(rate);
+    current = current.map((value, i) => {
+      const [lo, hi] = range(probes[i]);
+      return clamp(value + (Math.random() - 0.5) * (hi - lo) * 0.18, lo, hi);
+    });
+    current.forEach((value, i) => {
+      if (values[i]) values[i].textContent = `${value.toFixed(probes[i].dp)}${probes[i].unit}`;
+    });
+    if (current.length === 0) return;
+    history.push(current[0]);
     if (history.length > SAMPLES) history.shift();
-    if (eps) eps.textContent = `${rate.toFixed(1)}k`;
-    if (p99) p99.textContent = `${Math.round(9 + (rate - 38) * 0.28 + Math.random() * 3)} ms`;
-    if (lag) lag.textContent = String(Math.random() < 0.8 ? 0 : Math.ceil(Math.random() * 4));
     if (chart) {
+      const [lo, hi] = range(probes[0]);
+      const span = hi - lo || 1;
       const step = 240 / (SAMPLES - 1);
       const offset = SAMPLES - history.length;
       chart.setAttribute(
         'points',
-        history.map((v, i) => `${((i + offset) * step).toFixed(1)},${(44 - ((v - 36) / 27) * 40).toFixed(1)}`).join(' ')
+        history.map((v, i) => `${((i + offset) * step).toFixed(1)},${(44 - ((v - lo) / span) * 40).toFixed(1)}`).join(' ')
       );
     }
   };
 
-  // Seed the chart so it is never empty, even when motion is reduced.
-  for (let i = 0; i < SAMPLES; i += 1) tick();
+  const select = (index: number) => {
+    const info = stagesInfo[index];
+    if (!info || index === selected) return;
+    selected = index;
+    probes = info.telemetry;
+    current = probes.map((probe) => probe.base);
+    history = [];
+    probes.forEach((probe, i) => {
+      if (labels[i]) labels[i].textContent = probe.label;
+    });
+    if (scope) scope.textContent = info.service;
+    // Seed the chart so it is never empty, even when motion is reduced.
+    for (let i = 0; i < SAMPLES; i += 1) tick();
+  };
 
-  return (running: boolean) => {
-    if (running && timer === undefined) timer = window.setInterval(tick, 1100);
-    if (!running && timer !== undefined) {
-      window.clearInterval(timer);
-      timer = undefined;
+  select(0);
+
+  return {
+    select,
+    setRunning: (running: boolean) => {
+      if (running && timer === undefined) timer = window.setInterval(tick, 1100);
+      if (!running && timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
     }
   };
 }
@@ -270,8 +312,9 @@ function setupTabs() {
   });
 }
 
-const stopTour = payload ? setupCard(payload) : undefined;
-setupFlow(stopTour, setupTelemetry());
+const telemetry = setupTelemetry(payload?.stages ?? []);
+const stopTour = payload ? setupCard(payload, telemetry.select) : undefined;
+setupFlow(stopTour, telemetry.setRunning);
 setupFilter(payload?.labels.showing ?? '{n} / {n}');
 setupTabs();
 
