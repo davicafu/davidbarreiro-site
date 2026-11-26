@@ -14,6 +14,7 @@ import { getPreviewContent } from '../v3/previewContent';
 import ThemeSwitch from '../v3/ThemeSwitch.astro';
 import { getResume } from '../../data/resume';
 import Icon from './Icon.astro';
+import type { IconName } from './icons';
 import Palette, { type CommandGroup } from './Palette.astro';
 import Help from './Help.astro';
 import '../../styles/v9.css';
@@ -130,6 +131,10 @@ const t = {
     methodIntro: 'Seven stages, from the systems that produce data to the people who use it. Select a stage to inspect it.',
     run: 'Run',
     stage: (n: number, total: number) => `Stage ${n} of ${total}`,
+    runState: { queued: 'queued', running: 'running', done: 'passed' },
+    runStatus: { queued: 'Queued', running: 'Running', done: 'Passed' },
+    rerun: 'Re-run',
+    console: 'Output',
     inspector: 'Inspector',
     tech: 'Built with',
     input: 'Input',
@@ -273,6 +278,10 @@ const t = {
     methodIntro: 'Siete etapas, de los sistemas que producen datos a las personas que los usan. Elige una etapa para inspeccionarla.',
     run: 'Ejecución',
     stage: (n: number, total: number) => `Etapa ${n} de ${total}`,
+    runState: { queued: 'en cola', running: 'en curso', done: 'completada' },
+    runStatus: { queued: 'En cola', running: 'En curso', done: 'Completado' },
+    rerun: 'Volver a ejecutar',
+    console: 'Salida',
     inspector: 'Inspector',
     tech: 'Construido con',
     input: 'Entrada',
@@ -364,6 +373,41 @@ const slug = (value: string) =>
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+
+/* ---- Project icons: matched by subject on the project name (EN and ES names) ---- */
+const projectIcon = (name: string): IconName => {
+  const value = slug(name);
+  if (/auth/.test(value)) return 'shieldKey';
+  if (/worker|runtime/.test(value)) return 'workers';
+  if (/microservic|grpc/.test(value)) return 'services';
+  if (/event|analytic|analitic/.test(value)) return 'eventChart';
+  if (/observ|trac|telemetr/.test(value)) return 'radar';
+  if (/game|juego/.test(value)) return 'gamepad';
+  if (/cli|terminal|shell/.test(value)) return 'terminal';
+  return 'repo';
+};
+
+/* ---- Section prompts: the shell command each section "runs" (decorative) ---- */
+const prompts = {
+  portfolio: 'ls ~/projects',
+  system: 'make pipeline',
+  experience: 'git log --tags',
+  skills: 'cat stack.toml',
+  contact: './say --hello'
+};
+
+/* ---- System design run: per-stage duration and log lines, also rendered as the no-JS state ---- */
+const stageMs = c.stages.map((_, index) => 650 + ((index * 3) % 5) * 140);
+const stageLog = c.stages.map((stage, index) => [
+  { kind: 'head', text: `▶ [${pad(index + 1)}/${pad(c.stages.length)}] ${stage.name}` },
+  { kind: 'cmd', text: `$ run ${slug(stage.name)} --with ${stage.tech.map((tech) => slug(tech)).join(',')}` },
+  {
+    kind: 'io',
+    text: `  ${t.input.toLowerCase()}: ${c.stages[index - 1]?.name ?? t.source} → ${t.output.toLowerCase()}: ${c.stages[index + 1]?.name ?? t.sink}`
+  },
+  { kind: 'ok', text: `✓ ${t.runState.done} · ${(stageMs[index] / 1000).toFixed(1)}s` }
+]);
+const totalSeconds = (stageMs.reduce((sum, ms) => sum + ms, 0) / 1000).toFixed(1);
 
 /* ---- Release numbers: the oldest role is v1 ---- */
 const releaseOf = (index: number) => `v${work.length - index}.0`;
@@ -484,9 +528,9 @@ const groups: CommandGroup[] = [
       ogDescription={seo.ogDescription}
       alternates={getAlternateLinks()}
     />
-    <link rel="preload" href="/assets/fonts/funnel-display-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <meta name="theme-color" content="#0a0b0d" />
+    <link rel="preload" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/ibm-plex-mono-500-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#0a0d0b" />
     <script is:inline>
       (function () {
         var root = document.documentElement;
@@ -670,6 +714,7 @@ const groups: CommandGroup[] = [
       <section class="cp-section" id="portfolio" aria-labelledby="portfolio-title" data-projects data-reveal>
         <header class="cp-head">
           <p class="cp-kicker"><span aria-hidden="true">01</span>{t.portfolioKicker}</p>
+          <p class="cp-prompt" aria-hidden="true" style={`--n:${prompts.portfolio.length}`}><span class="cp-prompt-who">david@dev</span><span class="cp-prompt-path">:~$</span> <span class="cp-prompt-cmd">{prompts.portfolio}</span></p>
           <h2 id="portfolio-title">{t.portfolioTitle}</h2>
           <p>{t.projectsIntro}</p>
         </header>
@@ -712,7 +757,7 @@ const groups: CommandGroup[] = [
               <li id={`project-${slug(project.name)}`} data-tags={JSON.stringify(project.allTags)}>
                 <article class="cp-repo">
                   <header>
-                    <span class="cp-repo-icon"><Icon name="repo" /></span>
+                    <span class="cp-repo-icon"><Icon name={projectIcon(project.name)} /></span>
                     <h3>
                       {project.url ? (
                         <a href={project.url} target="_blank" rel="noopener noreferrer">
@@ -752,55 +797,75 @@ const groups: CommandGroup[] = [
       <section class="cp-section" id="system-design" aria-labelledby="system-design-title" data-reveal>
         <header class="cp-head">
           <p class="cp-kicker"><span aria-hidden="true">02</span>{t.systemKicker}</p>
+          <p class="cp-prompt" aria-hidden="true" style={`--n:${prompts.system.length}`}><span class="cp-prompt-who">david@dev</span><span class="cp-prompt-path">:~$</span> <span class="cp-prompt-cmd">{prompts.system}</span></p>
           <h2 id="system-design-title">{t.systemTitle}</h2>
           <p>{t.methodIntro}</p>
         </header>
-        <div class="cp-run" data-run>
+        <div class="cp-run is-done" data-run>
           <div class="cp-run-bar">
-            <span class="cp-run-name"><span class="cp-check" aria-hidden="true"></span>{t.run} · data-platform</span>
-            <span class="cp-run-meta" aria-hidden="true">{c.stages.length}/{c.stages.length}</span>
+            <span class="cp-run-name"><span class="cp-run-dot" aria-hidden="true"></span>{t.run} · data-platform</span>
+            <span class="cp-run-status" role="status" data-run-status>{t.runStatus.done}</span>
+            <span class="cp-run-meta" aria-hidden="true">
+              <span data-run-count>{c.stages.length}/{c.stages.length}</span>
+              <span data-run-time>{totalSeconds}s</span>
+            </span>
+            <button type="button" class="cp-run-again" data-rerun hidden>
+              <Icon name="rerun" />{t.rerun}
+            </button>
           </div>
-          <div class="cp-graph" role="tablist" aria-label={t.systemTitle} aria-orientation="horizontal" data-graph>
-            {
-              c.stages.map((stage, index) => (
-                <button
-                  type="button"
-                  class="cp-node"
-                  role="tab"
-                  id={`stage-tab-${index}`}
-                  aria-selected={index === 0 ? 'true' : 'false'}
-                  aria-controls="stage-panel"
-                  tabindex={index === 0 ? 0 : -1}
-                  style={`--i:${index}`}
-                  data-stage={index}
-                >
-                  <span class="cp-node-top">
+          <div class="cp-run-body">
+            <div class="cp-graph" role="tablist" aria-label={t.systemTitle} aria-orientation="vertical" data-graph>
+              {
+                c.stages.map((stage, index) => (
+                  <button
+                    type="button"
+                    class="cp-node"
+                    role="tab"
+                    id={`stage-tab-${index}`}
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    aria-controls="stage-panel"
+                    tabindex={index === 0 ? 0 : -1}
+                    style={`--i:${index};--ms:${stageMs[index]}ms`}
+                    data-stage={index}
+                    data-state="done"
+                  >
                     <span class="cp-node-status" aria-hidden="true"></span>
-                    <span class="cp-node-index">{pad(index + 1)}</span>
-                  </span>
-                  <span class="cp-node-name">{stage.name}</span>
-                  <span class="cp-node-tech">{stage.tech.slice(0, 2).join(' · ')}</span>
-                </button>
-              ))
-            }
-          </div>
-          <div class="cp-inspector" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-0" tabindex="0" data-inspector>
-            <div class="cp-inspector-head">
-              <span class="cp-inspector-label">{t.inspector}</span>
-              <span class="cp-inspector-step" data-inspector-step>{t.stage(1, c.stages.length)}</span>
+                    <span class="cp-node-index" aria-hidden="true">{pad(index + 1)}</span>
+                    <span class="cp-node-name">{stage.name}</span>
+                    <span class="cp-node-time" aria-hidden="true" data-node-time>{(stageMs[index] / 1000).toFixed(1)}s</span>
+                    <span class="cp-node-tech">{stage.tech.slice(0, 3).join(' · ')}</span>
+                    <span class="cp-sr" data-node-state>{t.runState.done}</span>
+                    <span class="cp-node-bar" aria-hidden="true"></span>
+                  </button>
+                ))
+              }
             </div>
-            <h3 data-inspector-name>{c.stages[0].name}</h3>
-            <p data-inspector-detail>{c.stages[0].detail}</p>
-            <div class="cp-inspector-grid">
-              <div>
-                <p class="cp-field">{t.tech}</p>
-                <ul class="cp-chips" data-inspector-tech>
-                  {c.stages[0].tech.map((tech) => <li>{tech}</li>)}
-                </ul>
+            <div class="cp-run-main">
+              <div class="cp-inspector" role="tabpanel" id="stage-panel" aria-labelledby="stage-tab-0" tabindex="0" data-inspector>
+                <div class="cp-inspector-head">
+                  <span class="cp-inspector-label">{t.inspector}</span>
+                  <span class="cp-inspector-step" data-inspector-step>{t.stage(1, c.stages.length)}</span>
+                </div>
+                <h3 data-inspector-name>{c.stages[0].name}</h3>
+                <p data-inspector-detail>{c.stages[0].detail}</p>
+                <div class="cp-inspector-grid">
+                  <div>
+                    <p class="cp-field">{t.tech}</p>
+                    <ul class="cp-chips" data-inspector-tech>
+                      {c.stages[0].tech.map((tech) => <li>{tech}</li>)}
+                    </ul>
+                  </div>
+                  <div class="cp-io">
+                    <p><span class="cp-field">{t.input}</span><span data-inspector-in>{t.source}</span></p>
+                    <p><span class="cp-field">{t.output}</span><span data-inspector-out>{c.stages[1]?.name ?? t.sink}</span></p>
+                  </div>
+                </div>
               </div>
-              <div class="cp-io">
-                <p><span class="cp-field">{t.input}</span><span data-inspector-in>{t.source}</span></p>
-                <p><span class="cp-field">{t.output}</span><span data-inspector-out>{c.stages[1]?.name ?? t.sink}</span></p>
+              <div class="cp-console" aria-hidden="true">
+                <p class="cp-console-title">{t.console}</p>
+                <ol class="cp-console-lines" data-console>
+                  {stageLog.flat().map((line) => <li class={`is-${line.kind}`}>{line.text}</li>)}
+                </ol>
               </div>
             </div>
           </div>
@@ -811,6 +876,7 @@ const groups: CommandGroup[] = [
       <section class="cp-section" id="experience" aria-labelledby="experience-title" data-reveal>
         <header class="cp-head">
           <p class="cp-kicker"><span aria-hidden="true">03</span>{t.timelineKicker}</p>
+          <p class="cp-prompt" aria-hidden="true" style={`--n:${prompts.experience.length}`}><span class="cp-prompt-who">david@dev</span><span class="cp-prompt-path">:~$</span> <span class="cp-prompt-cmd">{prompts.experience}</span></p>
           <h2 id="experience-title">{t.timelineTitle}</h2>
           <p>{t.workIntro}</p>
         </header>
@@ -879,6 +945,7 @@ const groups: CommandGroup[] = [
       <section class="cp-section" id="skills" aria-labelledby="skills-title" data-reveal>
         <header class="cp-head">
           <p class="cp-kicker"><span aria-hidden="true">04</span>{t.skillsKicker}</p>
+          <p class="cp-prompt" aria-hidden="true" style={`--n:${prompts.skills.length}`}><span class="cp-prompt-who">david@dev</span><span class="cp-prompt-path">:~$</span> <span class="cp-prompt-cmd">{prompts.skills}</span></p>
           <h2 id="skills-title">{t.skillsTitle}</h2>
           <p>{t.skillsIntro}</p>
         </header>
@@ -988,6 +1055,7 @@ const groups: CommandGroup[] = [
       <section class="cp-section cp-contact" id="contact" aria-labelledby="contact-title" data-reveal>
         <div class="cp-contact-card">
           <p class="cp-kicker"><span aria-hidden="true">05</span>{t.contactKicker}</p>
+          <p class="cp-prompt" aria-hidden="true" style={`--n:${prompts.contact.length}`}><span class="cp-prompt-who">david@dev</span><span class="cp-prompt-path">:~$</span> <span class="cp-prompt-cmd">{prompts.contact}</span></p>
           <h2 id="contact-title">{t.contactTitle}</h2>
           <p>{t.contactText}</p>
           <div class="cp-mailbox">
@@ -1007,6 +1075,17 @@ const groups: CommandGroup[] = [
         </div>
       </section>
     </main>
+
+    <div class="cp-statusbar" aria-hidden="true">
+      <span class="cp-sb-mode">DEV</span>
+      <span class="cp-sb-item">⎇ main</span>
+      <span class="cp-sb-item cp-sb-path" data-sb-path>~</span>
+      <span class="cp-sb-fill"></span>
+      <span class="cp-sb-item">utf-8</span>
+      <span class="cp-sb-item">{locale}</span>
+      <span class="cp-sb-item cp-sb-keys"><span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span> · ?</span>
+      <span class="cp-sb-item cp-sb-pos" data-sb-pos>Top</span>
+    </div>
 
     <footer class="cp-footer">
       <p>© {nowYear} {c.name} · {t.footerRole}</p>
@@ -1030,6 +1109,12 @@ const groups: CommandGroup[] = [
       id="cp-data"
       set:html={JSON.stringify({
         stages: c.stages,
+        run: {
+          ms: stageMs,
+          log: stageLog,
+          state: t.runState,
+          status: t.runStatus
+        },
         labels: {
           stage: t.stage(0, 0).replace(/\d+/g, '{n}'),
           showing: t.showing(0, 0).replace(/\d+/g, '{n}'),

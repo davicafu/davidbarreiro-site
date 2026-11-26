@@ -1,7 +1,7 @@
 /**
  * Client behaviour for the Dev theme (/ and /es/): the inline and ⌘K palettes,
- * the scripted demo, the help dialog, the pipeline inspector, the CV menu, the release list, the project
- * filter and the skill tabs. No dependencies; without this script every palette option is
+ * the scripted demo, the help dialog, the pipeline run and inspector, the release list, the project
+ * filter, the skill tabs and the status bar. No dependencies; without this script every palette option is
  * still a plain link and every section is readable.
  */
 
@@ -11,8 +11,16 @@ interface Stage {
   tech: string[];
 }
 
+type RunState = 'queued' | 'running' | 'done';
+
 interface Payload {
   stages: Stage[];
+  run: {
+    ms: number[];
+    log: { kind: string; text: string }[][];
+    state: Record<RunState, string>;
+    status: Record<RunState, string>;
+  };
   labels: {
     stage: string;
     showing: string;
@@ -509,27 +517,141 @@ function setupPipeline(payload: Payload) {
     });
   });
 
-  // The run lights up its stages once, the first time it scrolls into view.
-  if (run) {
-    if (reducedMotion.matches || !('IntersectionObserver' in window)) {
-      run.classList.add('is-done');
-    } else {
-      run.classList.add('is-pending');
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry.isIntersecting) return;
-          observer.disconnect();
-          run.classList.remove('is-pending');
-          run.classList.add('is-running');
-          window.setTimeout(() => run.classList.add('is-done'), 260 * total + 300);
-        },
-        { threshold: 0.35 }
-      );
-      observer.observe(run);
-    }
-  }
+  if (run) setupRun(payload, run, tabs);
 }
 
+/* ---------------- Pipeline run: a CI-style log, stage by stage ---------------- */
+function setupRun(payload: Payload, run: HTMLElement, nodes: HTMLElement[]) {
+  const status = run.querySelector<HTMLElement>('[data-run-status]');
+  const count = run.querySelector<HTMLElement>('[data-run-count]');
+  const time = run.querySelector<HTMLElement>('[data-run-time]');
+  const lines = run.querySelector<HTMLElement>('[data-console]');
+  const rerun = run.querySelector<HTMLButtonElement>('[data-rerun]');
+  const { ms, log, state, status: statusText } = payload.run;
+  const total = nodes.length;
+  // Without JS, or with reduced motion, the markup already shows the finished run.
+  if (reducedMotion.matches || !('IntersectionObserver' in window) || !lines) return;
+
+  let timers: number[] = [];
+  let clock: number | undefined;
+  let done = 0;
+  const later = (fn: () => void, delay: number) => {
+    timers.push(window.setTimeout(fn, delay));
+  };
+  const setRun = (value: RunState | 'pending') => {
+    run.classList.toggle('is-pending', value === 'pending' || value === 'queued');
+    run.classList.toggle('is-running', value === 'running');
+    run.classList.toggle('is-done', value === 'done');
+  };
+  const setNode = (index: number, value: RunState) => {
+    const node = nodes[index];
+    if (!node) return;
+    node.dataset.state = value;
+    const label = node.querySelector<HTMLElement>('[data-node-state]');
+    if (label) label.textContent = state[value];
+  };
+  const print = (line: { kind: string; text: string }) => {
+    const item = document.createElement('li');
+    item.className = `is-${line.kind} is-new`;
+    item.textContent = line.text;
+    lines.append(item);
+    // Follow the output inside the console only; the page does not scroll.
+    lines.scrollTop = lines.scrollHeight;
+  };
+
+  const reset = () => {
+    timers.forEach((id) => window.clearTimeout(id));
+    timers = [];
+    window.clearInterval(clock);
+    done = 0;
+    nodes.forEach((_, index) => setNode(index, 'queued'));
+    lines.replaceChildren();
+    if (count) count.textContent = `0/${total}`;
+    if (time) time.textContent = '0.0s';
+    if (status) status.textContent = statusText.queued;
+    setRun('queued');
+  };
+
+  const start = () => {
+    reset();
+    setRun('running');
+    if (status) status.textContent = statusText.running;
+    const began = performance.now();
+    clock = window.setInterval(() => {
+      if (time) time.textContent = `${((performance.now() - began) / 1000).toFixed(1)}s`;
+    }, 100);
+    let at = 250;
+    ms.forEach((duration, index) => {
+      const stageLines = log[index] || [];
+      later(() => {
+        setNode(index, 'running');
+        if (stageLines[0]) print(stageLines[0]);
+      }, at);
+      // Body lines stream in while the stage runs; the last line closes it.
+      stageLines.slice(1, -1).forEach((line, n) => later(() => print(line), at + ((n + 1) * duration) / stageLines.length));
+      later(() => {
+        const last = stageLines[stageLines.length - 1];
+        if (last && stageLines.length > 1) print(last);
+        setNode(index, 'done');
+        done += 1;
+        if (count) count.textContent = `${done}/${total}`;
+      }, at + duration);
+      at += duration + 120;
+    });
+    later(() => {
+      window.clearInterval(clock);
+      const seconds = ms.reduce((sum, value) => sum + value, 0) / 1000;
+      if (time) time.textContent = `${seconds.toFixed(1)}s`;
+      if (status) status.textContent = statusText.done;
+      setRun('done');
+    }, at);
+  };
+
+  reset();
+  setRun('pending');
+  if (rerun) {
+    rerun.hidden = false;
+    rerun.addEventListener('click', start);
+  }
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      start();
+    },
+    { threshold: 0.3 }
+  );
+  observer.observe(run);
+}
+
+/* ---------------- Status bar: current section and scroll position ---------------- */
+function setupStatusBar() {
+  const path = document.querySelector<HTMLElement>('[data-sb-path]');
+  const pos = document.querySelector<HTMLElement>('[data-sb-pos]');
+  if (!path || !pos) return;
+  const sections = [...document.querySelectorAll<HTMLElement>('main section[id]')];
+  let frame = 0;
+  const update = () => {
+    frame = 0;
+    const line = window.innerHeight * 0.35;
+    let current = '';
+    sections.forEach((section) => {
+      if (section.getBoundingClientRect().top <= line) current = section.id;
+    });
+    path.textContent = current ? `~/${current}` : '~';
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = max > 0 ? window.scrollY / max : 0;
+    pos.textContent = ratio <= 0.01 ? 'Top' : ratio >= 0.99 ? 'Bot' : `${Math.round(ratio * 100)}%`;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    },
+    { passive: true }
+  );
+  update();
+}
 
 /* ---------------- Copy buttons ---------------- */
 function setupCopyButtons() {
@@ -666,5 +788,6 @@ setupCopyButtons();
 setupFilter(data?.labels.showing ?? '{n} / {n}');
 setupReveal();
 setupGlow();
+setupStatusBar();
 
 export {};
