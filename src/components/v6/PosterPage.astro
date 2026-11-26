@@ -1,6 +1,6 @@
 ---
 /**
- * Redesign "Swiss poster" (routes /v6/ and /es/v6/).
+ * "Editorial" theme (routes /editorial/ and /es/editorial/).
  * International Typographic Style: a strict grid, huge numerals, flat colour fields.
  * Section order and headings match the main site (src/pages/index.astro, src/js/i18n.js);
  * the poster identity comes from the visuals, not from renamed sections. Standalone page:
@@ -25,7 +25,7 @@ const basics = getResume(locale).basics;
 // Main-site strings: EN from src/pages/index.astro, ES from src/js/i18n.js.
 const t = {
   en: {
-    home: '/v6/',
+    home: '/editorial/',
     sections: 'Sections',
     nav: { portfolio: 'Portfolio', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
     langLabel: 'Language',
@@ -68,7 +68,7 @@ const t = {
     footerRole: 'Software Engineer'
   },
   es: {
-    home: '/es/v6/',
+    home: '/es/editorial/',
     sections: 'Secciones',
     nav: { portfolio: 'Proyectos', experience: 'Experiencia', skills: 'Habilidades', contact: 'Contacto' },
     langLabel: 'Idioma',
@@ -187,8 +187,8 @@ const issuers = [...new Set(verified.map((cert) => cert.issuer).filter(Boolean))
       <div class="sp-bar-end">
         <ThemeSwitch locale={locale} current="poster" />
         <div class="sp-lang" role="group" aria-label={t.langLabel}>
-          <a href="/v6/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-          <a href="/es/v6/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+          <a href="/editorial/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+          <a href="/es/editorial/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
         </div>
         <a class="sp-btn sp-btn-sm" href="#contact">{t.nav.contact}</a>
       </div>

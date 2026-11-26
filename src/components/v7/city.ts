@@ -1,5 +1,5 @@
 /**
- * Client behaviour for the isometric-infrastructure redesign (/v7/): layer detail card with a
+ * Client behaviour for the isometric-infrastructure redesign (/live/): layer detail card with a
  * guided tour, traffic pause with simulated telemetry, CV menu, project filter and skill tabs.
  * No dependencies; every feature degrades to readable static content when this script does not run.
  */

@@ -1,5 +1,5 @@
 /**
- * Client behaviour for the Swiss poster redesign (/v6/): method blocks, CV menu,
+ * Client behaviour for the Swiss poster redesign (/editorial/): method blocks, CV menu,
  * project filter, skill tabs and scroll reveals. No dependencies; without this
  * script every section stays readable (reveals only hide content once JS is on).
  */

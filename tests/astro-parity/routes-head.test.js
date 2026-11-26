@@ -33,10 +33,12 @@ test('built routes expose expected lang/canonical/hreflang contracts', async () 
   }
 });
 
-test('theme alternatives stay out of search and the old Dev preview route redirects home', async () => {
-  for (const route of ['v6/index.html', 'v7/index.html', 'es/v6/index.html', 'es/v7/index.html']) {
+test('theme alternatives stay out of search and the old preview routes redirect', async () => {
+  for (const route of ['editorial/index.html', 'live/index.html', 'es/editorial/index.html', 'es/live/index.html']) {
     assert.match(await readBuiltPage(route), /<meta name="robots" content="noindex, follow"/i, route);
   }
   assert.match(await readBuiltPage('v9/index.html'), /http-equiv="refresh" content="0;url=\/"/i);
   assert.match(await readBuiltPage('es/v9/index.html'), /http-equiv="refresh" content="0;url=\/es\/"/i);
+  assert.match(await readBuiltPage('v6/index.html'), /http-equiv="refresh" content="0;url=\/editorial\/"/i);
+  assert.match(await readBuiltPage('es/v7/index.html'), /http-equiv="refresh" content="0;url=\/es\/live\/"/i);
 });

@@ -1,6 +1,6 @@
 ---
 /**
- * Theme menu shared by the themes: Dev (/, the default), Editorial (/v6/) and Live (/v7/).
+ * Theme menu shared by the themes: Dev (/, the default), Editorial (/editorial/) and Live (/live/).
  * Each theme is its own page, so switching is a link that keeps the locale and the section
  * the visitor is reading. It renders as a "Theme" menu button with a popover listing the
  * themes. Pages style it through the --ts-* custom properties; the defaults are neutral.
@@ -24,14 +24,14 @@ const themes: {
 }[] = [
   {
     id: 'poster',
-    path: '/v6/',
+    path: '/editorial/',
     colors: ['#f2efe6', '#e0251b', '#1e43c8'],
     label: { en: 'Editorial', es: 'Editorial' },
     hint: { en: 'Typographic, light', es: 'Tipográfico, claro' }
   },
   {
     id: 'infra',
-    path: '/v7/',
+    path: '/live/',
     colors: ['#0a0d13', '#c6f432', '#5cc8ff'],
     label: { en: 'Live', es: 'Live' },
     hint: { en: 'Live telemetry, dark', es: 'Telemetría en directo, oscuro' }

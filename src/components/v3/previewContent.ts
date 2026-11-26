@@ -62,6 +62,16 @@ const toCertificate = (cert: {
 // resume.json stores logos as "./assets/..."; pages live at nested routes, so make them root-relative.
 const toPublicPath = (value: unknown) => (typeof value === 'string' ? value.replace(/^\.\//, '/') : '');
 
+// AI skills carry a text label instead of a logo file; give each concept its own icon.
+const AI_SKILL_ICONS: Record<string, string> = {
+  'Agentic Systems': '/assets/logos/ai-agentic.svg',
+  'Context Engineering': '/assets/logos/ai-context.svg',
+  'LLM Integration': '/assets/logos/ai-llm.svg',
+  'Human-in-the-Loop Development': '/assets/logos/ai-human-loop.svg'
+};
+const skillLogo = (name: string, logo: unknown) =>
+  typeof logo === 'string' && /\.(svg|png|webp|avif)$/i.test(logo) ? toPublicPath(logo) : AI_SKILL_ICONS[name] ?? '';
+
 const PROJECT_ONE_LINERS: Record<Locale, Record<string, string>> = {
   en: {
     'go-auth-kit':
@@ -264,7 +274,7 @@ export function getPreviewContent(locale: Locale) {
           : {
               name: keyword.name || '',
               level: keyword.level || '',
-              logo: toPublicPath(keyword.logo),
+              logo: skillLogo(keyword.name || '', keyword.logo),
               certifications:
                 'certifications' in keyword && Array.isArray(keyword.certifications)
                   ? keyword.certifications.map(toCertificate)
@@ -291,6 +301,8 @@ export function getPreviewContent(locale: Locale) {
     cvUrl: '/cv-professional.pdf',
     capabilities: CAPABILITIES[locale],
     work,
+    // The current job's pipeline as shown in every theme's hero, e.g. MySQL → Kafka → ClickHouse.
+    nowPipeline: (work[0]?.tech ?? []).slice(0, 3),
     education,
     timeline: [...work, ...education].sort((a, b) => b.start - a.start),
     stages,
