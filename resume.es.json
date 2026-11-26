@@ -111,7 +111,7 @@
       "name": "Factorial",
       "position": "Ingeniero de Software Senior",
       "startDate": "2026-10",
-      "summary": "Mantengo fiable y rápida la plataforma de datos que sostiene los informes y la analítica de Factorial: el pipeline de eventos (Kafka → ClickHouse), los controles de calidad de datos y el motor de consultas analíticas.",
+      "summary": "Mantengo fiable y rápida la plataforma de datos que sostiene los informes y la analítica de Factorial: el pipeline de eventos (MySQL → Kafka → ClickHouse), los controles de calidad de datos y el motor de consultas analíticas.",
       "tech": ["MySQL", "Kafka", "ClickHouse", "Go"],
       "highlights": [
         "Mantener y mejorar la fiabilidad y el rendimiento de la plataforma de datos y la infraestructura analítica de Factorial.",

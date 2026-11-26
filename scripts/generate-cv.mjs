@@ -124,7 +124,7 @@ function renderHeader(basics, photoUrl) {
       <h1>${escapeHtml(basics.name)}</h1>
       <p class="label">${escapeHtml(basics.label)}</p>
       <p class="location">${location ? `<span class="contact">${icon('location')}${escapeHtml(location)}</span>` : ''}</p>
-      <p class="contacts">${contacts.join('<span class="sep">·</span>')}</p>
+      <p class="contacts">${contacts.join('')}</p>
     </div>
     ${photoUrl ? `<img class="photo" src="${escapeHtml(photoUrl)}" alt="">` : ''}
   </header>
@@ -215,12 +215,11 @@ const STYLES = `
   h1 { font-size: 25pt; font-weight: 300; line-height: 1.05; letter-spacing: -0.3pt; }
   .label { font-size: 12pt; margin-top: 1mm; }
   .location { color: var(--muted); margin-top: 0.6mm; }
-  .contacts { margin-top: 1.4mm; display: flex; flex-wrap: wrap; }
+  .contacts { margin-top: 1.4mm; display: flex; flex-wrap: wrap; gap: 0.8mm 4mm; }
   .contacts a { white-space: nowrap; }
   .contact { display: inline-flex; align-items: center; gap: 1mm; white-space: nowrap; }
   .icon { width: 1.05em; height: 1.05em; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.8;
           stroke-linecap: round; stroke-linejoin: round; }
-  .sep { color: var(--muted); margin: 0 1.6mm; }
   .photo { width: 26mm; height: 26mm; object-fit: cover; border-radius: 1.5mm; flex: none; }
   .summary { margin-top: 2.6mm; }
   section { margin-top: 3mm; }
