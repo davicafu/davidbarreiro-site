@@ -1,6 +1,6 @@
 ---
 /**
- * "Live" theme (routes /live/ and /es/live/): the main site's sections, in the same order and with the
+ * "Live" theme (default theme at / and /es/): the main site's sections, in the same order and with the
  * same names, drawn as software infrastructure. The data-platform method is an isometric topology
  * (app servers, connector pods, broker racks, a node pool, storage volumes, a monitoring tower and
  * Go service pods) joined by a live data link; jobs read as releases and projects as services.
@@ -25,7 +25,7 @@ const c = getPreviewContent(locale);
 
 const t = {
   en: {
-    home: '/live/',
+    home: '/',
     nav: { portfolio: 'Portfolio', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
     sections: 'Sections',
     langLabel: 'Language selector',
@@ -98,7 +98,7 @@ const t = {
     skip: 'Skip to content'
   },
   es: {
-    home: '/es/live/',
+    home: '/es/',
     nav: { portfolio: 'Proyectos', experience: 'Experiencia', skills: 'Habilidades', contact: 'Contacto' },
     sections: 'Secciones',
     langLabel: 'Selector de idioma',
@@ -543,7 +543,6 @@ const heroRack = [0, 1, 2].map((k) => {
       ogTitle={seo.ogTitle}
       ogDescription={seo.ogDescription}
       alternates={getAlternateLinks()}
-      noindex
     />
     <link rel="preload" href="/assets/fonts/mona-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="theme-color" content="#0a0d13" />
@@ -569,8 +568,8 @@ const heroRack = [0, 1, 2].map((k) => {
       <div class="cy-bar-end">
         <ThemeSwitch locale={locale} current="infra" />
         <div class="cy-lang" role="group" aria-label={t.langLabel}>
-          <a href="/live/" hreflang="en" lang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-          <a href="/es/live/" hreflang="es" lang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+          <a href="/" hreflang="en" lang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+          <a href="/es/" hreflang="es" lang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
         </div>
         <a class="cy-btn cy-btn-sm" href="#contact">{t.nav.contact}</a>
       </div>

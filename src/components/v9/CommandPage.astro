@@ -29,8 +29,8 @@ const c = getPreviewContent(locale);
 
 const t = {
   en: {
-    home: '/',
-    other: { href: '/es/', label: 'Ver en español', code: 'ES' },
+    home: '/dev/',
+    other: { href: '/es/dev/', label: 'Ver en español', code: 'ES' },
     sections: 'Sections',
     // Navigation and section names are shared by every theme.
     nav: { portfolio: 'Portfolio', experience: 'Experience', skills: 'Skills', contact: 'Contact' },
@@ -177,8 +177,8 @@ const t = {
     footerRole: 'Software Engineer'
   },
   es: {
-    home: '/es/',
-    other: { href: '/', label: 'View in English', code: 'EN' },
+    home: '/es/dev/',
+    other: { href: '/dev/', label: 'View in English', code: 'EN' },
     sections: 'Secciones',
     nav: { portfolio: 'Proyectos', experience: 'Experiencia', skills: 'Habilidades', contact: 'Contacto' },
     langLabel: 'Idioma',
@@ -397,7 +397,9 @@ const prompts = {
 };
 
 /* ---- System design run: per-stage duration and log lines, also rendered as the no-JS state ---- */
-const stageMs = c.stages.map((_, index) => 650 + ((index * 3) % 5) * 140);
+// Uneven 1.8-3.0 s stage durations so the run reads like a real pipeline.
+const STAGE_MS = [2200, 2800, 1800, 2500, 3000, 2000, 2600, 1900];
+const stageMs = c.stages.map((_, index) => STAGE_MS[index % STAGE_MS.length]);
 const stageLog = c.stages.map((stage, index) => [
   { kind: 'head', text: `▶ [${pad(index + 1)}/${pad(c.stages.length)}] ${stage.name}` },
   { kind: 'cmd', text: `$ run ${slug(stage.name)} --with ${stage.tech.map((tech) => slug(tech)).join(',')}` },
@@ -452,8 +454,8 @@ const groups: CommandGroup[] = [
     key: 'theme',
     label: t.groups.theme,
     items: [
-      { id: 'theme-dev', label: `${t.cmd.theme}: ${t.cmd.themeDev}`, meta: '/', keywords: 'theme tema dev command comandos palette paleta', icon: 'swatch', href: `${prefix}/`, action: 'go' },
-      { id: 'theme-infra', label: `${t.cmd.theme}: ${t.cmd.themeInfra}`, meta: '/live/', keywords: 'theme tema infra isometric isométrica', icon: 'swatch', href: `${prefix}/live/`, action: 'go' },
+      { id: 'theme-dev', label: `${t.cmd.theme}: ${t.cmd.themeDev}`, meta: '/dev/', keywords: 'theme tema dev command comandos palette paleta', icon: 'swatch', href: `${prefix}/dev/`, action: 'go' },
+      { id: 'theme-infra', label: `${t.cmd.theme}: ${t.cmd.themeInfra}`, meta: '/', keywords: 'theme tema infra isometric isométrica', icon: 'swatch', href: `${prefix}/`, action: 'go' },
       { id: 'theme-poster', label: `${t.cmd.theme}: ${t.cmd.themePoster}`, meta: '/editorial/', keywords: 'theme tema poster cartel swiss suizo', icon: 'swatch', href: `${prefix}/editorial/`, action: 'go' }
     ]
   },
@@ -527,6 +529,7 @@ const groups: CommandGroup[] = [
       ogTitle={seo.ogTitle}
       ogDescription={seo.ogDescription}
       alternates={getAlternateLinks()}
+      noindex
     />
     <link rel="preload" href="/assets/fonts/ibm-plex-mono-400-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/fonts/ibm-plex-mono-500-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -565,8 +568,8 @@ const groups: CommandGroup[] = [
         <div class="cp-bar-end">
           <ThemeSwitch locale={locale} current="command" />
           <div class="cp-lang" role="group" aria-label={t.langLabel}>
-            <a href="/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
-            <a href="/es/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
+            <a href="/dev/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+            <a href="/es/dev/" hreflang="es" aria-current={locale === 'es' ? 'page' : undefined}>ES</a>
           </div>
           <a class="cp-btn cp-btn-primary cp-btn-sm" href="#contact">{t.nav.contact}</a>
         </div>

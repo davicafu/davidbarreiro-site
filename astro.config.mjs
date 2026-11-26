@@ -9,9 +9,11 @@ export default defineConfig({
   redirects: {
     '/v6': '/editorial/',
     '/es/v6': '/es/editorial/',
-    '/v7': '/live/',
-    '/es/v7': '/es/live/',
-    '/v9': '/',
-    '/es/v9': '/es/'
+    '/v7': '/',
+    '/es/v7': '/es/',
+    '/live': '/',
+    '/es/live': '/es/',
+    '/v9': '/dev/',
+    '/es/v9': '/es/dev/'
   }
 });

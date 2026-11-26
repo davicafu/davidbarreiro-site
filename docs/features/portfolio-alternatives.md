@@ -181,3 +181,5 @@ Branch: `feat/portfolio-alternatives`. Checks: `pnpm run lint`, `pnpm run build`
   - build OK; tests 7/7; v9 probe ALL PASS (162 checks); v7 and v6 probes report `errors []`
   - The Live stutter was GPU raster work: the blurred SVG backdrop was re-rasterised under the moving packets. With static and live layers split, GPU time is about 4x lower and p95 is 16.7 ms with no throttling.
   - Open: the owner's decision on adding the AI-workflow line to Factorial, and on the Editorial accordion breakpoint (860px chosen instead of 560px).
+
+- L25 (2026-11-26): "live pasa a ser el por defecto" · Dev run stages "entre 1.8 y 3.0s y no tienen por que duranr todas igual" · Dev skills meters misaligned · Cloud, dbt, RabbitMQ and Airflow showed empty meters. Done: Live at / and /es/ (indexable), Dev at /dev/ and /es/dev/ (noindex), /live and /v7 redirect to /, /v9 to /dev/; uneven stage durations 1.8-3.0 s; meter label column widened to 12ch ("Intermediate"); root cause of empty meters was lowercase "intermediate" and the "Intemediate" typo in resume.json (fixed in the working tree, left unstaged for the user).

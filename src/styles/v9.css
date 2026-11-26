@@ -2289,7 +2289,7 @@ a.cp-tag-cert:hover {
   font: 400 12px/1 var(--mono);
 }
 .cp-meter-label {
-  min-width: 11ch;
+  min-width: 12ch;
 }
 .cp-meter-bars {
   display: inline-flex;

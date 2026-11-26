@@ -34,11 +34,22 @@ test('built routes expose expected lang/canonical/hreflang contracts', async () 
 });
 
 test('theme alternatives stay out of search and the old preview routes redirect', async () => {
-  for (const route of ['editorial/index.html', 'live/index.html', 'es/editorial/index.html', 'es/live/index.html']) {
+  for (const route of ['editorial/index.html', 'dev/index.html', 'es/editorial/index.html', 'es/dev/index.html']) {
     assert.match(await readBuiltPage(route), /<meta name="robots" content="noindex, follow"/i, route);
   }
-  assert.match(await readBuiltPage('v9/index.html'), /http-equiv="refresh" content="0;url=\/"/i);
-  assert.match(await readBuiltPage('es/v9/index.html'), /http-equiv="refresh" content="0;url=\/es\/"/i);
-  assert.match(await readBuiltPage('v6/index.html'), /http-equiv="refresh" content="0;url=\/editorial\/"/i);
-  assert.match(await readBuiltPage('es/v7/index.html'), /http-equiv="refresh" content="0;url=\/es\/live\/"/i);
+  const redirects = {
+    'v9/index.html': '/dev/',
+    'es/v9/index.html': '/es/dev/',
+    'v7/index.html': '/',
+    'es/v7/index.html': '/es/',
+    'live/index.html': '/',
+    'es/live/index.html': '/es/',
+    'v6/index.html': '/editorial/'
+  };
+  for (const [route, target] of Object.entries(redirects)) {
+    const escaped = target.replace(/\//g, '\\/');
+    assert.match(await readBuiltPage(route), new RegExp(`http-equiv="refresh" content="0;url=${escaped}"`, 'i'), route);
+  }
+  // Live is the default theme at the root.
+  assert.match(await readBuiltPage('index.html'), /class="[^"]*cy-/i);
 });
