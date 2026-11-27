@@ -299,6 +299,18 @@ function setupDialog() {
     focusInput();
   };
 
+  // On phones the palette is a bottom sheet and the on-screen keyboard overlays it (iOS never
+  // resizes the layout viewport), so lift the sheet by the part of the screen the keyboard covers.
+  const viewport = window.visualViewport;
+  if (viewport) {
+    const lift = () => {
+      const covered = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      dialog.style.setProperty('--cp-keyboard', `${Math.round(covered)}px`);
+    };
+    viewport.addEventListener('resize', lift);
+    viewport.addEventListener('scroll', lift);
+  }
+
   openPalette = open;
   document.querySelectorAll<HTMLElement>('[data-open-palette]').forEach((button) =>
     button.addEventListener('click', () => open())
