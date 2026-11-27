@@ -71,7 +71,10 @@ const total = groups.reduce((sum, group) => sum + group.items.length, 0);
     />
     {
       variant === 'modal' ? (
-        <kbd class="cp-kbd">esc</kbd>
+        <button type="button" class="cp-help-close" data-close>
+          <span class="cp-sr">{labels.close}</span>
+          <kbd class="cp-kbd" aria-hidden="true">esc</kbd>
+        </button>
       ) : (
         <kbd class="cp-kbd" data-shortcut>
           <span data-os="mac">⌘K</span><span data-os="other">Ctrl K</span>

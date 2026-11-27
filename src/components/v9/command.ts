@@ -321,6 +321,8 @@ function setupDialog() {
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) close();
   });
+  // Phones have no Esc key and the full-screen sheet leaves no backdrop to tap.
+  root.querySelector('[data-close]')?.addEventListener('click', close);
   document.addEventListener('keydown', (event) => {
     const target = event.target as HTMLElement | null;
     const typing =

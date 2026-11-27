@@ -2743,6 +2743,11 @@ a.cp-tag-cert:hover {
   .cp-dialog[open] {
     animation: cp-sheet 180ms var(--ease);
   }
+  /* The esc buttons are the only way out of the full-screen sheets on touch */
+  .cp-help-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
   .cp-help-keys > div,
   .cp-help-try li {
     grid-template-columns: 6.5rem minmax(0, 1fr);
