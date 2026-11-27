@@ -299,16 +299,19 @@ function setupDialog() {
     focusInput();
   };
 
-  // On phones the palette is a bottom sheet and the on-screen keyboard overlays it (iOS never
-  // resizes the layout viewport), so lift the sheet by the part of the screen the keyboard covers.
+  // On phones the palette and help are full-screen sheets. The on-screen keyboard overlays the
+  // page (iOS never resizes the layout viewport) and may scroll it, so size and place both sheets
+  // to the visible part of the screen: the input stays on top, the footer right above the keyboard.
   const viewport = window.visualViewport;
   if (viewport) {
-    const lift = () => {
-      const covered = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      dialog.style.setProperty('--cp-keyboard', `${Math.round(covered)}px`);
+    const fit = () => {
+      const html = document.documentElement.style;
+      html.setProperty('--cp-vv-height', `${Math.round(viewport.height)}px`);
+      html.setProperty('--cp-vv-top', `${Math.round(viewport.offsetTop)}px`);
     };
-    viewport.addEventListener('resize', lift);
-    viewport.addEventListener('scroll', lift);
+    fit();
+    viewport.addEventListener('resize', fit);
+    viewport.addEventListener('scroll', fit);
   }
 
   openPalette = open;
@@ -444,6 +447,14 @@ function setupHeroPalette() {
   ['pointerdown', 'keydown', 'focusin', 'wheel', 'touchstart'].forEach((type) =>
     root.addEventListener(type, stop, { passive: true })
   );
+
+  // On phones the keyboard would cover the inline results, so typing happens in the full-screen sheet.
+  const phone = window.matchMedia('(max-width: 720px)');
+  input.addEventListener('focus', () => {
+    if (!phone.matches || !openPalette) return;
+    input.blur();
+    openPalette(input.value);
+  });
 
   if (!stopped) {
     root.classList.add('is-demo');
